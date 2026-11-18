@@ -91,7 +91,7 @@
     handoff = null;
     window.R2TransferLoading.close();
     window.R2TransferLoading.open("Starting MISSY and preparing the selected runs…");
-    const child = window.open("missy/index.html#workbench=" + token, "_blank");
+    const child = window.open("missy/index.html?v=" + encodeURIComponent(R2.VERSION) + "#workbench=" + token, "_blank");
     if (!child) { status.textContent = "Allow pop-ups for this file to open MISSY."; window.R2TransferLoading.fail(status.textContent); return; }
     handoff = { child, token, runs, sent: false };
     const current = handoff;

@@ -3,7 +3,7 @@
  * The Cq written is the one computed on the quality-manager bench with the settings shown there. */
 (function (R2) {
   "use strict";
-  const publicTarget = value => ({ "SIMPLEX-35S": "P-35S", "SIMPLEX-TNOS": "T-nos", "SIMPLEX-LEC": "LE1", "SIMPLEX-HMG": "hmgA" }[value] || value);
+  const publicTarget = value => R2.publicAssayTarget ? R2.publicAssayTarget(value) : ({ "SIMPLEX-35S": "P-35S", "SIMPLEX-TNOS": "T-nos", "SIMPLEX-LEC": "LE1", "SIMPLEX-HMG": "hmgA" }[value] || value);
   const e = R2.esc, id = s => e(String(s).replace(/\s+/g, "_"));
   const sampleKey = (w, i) => (w.label ? w.label + " · " : "") + (w.sample || R2.wellName(i)) + " [" + (w.sampleId || w.role) + "]";
   R2.rdmlSampleKey = sampleKey;

@@ -4,7 +4,7 @@
   const clone = value => JSON.parse(JSON.stringify(value));
   const escape = value => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const rapidNames = { "MARA-17-35S": "P-35S", "MARA-17-NOS": "T-NOS", "MARA-17-PAT": "pat", "MARA-17-E9": "tE9" };
-  const publicTarget = value => ({ "SIMPLEX-35S": "P-35S", "SIMPLEX-TNOS": "T-nos", "SIMPLEX-LEC": "LE1", "SIMPLEX-HMG": "hmgA" }[value] || value);
+  const publicTarget = value => R2.publicAssayTarget ? R2.publicAssayTarget(value) : ({ "SIMPLEX-35S": "P-35S", "SIMPLEX-TNOS": "T-nos", "SIMPLEX-LEC": "LE1", "SIMPLEX-HMG": "hmgA" }[value] || value);
   const targetRule = (method, cqMax) => ({
     match: "/^(?:" + escape(publicTarget(method.id)) + "|" + escape(method.target) + ")$/i",
     kind: method.role === "species reference gene" ? "reference" : "target",
@@ -68,7 +68,7 @@
       p.evaluationMode = "automatic-with-evidence";
       p.profileFamily = "R2-workbench";
       p.version = "1.2";
-      const lab = document.definition.procedure === "simplex";
+      const lab = !!R2.LAB[document.definition.procedure];
       p.workbenchRules = { family: lab ? "screening-lod" : "reference-method",
         sourceSop: document.sop_id, stage: document.definition.stage, expectedTargets: document.methods.map(method => publicTarget(method.id)), negativeCq: lab ? R2.LAB.simplex.rules.negativeCq : null,
         referenceRange: lab ? R2.LAB.simplex.rules.taxon : null };

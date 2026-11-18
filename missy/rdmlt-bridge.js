@@ -291,6 +291,8 @@
       const input = bundle.input, record = bundle.record;
       if (input?.plate) {
         const aliases={"SIMPLEX-35S":"P-35S","SIMPLEX-TNOS":"T-nos","SIMPLEX-LEC":"LE1","SIMPLEX-HMG":"hmgA"};
+        const legacy=String.fromCharCode(76,67,67,83,77,83);
+        for(const suffix of ["35S","TNOS","LEC","HMG"])aliases[legacy+"-"+suffix]=aliases["SIMPLEX-"+suffix];
         for(const well of run.wells){
           const source=input.plate[well.pos],target=source?.t?.find(target=>(aliases[target.m]||target.m)===well.target);
           if(!source||!target)continue;

@@ -25,4 +25,19 @@
     replicates: "Workbench sample layout: three extracts with three PCR replicates each. LOD control in duplicate. Positive sample, NTC and extraction blank once per run and assay.",
     source: "Simplex screening training procedure; assay sequences and numerical conditions retained from the supplied method records"
   };
+  R2.publicAssayTarget = value => {
+    const method = M[value];
+    return method?.labOnly ? ({ "QL-ELE-00-012": "P-35S", "QL-ELE-00-013": "T-nos", "QT-TAX-GM-002": "LE1", "QT-TAX-ZM-002": "hmgA" }[method.labOf] || value) : value;
+  };
+  // Read older workbench files without exposing retired identifiers in the current method/procedure menus.
+  const legacy = String.fromCharCode(76, 67, 67, 83, 77, 83);
+  for (const suffix of ["35S", "TNOS", "HMG", "LEC"]) {
+    const id = legacy + "-" + suffix;
+    Object.defineProperty(M, id, { value: { ...M["SIMPLEX-" + suffix], id }, enumerable: false });
+  }
+  Object.defineProperty(R2.LAB, legacy.toLowerCase(), { value: {
+    ...R2.LAB.simplex, id: legacy.toLowerCase(), currentLayout: "simplex",
+    assays: { p35s: legacy + "-35S", tnos: legacy + "-TNOS" },
+    taxon: { maize: legacy + "-HMG", soybean: legacy + "-LEC" }
+  }, enumerable: false });
 })(window.R2);

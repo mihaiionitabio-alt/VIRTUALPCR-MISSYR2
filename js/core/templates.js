@@ -78,7 +78,7 @@
     X.settings = Object.assign({}, R2.reagents.DEFAULT, t.settings || {});
     X.dna = { ...R2.gmoplan.DNA, ...(t.dna || {}) }; X.ng = +(X.dna.concNgPerUl * X.dna.volUl).toFixed(2);
     X.mixSettings = Object.assign({}, R2.mixcalc.DEFAULT, t.mix || {}); X.natural = t.natural !== false;
-    X.layout = t.layout || "eurl"; X.stage = t.stage; X.chosen[t.stage] = t.assays.slice(); X.duplex = !!t.duplex; X.setStage(t.stage, true);
+    X.layout = R2.LAB[t.layout]?.currentLayout || t.layout || "eurl"; X.stage = t.stage; X.chosen[t.stage] = t.assays.slice(); X.duplex = !!t.duplex; X.setStage(t.stage, true);
     if (Array.isArray(t.batch) && t.batch.length) {
       X.meta = t.batch.map(row => ({ label: String(row.label || "").slice(0,100), extractionDate: row.extractionDate || new Date().toISOString().slice(0,10) }));
       X.extra = t.batch.slice(1).map(row => R2.GMO.samples.some(s => s.key === row.preset && (s.crop === t.crop || s.blind)) ? row.preset : X.sampleKey);
