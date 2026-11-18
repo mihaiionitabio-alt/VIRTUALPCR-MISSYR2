@@ -167,7 +167,7 @@
     file("native-record", "source/simulator-record.json", JSON.stringify(rec), "application/json");
     file("run-input", "source/run-input.json", JSON.stringify({
       runId: run.runId, serial: run.serial, startedAt: run.startedAt, finishedAt: run.time,
-      outcome: run.outcome, preRunTask: run.preRunTask || null, injectedFault: run.injectedFault || null, batchProfile: run.batchProfile || null, sampleIdentity: run.sampleIdentity, plate: run.plate, sopPlate: run.sopPlate || null, protocol: run.protocol,
+      outcome: run.outcome, preRunTask: run.preRunTask || null, injectedFault: run.injectedFault || null, sampleIdentity: run.sampleIdentity, plate: run.plate, sopPlate: run.sopPlate || null, protocol: run.protocol,
       seed: run.seed, operator: run.operator, gmo: run.gmo, firmwareConfiguration: run.firmwareConfiguration,
       simulationSetup: run.simulationSetup
     }, null, 2), "application/json");

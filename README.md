@@ -4,17 +4,17 @@
 
 site is live at https://mihaiionitabio-alt.github.io/VIRTUALPCR-MISSYR2/
 
-Version **0.4.30** — a browser-based virtual real-time PCR workbench with Technician learning levels and MISSY analysis.
+Version **0.4.29** — a browser-based virtual real-time PCR workbench with Technician learning levels and MISSY analysis.
 
 ## Offline download
 
-[Download the complete offline website](https://mihaiionitabio-alt.github.io/VIRTUALPCR-MISSYR2/downloads/MISSY_R2_workbench_site_0.4.30.zip).
+[Download the complete offline website](https://mihaiionitabio-alt.github.io/VIRTUALPCR-MISSYR2/downloads/MISSY_R2_workbench_site_0.4.29.zip).
 
 Extract the ZIP and open `pcr-workbench/index.html`. Experiment files stay in your browser. The level-unlock quizzes are separate from PCR runs; starting a run does not open another quiz.
 
 Source acknowledgements are in [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt).
 
-## 0.4.30 fixes
+## 0.4.29 fixes
 
 - Loading counters stop at completion or error; failed transfers can be retried.
 - Startup timeouts and cancelled transfers no longer leave stale progress screens.
@@ -25,13 +25,3 @@ Source acknowledgements are in [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt
 ## Sources and credits
 
 The welcome page links to the [sources and credits](https://mihaiionitabio-alt.github.io/VIRTUALPCR-MISSYR2/credits.html): scientific references, source repositories, example-data credits and licence notices. The static page and `data/credits.json` are included in the offline website. Run `python scripts/build_credits.py` after editing the curated source list.
-
-## JSON batch generation (0.4.30)
-
-On the welcome page, **Create JSON profile** opens a configurable profile builder. Start from a template, set run count and seed, edit DNA, mix, reagent/handling and programme fields, and configure sample materials, labels and extraction dates. Select optional fault scenarios; selected faults rotate across the batch, one per run. Use **Download profile** to save settings. **Run JSON profile** accepts a saved file or pasted JSON without navigating the Technician tabs.
-
-The format is `missy-r2-batch/1`: `count` is a positive integer; `seed` is a positive 32-bit integer; `template` uses the existing Technician template fields; `samples` contains material preset keys, extraction dates and labels; `sample` contains the first sample's composition; `extractions` preserves extraction/control metadata; `scenarioIds` lists armable scenario IDs (empty for normal runs). Starting from a template is recommended because crop, assay, layout and scenario requirements must agree.
-
-Generation runs sequentially with progress and cancellation. Completed runs remain in the current browser tab and appear in Quality manager, including normal SOP and MISSY hand-off. Individual `.rdmlt` downloads and a generated-file ZIP are available in the runner. Each package retains the batch profile in `source/run-input.json`. Save both profile and output files before closing the tab. Large batches retain raw telemetry in browser memory; cancel and download completed runs when needed. This is an offline simulator, not executable JavaScript: uploaded profiles are parsed as JSON.
-
-Implementation: `js/ui/batch.js`; example profile: `data/batch-example.json`. Browser checks covered two complete normal runs opened together in MISSY (both Accepted, 17 result rows each), sample controls, profile import/export, a labelled light-source fault, ZIP output and cancellation.
