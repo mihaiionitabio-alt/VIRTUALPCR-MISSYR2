@@ -1,0 +1,20 @@
+MISSY R2 Workbench — source and third-party acknowledgements
+
+- GMOMETHODS, EURL GMFF, European Commission Joint Research Centre (© European Union; reuse with acknowledgement).
+- JRC GMO-Matrix; JRC136933 (reference genes).
+- Curve-shape and control-variation statistics: your export of 730 run files; only summary statistics are used, no
+  data are included.
+- PCR-Calculator (S. Gil, github.com/shellygil/PCR-Calculator; no licence stated): the idea of the reaction-mix
+  calculator (reactions, excess, 2× or 5× mix, rounded totals, copyable report); no code copied.
+- Auto-qPCR (Maussion, Thomas, Demirova et al., Sci Rep 11:21293, 2021; GPL-3.0): example files adapted to neutral instrument labels
+  in `data/examples.js`; the replicate cut-off rule and the default settings follow its notes.
+- Click-qPCR (Kubota & Tajima, Bio-protocol 2025; MIT): template file reproduced; ΔCq/ΔΔCq with Welch t-test.
+- qPCR plate planner (M. M. Ali; CC BY-NC 4.0, non-commercial use): example JSON reproduced.
+- rtpcr / shiny_rtpcr (M. Ghaderi): the efficiency/Ct column layout and efficiency weighting; the example values were
+  constructed for this bench.
+- geNorm M: Vandesompele et al., Genome Biology 3:research0034, 2002.
+- R. Kalendar, PCRtools and virtualPCR (GPL-3.0): Tm method and conditions; code written independently.
+- Chai Open qPCR software (Apache-2.0): sensor curves, protocol options, Cy0 rules.
+- zpcrweb (GPL-3.0): look and behaviour of the graphs; re-implemented.
+
+Additional bundled-library notices remain in source and the embedded MISSY page.

@@ -1,0 +1,79 @@
+.task-kicker{font:12px monospace;letter-spacing:.15em;color:#b4a2ff}
+.task-answers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:24px 0}
+.task-answer{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;position:relative;min-height:150px;padding:24px 16px;border:2px solid #a17caa;border-top:8px solid #cb9acd;border-radius:28px 0 28px 0;background:#160f20;color:#f2e8ff;font-size:clamp(15px,1.1vw,19px);text-align:center;line-height:1.5;transition:transform .18s,background .18s}
+.task-answer b{align-self:flex-start;color:#b4a2ff;font:12px monospace}
+.task-answer svg{width:100px;height:88px;color:#c3adff}
+.task-answer:hover:not(:disabled){transform:translateY(-4px);background:#302037;border-color:#ff9a62}
+.task-answer:focus-visible{outline:4px solid #fff;outline-offset:4px}
+.task-answer.task-correct{border-color:#65e5b2;background:#123528;opacity:1}
+.task-answer.task-wrong{border-color:#ff8b8b;animation:task-shake .3s}
+@keyframes task-shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@media(max-width:850px){.task-answers{grid-template-columns:repeat(2,minmax(0,1fr))}
+.task-answer{min-height:130px}}
+@media(max-width:420px){.task-answer{font-size:14px;padding:16px 10px}
+.task-answers{gap:10px}}
+.task-scene{width:310px;flex:0 0 310px;text-align:center;color:#bba5df}
+.task-scene svg{width:100%;height:auto}
+.task-scene>span{font:10px monospace;letter-spacing:.16em}
+.task-lid{transform-origin:180px 70px;animation:task-lid 5s ease-in-out infinite}
+.task-scene-pipette{animation:task-pipetting 5s ease-in-out infinite}
+.task-scene-drop{animation:task-drop 5s ease-in-out infinite}
+.task-scene-well{animation:task-well-read 3.5s ease-in-out infinite;animation-delay:var(--well-delay)}
+.task-scene-wave{stroke-dasharray:110;animation:task-wave 4s ease-in-out infinite}
+.task-status-light{animation:task-status 2s ease-in-out infinite}
+.task-answer{overflow:hidden;animation:task-card-enter .35s ease both}
+.task-answer:nth-child(2n){animation-delay:.06s}
+.task-answer:nth-child(3n){animation-delay:.12s}
+.task-animation-paused *{animation-play-state:paused!important}
+@keyframes task-lid{0%,12%,85%,100%{transform:translateY(0)}30%,70%{transform:translateY(-12px) rotate(-2deg)}}
+@keyframes task-pipetting{0%,15%,90%,100%{transform:translate(-18px,-8px)}35%,65%{transform:translate(18px,4px)}}
+@keyframes task-drop{0%,42%,70%,100%{opacity:0;transform:translate(18px,0)}46%{opacity:1;transform:translate(18px,0)}60%{opacity:0;transform:translate(18px,17px)}}
+@keyframes task-well-read{0%,65%,100%{opacity:.3}25%{opacity:1;filter:drop-shadow(0 0 3px #6bf9ce)}}
+@keyframes task-wave{0%,15%{stroke-dashoffset:110}70%,100%{stroke-dashoffset:0}}
+@keyframes task-status{50%{opacity:.35}}
+@keyframes task-card-enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:1000px){.task-scene{width:210px;flex-basis:210px}}
+@media(max-width:650px){.task-scene{width:180px;margin-left:auto;margin-top:-12px}}
+@media(prefers-reduced-motion:reduce){.task-scene-wave{stroke-dashoffset:0}
+.task-scene-drop{opacity:0}}
+body:has(#pre-run-task[open]){overflow:hidden}
+.tech-access{padding:clamp(18px,3vw,44px);background:#050306;color:#f0e5ff;overflow:auto}
+.access-content{max-width:1450px;margin:auto;padding-bottom:120px}
+.access-heading{display:flex;justify-content:space-between;align-items:center;gap:24px}
+.access-heading h1{font-size:clamp(30px,3vw,48px);color:#ff9a62;margin:18px 0}
+.access-heading p{font-size:18px;line-height:1.6;max-width:950px}
+.access-heading .task-scene{width:240px;flex-basis:240px}
+.access-score{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin:22px 0;color:#cbb5e6}
+.access-score progress{accent-color:#b4e3ca;height:18px;width:280px}
+.access-actions{display:flex;align-items:center;gap:20px;margin-top:18px;flex-wrap:wrap}
+.access-actions button,.access-next button{padding:14px 25px}
+.access-next{display:flex;gap:20px;align-items:center;margin-top:24px}
+.access-award{margin:24px 0;padding:20px;border-left:8px solid #77d8b5;border-radius:20px 0;background:#14271f}
+.access-award>b{font-size:25px;color:#8be9c3}
+.access-award p{margin:12px 0}
+.access-award strong{font:700 34px monospace;letter-spacing:.2em;padding:5px 12px;color:#fff;background:#24382d;border-radius:8px}
+.access-award small{color:#c8decf}
+.access-state{font:12px monospace;letter-spacing:.15em;color:#c0add5}
+.access-locked{opacity:.8}
+.access-unlocked{border-color:#76bfa3!important}
+.access-code-form{position:fixed;bottom:16px;right:16px;z-index:4;padding:10px 12px;border:2px solid #ba93dc;border-radius:16px 0;background:#21152f;display:grid;grid-template-columns:auto 66px auto;gap:8px;align-items:center;animation:access-code-glow 1.8s ease-in-out infinite;box-shadow:0 8px 30px #000a}
+.access-code-form label{font-size:12px;color:#d7b8ed}
+.access-code-form input{width:66px;text-align:center;letter-spacing:.2em;font:20px monospace;background:#100b16;color:white;border:1px solid #b495ca;padding:7px}
+.access-code-form button{padding:9px 12px}
+.access-code-form #access-code-feedback{grid-column:1/-1;font-size:12px;color:#ffb29c}
+.access-complete{color:#86e4bc;padding-top:24px}
+#access-feedback{font-size:18px;line-height:1.6;max-width:none;min-height:36px}
+.tech-access .task-answer{font-size:16px}
+.tech-access .picker-back{position:static;display:inline-flex;margin-bottom:16px}
+body:has(dialog.tech-access[open]){overflow:hidden}
+@keyframes access-code-glow{50%{border-color:#ffaf7e;box-shadow:0 0 18px #c88fce66}}
+@media(max-width:700px){.access-heading{display:block}
+.access-heading .task-scene{display:none}
+.access-content{padding-bottom:150px}
+.access-score progress{width:100%}
+.access-next{align-items:flex-start;flex-direction:column}
+.access-code-form{right:10px;bottom:10px;max-width:calc(100vw - 20px)}
+.tech-access .task-answers{grid-template-columns:repeat(2,minmax(0,1fr))}
+.access-heading p{font-size:16px}}
+@media(prefers-reduced-motion:reduce){.access-code-form,.tech-access *{animation:none!important;transition:none!important}}
+.task-animation-paused .task-answer{animation:none!important;opacity:1;transform:none}
