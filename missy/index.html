@@ -8056,7 +8056,7 @@ function renderCcDetail(){
   card.hidden=false;
   card.innerHTML=`<div class="cc-head"><div><span class="tag">${esc(def.code)}</span> <b style="font-size:16px">${esc(ui(def.title))}</b>
       <div class="hint">${esc(ui(CC_GROUPS.find(g=>g.id===def.group).title))} · ${esc(CC_STATE.instrument)} · ${esc(ui("source"))}: ${esc(def.source)}</div></div>
-      <div><span class="cc-pill" style="background:${CC_COL[st.level]}">${esc(ui(st.level==="ok"?"in control":st.level==="warn"?"watch":st.level==="bad"?"alarm":"no data"))}</span>
+      <div><span class="cc-pill" style="background:${CC_COL[st.level]}">${esc(ui(st.level==="ok"?"in control":st.level==="warn"?"watch":st.level==="bad"?"alarm":res.pts.some(point=>Number.isFinite(point.y))?"collecting baseline":"no data"))}</span>
       <button class="ghost" id="cc-close" type="button">✕ ${esc(ui("Close"))}</button></div></div>
     <p class="sub">${esc(ui(def.idea))}</p>
     <div class="toolbar">
@@ -20324,4 +20324,4 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 const MISSY_PUBLIC_SOURCE="<!DOCTYPE html>\n"+document.documentElement.outerHTML;
 document.getElementById("missy-forget-password").onclick=pcrdForgetPassword;
 document.getElementById("missy-source-download").onclick=()=>download("index.html",MISSY_PUBLIC_SOURCE,"text/html");
-</script><script src="control-history.js?v=0.4.29"></script><script src="../js/ui/transfer-loading.js?v=0.4.29"></script><script src="rdmlt-bridge.js?v=0.4.29"></script></body></html>
+</script><script src="control-history.js?v=0.4.29-r2"></script><script src="../js/ui/transfer-loading.js?v=0.4.29-r2"></script><script src="rdmlt-bridge.js?v=0.4.29-r2"></script></body></html>

@@ -71,9 +71,21 @@
       checklist.querySelectorAll("input").forEach(input => { input.checked = checked; });
     });
   }
+  function stopHandoffTimers(state) {
+    clearInterval(state?.closedTimer);
+    clearTimeout(state?.readyTimer);
+  }
+  function failHandoff(state, message, notifyChild = true) {
+    if (handoff !== state || state.failed) return;
+    state.failed = true;
+    stopHandoffTimers(state);
+    status.textContent = message;
+    window.R2TransferLoading.fail(message);
+    if (notifyChild && !state.child.closed) state.child.postMessage({ type: "r2-missy-transfer-error", token: state.token, error: message }, "*");
+  }
   function closeHandoff() {
     if (administrator()) return;
-    clearInterval(handoff?.closedTimer);
+    stopHandoffTimers(handoff);
     handoff?.child.close();
     handoff = null;
     window.R2TransferLoading.close();
@@ -86,21 +98,21 @@
     const marked = new Set([...checklist.querySelectorAll("input:checked")].map(input => Number(input.value)));
     const runs = (R2.session.runs || []).filter(run => run.record && !!run.outcome && marked.has(run.no));
     const token = crypto.randomUUID();
-    clearInterval(handoff?.closedTimer);
+    stopHandoffTimers(handoff);
     handoff?.child.close();
     handoff = null;
     window.R2TransferLoading.close();
     window.R2TransferLoading.open("Starting MISSY and preparing the selected runs…");
-    const child = window.open("missy/index.html?v=" + encodeURIComponent(R2.VERSION) + "#workbench=" + token, "_blank");
+    const child = window.open("missy/index.html?v=" + encodeURIComponent(R2.BUILD || R2.VERSION) + "#workbench=" + token, "_blank");
     if (!child) { status.textContent = "Allow pop-ups for this file to open MISSY."; window.R2TransferLoading.fail(status.textContent); return; }
-    handoff = { child, token, runs, sent: false };
+    handoff = { child, token, runs, sent: false, failed: false };
     const current = handoff;
+    current.readyTimer = setTimeout(() => failHandoff(current, "MISSY did not finish starting. Check the connection and open MISSY again."), 180000);
     current.closedTimer = setInterval(() => {
       if (handoff !== current || child.closed) {
-        clearInterval(current.closedTimer);
+        stopHandoffTimers(current);
         if (handoff === current && child.closed) {
-          status.textContent = "MISSY was closed before loading completed.";
-          window.R2TransferLoading.fail(status.textContent);
+          failHandoff(current, "MISSY was closed before loading completed.", false);
           handoff = null;
         }
       }
@@ -109,7 +121,7 @@
   });
   window.addEventListener("message", async event => {
     const state = handoff, message = event.data;
-    if (!state || event.source !== state.child || message?.token !== state.token || !administrator()) return;
+    if (!state || event.source !== state.child || message?.token !== state.token || !administrator() || state.failed) return;
     if (message.type === "r2-missy-profile-request") {
       try {
         if (!message.procedure?.format?.startsWith("missy-r2-workbench-sop/")) throw new Error("Unsupported source procedure");
@@ -121,39 +133,40 @@
     } else if (message.type === "r2-missy-progress") {
       window.R2TransferLoading.update(message.progress, message.status);
     } else if (message.type === "r2-missy-loaded") {
-      clearInterval(state.closedTimer);
+      stopHandoffTimers(state);
       window.R2TransferLoading.close();
       status.textContent = state.runs.length ? message.mixed
         ? state.runs.length + " runs loaded. Review the SOP warning in MISSY."
         : state.runs.length + " run(s) loaded in the MISSY Control Panel."
         : "MISSY Control Panel is open.";
     } else if (message.type === "r2-missy-error") {
-      clearInterval(state.closedTimer);
-      status.textContent = "MISSY could not load the run. " + message.error;
-      window.R2TransferLoading.fail(status.textContent);
-      state.sent = false;
+      stopHandoffTimers(state);
+      failHandoff(state, "MISSY could not load the run. " + message.error, false);
     } else if (message.type === "r2-missy-ready" && !state.sent) {
       state.sent = true;
+      clearTimeout(state.readyTimer);
       try {
         const files = [];
         if (state.runs.length) status.textContent = "Preparing local RDMLt experiment files…";
         for (const [index, run] of state.runs.entries()) {
+          if (handoff !== state || state.failed || state.child.closed) return;
           const progress = 15 + 35 * index / state.runs.length;
           const label = "Preparing RDMLt " + (index + 1) + " of " + state.runs.length + " · " + run.name;
           window.R2TransferLoading.update(progress, label);
           state.child.postMessage({ type: "r2-missy-progress", token: state.token, progress, status: label }, "*");
           await new Promise(resolve => setTimeout(resolve, 0));
-          if (handoff !== state || state.child.closed) return;
+          if (handoff !== state || state.failed || state.child.closed) return;
           const evaluation = R2.gmoeval.run(run, { cqMethod: "auto", thresholds: {} });
           const bytes = await R2.rdmltCompressed(run, evaluation);
+          if (handoff !== state || state.failed || state.child.closed) return;
           files.push(new File([bytes], run.name.replace(/[^A-Za-z0-9_-]/g, "_") + ".rdmlt"));
         }
+        if (handoff !== state || state.failed || state.child.closed) return;
         window.R2TransferLoading.update(55, "Sending the selected RDMLt files to MISSY…");
         if (handoff === state && !state.child.closed)
           state.child.postMessage({ type: "r2-missy-transfer", token: state.token, files }, "*");
       } catch (error) {
-        if (handoff === state) { status.textContent = "The RDMLt could not be prepared. " + error.message; window.R2TransferLoading.fail(status.textContent); }
-        state.sent = false;
+        failHandoff(state, "The RDMLt could not be prepared. " + error.message);
       }
     }
   });

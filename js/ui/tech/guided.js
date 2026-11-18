@@ -52,11 +52,18 @@
     clearInterval(watch);
     watch = setInterval(() => {
       const fs = $("run-stage").classList.contains("fs");
-      if (!X.running() && (R2.session.runs || []).length > n0) { lastRun = R2.session.runs[R2.session.runs.length - 1]; draw(); }
+      if (!X.running() && (R2.session.runs || []).length > n0) {
+        const completed = R2.session.runs[R2.session.runs.length - 1];
+        if (lastRun !== completed) { lastRun = completed; draw(); }
+        clearInterval(watch);
+      }
       if (!X.running() && !fs) { view().classList.remove("lv-run"); if ((R2.session.runs || []).length > n0) clearInterval(watch); }
     }, 400);
     return null;
   }
+  document.addEventListener("r2-run-view-left", () => {
+    if (!X.running()) { clearInterval(watch); view().classList.remove("lv-run"); }
+  });
   function apply(tplId, sampleKey) {
     const t = T().get(tplId); if (!t) return "Template not found.";
     T().apply(sampleKey ? Object.assign({}, t, { samplePreset: sampleKey }) : t, X);

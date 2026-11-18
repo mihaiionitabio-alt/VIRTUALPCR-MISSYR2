@@ -115,7 +115,7 @@
     (R2.session.runs = R2.session.runs || []).push(X.runInfo); R2.session.run = X.runInfo;
     lastSlow = 0; lastOpt = -1; draw(); $("t-abort").disabled = true; $("t-lid").disabled = true; $("run-after").hidden = false; $("run-after-text").textContent = `Run ${runName} ${X.runInfo.outcome}. Ready for quality review.` + (X.runInfo.injectedFault ? ` Error scenario: ${X.runInfo.injectedFault.title} (${X.runInfo.injectedFault.kind}).` : ""); X.marks();
   }
-  function leave() { $("run-stage").classList.remove("fs"); document.body.classList.remove("noscroll"); if (!X.running()) { lastSlow = 0; lastOpt = -1; if (X.ins) draw(); } }
+  function leave() { $("run-stage").classList.remove("fs"); document.body.classList.remove("noscroll"); if (!X.running()) { lastSlow = 0; lastOpt = -1; if (X.ins) draw(); } document.dispatchEvent(new Event("r2-run-view-left")); }
   function phaseOf(fw) {
     const st = fw.st; if (st === "SELFTEST") return "self"; if (st === "LID_PREHEAT") return "lid"; if (st === "MELT" || st === "MELT_GOTO") return "melt"; if (["DONE", "ABORTED", "FAULT", "IDLE"].includes(st)) return "done";
     const s = fw.prog && fw.prog.stages[fw.iStage]; if (!s || !s.steps) return ""; if (s.type === "hold") return s.steps[0].temp_c < 70 ? "ung" : "act"; return fw.iStep === 0 ? "den" : fw.iStep === 2 ? "ext" : "ann";

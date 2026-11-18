@@ -593,6 +593,7 @@
     window.addEventListener("message", async event => {
       const message = event.data;
       if (event.source !== parentWindow || message?.token !== token) return;
+      if (message.type === "r2-missy-transfer-error") { window.R2TransferLoading.fail(message.error || "The selected files could not be prepared."); return; }
       if (message.type === "r2-missy-progress") { window.R2TransferLoading.update(message.progress, message.status); return; }
       if (message.type !== "r2-missy-transfer" || pending) return;
       pending = true;
