@@ -33,10 +33,10 @@
         st === "quant" ? "Method 2 uses five shared calibrant levels, triplicate controls and an uncertainty interval." :
         "Method 1 uses an event/reference pair, a Cq cutoff of 36 and the majority of concordant extraction triplicates.";
       $("g-step-why").textContent = detail;
-      $("g-hint").textContent = "Reference: " + method.ref + " · 3 extracts × 3 PCR replicates · up to " + X.plan.capacity.maxSamples + " samples.";
+      $("g-hint").textContent = "Reference: " + method.ref + " · " + X.plan.capacity.extractions + " extracts × " + X.plan.capacity.replicates + " PCR replicates · up to " + X.plan.capacity.maxSamples + " samples.";
       return;
     }
-    $("g-hint").textContent = st === "screen" ? "The species reference gene is always added. The selected reaction mixes fit up to " + X.plan.capacity.maxSamples + " samples on 384 wells." : st === "ident" ? (hint ? "The marks come from the last screening evaluated on the quality bench." : "Run a screening and evaluate it on the quality bench first: it tells you which events remain possible.") : "Each mix uses four calibrant levels, a 1 % control and an NTC in triplicate, plus 3 × 3 wells per sample.";
+    $("g-hint").textContent = st === "screen" ? "The species reference gene is always added. The selected reaction mixes fit up to " + X.plan.capacity.maxSamples + " samples on 384 wells." : st === "ident" ? (hint ? "The marks come from the last screening evaluated on the quality bench." : "Run a screening and evaluate it on the quality bench first: it tells you which events remain possible.") : "The method default uses four calibrant levels and triplicate controls. The Plate step shows this run’s actual controls and " + X.plan.capacity.extractions + " × " + X.plan.capacity.replicates + " sample wells per mix.";
     $("g-step-why").textContent = { screen: "Screening asks whether any common genetic element of GM plants is present. It is cheap and covers many events at once, but it cannot name the event.", ident: "Identification uses event-specific methods: each one spans the junction between the insert and the plant genome, which is unique to one event.", quant: "Quantification measures the event against a species reference gene with two calibration curves. The result is the GM content in % of genome copies." }[st];
   }
   X.tab({ id: "step", title: "Analysis step", done: () => true,

@@ -12,7 +12,7 @@
  window.addEventListener('error',event=>{if((event.error||['SCRIPT','LINK'].includes(event.target?.tagName))&&!ready)fail('The workbench could not finish loading. Reload the page or extract the complete download.');});
  document.addEventListener('DOMContentLoaded',()=>{
   paint();
-  if(!failed&&(loaded!==total||!window.R2?.techAccess||!R2.gmoeval||!R2.templates||!R2.ui?.quality))fail('The workbench is missing a required component. Reload the page or extract the complete download.');
+  if(!failed&&(loaded!==total||!window.R2?.techAccess||!R2.gmoeval||!R2.templates||!R2.ui?.quality||!R2.batchRuns||!R2.batchUi))fail('The workbench is missing a required component. Reload the page or extract the complete download.');
   if(!failed){finishedAt=performance.now();ready=true;clearInterval(timer);paint();$("welcome-status").textContent='Ready. Virtual instrument, learning levels and file-analysis tools are loaded.';$("welcome-enter").disabled=false;$("welcome-enter").textContent='Choose your role';}
   $("welcome-enter").onclick=enter;
   document.querySelectorAll('[data-app-version]').forEach(node=>node.textContent=window.R2?.VERSION||'0.4.29');

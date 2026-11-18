@@ -151,6 +151,10 @@
   };
   const nativeApplicability = sopRunApplicability;
   sopRunApplicability = function(run) {
+    if (run.r2Virtual && SOP.sourceWorkbenchSop?.id === run.r2Virtual.sourceSop && SOP.evaluationMode === "unconfigured" && SOP.experimentalDesign) {
+      const design = SOP.experimentalDesign;
+      return { applicable: false, reason: "Custom design requires SOP review: " + (design.extractions ?? 3) + " extractions × " + (design.replicates ?? 3) + " PCR replicates differs from the source method's 3 × 3 design. Raw wells remain available; no sample decision is issued under this method." };
+    }
     if (run.r2Virtual && SOP.sourceWorkbenchSop?.id && SOP.sourceWorkbenchSop.id !== run.r2Virtual.sourceSop)
       return { applicable: false, reason: "The selected SOP belongs to a different virtual procedure." };
     return nativeApplicability(run);
@@ -161,6 +165,10 @@
   };
   const nativeEvaluate = sopEvaluateRun;
   sopEvaluateRun = function(run, ri) {
+    if (run.r2Virtual && SOP.sourceWorkbenchSop?.id === run.r2Virtual.sourceSop && SOP.evaluationMode === "unconfigured" && SOP.experimentalDesign) {
+      const applicability = sopRunApplicability(run);
+      return { run, ri, rows: [], criteria: [{criterion:"Custom experimental design",action:"unresolved",status:"n/a",evidence:applicability.reason}],status:"Profile not applicable",rejected:[],reviewed:[],icMedian:NaN,times:runTimes(run),applicability };
+    }
     const result = nativeEvaluate(run, ri), rules = SOP.workbenchRules;
     if (run.r2Virtual && (run.r2Virtual.outcome !== "completed" || run.r2Virtual.legacyMissingControls)) {
       const reason = run.r2Virtual.legacyMissingControls ? "The legacy missing-controls scenario omitted NTC/extraction blanks; its generated SOP did not retain the intended control requirements." : "Virtual programme did not complete: " + (run.r2Virtual.outcome || "unknown");

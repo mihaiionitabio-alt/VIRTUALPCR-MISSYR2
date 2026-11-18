@@ -152,8 +152,10 @@
       return finish("invalid run", "The DNA mass per reaction differs from the selected MARA method.", "fail");
     const bad = ids.flatMap(id => Object.entries(audit.controls[id]).filter(([, c]) => !c.accepted).map(([ctl]) => id + " " + ctl));
     if (bad.length) return finish("control fail", "Shared controls failed or were incomplete: " + bad.join(", ") + ".", "fail");
-    const actualExtractions=new Set(run.plate.filter(w=>w.role==="unknown").map(w=>w.ext));
-    if(actualExtractions.size!==3||[...actualExtractions].some(e=>![1,2,3].includes(e)))return finish("review required","Custom extraction design differs from the published three-extraction method. Review all raw wells; the fixed-method interpretation was not applied.","warn");
+    // the published interpretation needs exactly 3 extracts x 3 PCR replicates per sample; any other design goes to review
+    const sampleWells = run.plate.filter(w => w.role === "unknown"), exts = new Set(sampleWells.map(w => w.ext)), reps = new Set(sampleWells.map(w => w.rep));
+    const is123 = set => set.size === 3 && [...set].every(v => [1, 2, 3].includes(v));
+    if (!is123(exts) || !is123(reps)) return finish("review required", `Custom design (${exts.size} extraction${exts.size === 1 ? "" : "s"} × ${reps.size} PCR replicate${reps.size === 1 ? "" : "s"}) differs from the published 3 × 3 method. Review all raw wells; the fixed-method interpretation was not applied.`, "warn");
     const groups = [1, 2, 3].map(ext => {
       const e = group(run, event, W => W.role === "unknown" && W.ext === ext);
       const t = group(run, ref, W => W.role === "unknown" && W.ext === ext);

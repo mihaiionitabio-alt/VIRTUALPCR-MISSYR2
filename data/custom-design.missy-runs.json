@@ -10,7 +10,7 @@
         "extractions": 2,
         "replicates": 2,
         "controlCounts": {
-          "LOD": 1,
+          "LOD": 2,
           "NTC": 2
         }
       }

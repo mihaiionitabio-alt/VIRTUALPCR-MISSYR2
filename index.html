@@ -46,7 +46,7 @@
 
 <!-- ================= TECHNICIAN ================= -->
 <section id="view-technician" class="stack" hidden>
-  <div class="lead"><h1>Technician bench</h1><p>Prepare a batch on the virtual 384-well plate. Each sample has three independent extracts and three PCR replicates per extract. Choose the analysis procedure on the Analysis step.</p></div>
+  <div class="lead"><h1>Technician bench</h1><p>Prepare a batch on the virtual 384-well plate. Set the independent extraction and PCR replicate counts on the Sample step. Choose the analysis procedure on the Analysis step.</p></div>
   <div id="tech-guided" class="stack lv-guided"></div>
   <div id="tech-admin" class="stack lv-admin"></div>
   <div class="subtabs" id="tech-tabs" role="tablist" aria-label="Steps of the analysis"></div>
@@ -103,7 +103,7 @@
     <div class="grid bench">
       <div class="stack">
         <div class="panel"><h3>Run</h3><dl class="kv" id="q-run"></dl></div>
-        <div class="panel" id="q-sample-wrap" hidden><h3>Samples of this run</h3><label>Sample shown <select id="q-sample" style="max-width:100%"></select></label><div class="scroll"><table id="q-samples"></table></div><p class="note">Every sample is judged with the run's shared controls. Its result uses its nine wells per assay: three independent extractions × three PCR replicates.</p></div>
+        <div class="panel" id="q-sample-wrap" hidden><h3>Samples of this run</h3><label>Sample shown <select id="q-sample" style="max-width:100%"></select></label><div class="scroll"><table id="q-samples"></table></div><p class="note">Every sample is judged with the run's shared controls. Its result uses the extraction and PCR replicate counts recorded for this run.</p></div>
         <div class="panel"><h3>Analysis settings</h3>
           <label>Assay shown <select id="q-assay" style="max-width:100%"></select></label>
           <label>Cq method <select id="q-method"><option value="threshold">threshold crossing</option><option value="cy0">Cy0 (sigmoid fit)</option><option value="sdm">second-derivative maximum</option></select></label>
