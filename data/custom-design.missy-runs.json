@@ -1,0 +1,32 @@
+{
+  "format": "missy-r2-batch/1",
+  "name": "Combined test",
+  "runs": [
+    {
+      "template": "TPL-BUILTIN-SIMPLEX-SC-SOY",
+      "repeat": 1,
+      "name": "2 extractions 2 reps",
+      "design": {
+        "extractions": 2,
+        "replicates": 2,
+        "controlCounts": {
+          "LOD": 1,
+          "NTC": 2
+        }
+      }
+    },
+    {
+      "template": "TPL-BUILTIN-SIMPLEX-SC-SOY",
+      "repeat": 1,
+      "name": "1 extraction 3 reps",
+      "design": {
+        "extractions": 1,
+        "replicates": 3
+      }
+    }
+  ],
+  "output": {
+    "openQuality": false,
+    "selectForMissy": true
+  }
+}

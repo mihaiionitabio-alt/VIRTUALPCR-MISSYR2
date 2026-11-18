@@ -45,6 +45,7 @@
   function refresh() {
     const runs = (R2.session.runs || []).filter(run => run.record && !!run.outcome);
     const marked = new Set([...checklist.querySelectorAll("input:checked")].map(input => input.value));
+    if (R2.session.missyPreselect) { for (const no of R2.session.missyPreselect) marked.add(String(no)); R2.session.missyPreselect = null; initialized = true; }   // runs made by a JSON profile
     if (runs.length && !initialized) {
       marked.add(String(runs.find(run => run === R2.session.run)?.no ?? runs.at(-1).no));
       initialized = true;

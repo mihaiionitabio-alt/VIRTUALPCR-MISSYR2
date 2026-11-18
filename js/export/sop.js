@@ -60,7 +60,7 @@
     const plan = { wells: setup.plate.map(W => ({ ...W, material: W.material || "" })), tubes: def.reaction_mixes.map(k => k.split("+")), ng: setup.ng };
     const recipe = R2.mixcalc.recipe(plan, setup.settings, setup.mix, setup.dna);
     return {
-      format: "missy-r2-workbench-sop/0.2", sop_id: id, notice: "Teaching document generated from the simulated workbench. Not a validated laboratory procedure. Research use only.",
+      format: "missy-r2-workbench-sop/0.2", experimentalDesign: g.design || null, sop_id: id, notice: "Teaching document generated from the simulated workbench. Not a validated laboratory procedure. Research use only.",
       identity_basis: "SHA-256 of the canonical JSON in 'definition'. Run names, times, sample names, seeds, storage and handling incidents are not part of it, so every run of the same analysis carries this SOP.",
       title: step + " (" + g.crop + "), " + ids.filter(i => MM[i].kind !== "taxon").map(i => R2.gmoplan.name(i)).join(", "), purpose: step,
       scope: { species: g.crop, dna_per_reaction_ng: setup.ng, template: setup.dna.volUl + " µL at " + setup.dna.concNgPerUl + " ng/µL" },
@@ -72,7 +72,7 @@
       reaction_mixes_per_reaction: recipe.mixes.map(m => ({ mix: m.key, methods: m.methods, reaction_ul: m.rxnUl, template_ul: m.templateUl, mix_per_tube_ul: m.mixPerTubeUl, components: m.rows.map(r => ({ component: r.component, sequence: r.sequence || null, stock: r.stock || null, final: r.final, per_reaction_ul: r.perRxn })) })),
       dna_solutions: [...new Map(recipe.solutions.map(o => { const t = o.role === "unknown" ? "sample DNA extract (one per sub-sample)" : o.label; return [t, { template: t, ng_per_ul: o.concNgPerUl }]; })).values()],
       calibrant_series: recipe.dilutions.calibrants ? recipe.dilutions.calibrants.steps.map(x => ({ level: x.level, ng_per_ul: x.concNgPerUl, dilution_from_level_above: x.factor ? "1:" + x.factor : "from the certified-material extract" })) : null,
-      layout: def.layout, plate_format: "384 wells, 16 rows x 24 columns; each reaction mix starts on a new row: sample wells (sample 1 E1 R1-R3, E2, E3, sample 2 ...), then its controls", programme: { lid_C: setup.protocol.lid_c, stages: setup.protocol.stages, estimated_instrument_time_s: Math.round(R2.planProfile(setup.protocol).total) },
+      layout: def.layout, plate_format: "384 wells, 16 rows x 24 columns; each reaction mix starts on a new row: sample wells (sample 1 E1 R1…Rn, E2…En, sample 2 ...), then its controls", programme: { lid_C: setup.protocol.lid_c, stages: setup.protocol.stages, estimated_instrument_time_s: Math.round(R2.planProfile(setup.protocol).total) },
       procedure: [
         "Record the sample identity and the measured DNA concentration of the extract; dilute it to " + setup.dna.concNgPerUl + " ng/µL (" + setup.ng + " ng in " + setup.dna.volUl + " µL).",
         "Prepare the calibrant series and the positive controls from the certified reference material as listed under calibrant_series and dna_solutions.",
@@ -97,7 +97,7 @@
       d.title = "Rapid fluorescence screening (virtual plate)";
       d.methods_source = R2.MARA.rapid.source;
       d.acceptance = ["Shared positive controls show typical amplification. Non-GM controls amplify only the reference. Water controls show no amplification.",
-        "Sample calls use crop-reference and marker Cq ≤ 36, across the simulated 3 × 3 layout."];
+        "Sample calls use crop-reference and marker Cq ≤ 36, across the configured extraction and PCR-replicate layout."];
       d.procedure[1] = "Prepare positive material, non-GM material and water controls as listed for each mix.";
       d.evaluation = "Report only the selected markers. Standard 17 specifies a 1% target LOD. Follow up positive screens with event identification.";
       return d;

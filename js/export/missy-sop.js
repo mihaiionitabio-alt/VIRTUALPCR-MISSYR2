@@ -104,6 +104,7 @@
         minR2: 0.98, effMin: 100*(Math.pow(10,1/3.6)-1), effMax: 100*(Math.pow(10,1/3.1)-1), minLogs: 0, calibration: "off" });
       p.sample_id = { pattern: "", flags: "i" };
     }
+    if(document.experimentalDesign){p.experimentalDesign=clone(document.experimentalDesign);p.notes+=" Custom experimental design: extraction, replicate and control counts are recorded in the source SOP layout. Original method acceptance minima remain applicable.";const d=document.experimentalDesign;if(mara && mara.mode!=="screen" && ((d.extractions??3)!==3||(d.replicates??3)!==3)){p.evaluationMode="unconfigured";p.notes+=" The altered design is outside the source method's 3 × 3 interpretation; configure and approve a custom SOP before issuing sample decisions.";}}
     const { locked, sha256, ...canonical } = p;
     p.sha256 = R2.sha256(R2.utf8(R2.sop.canonical(canonical)));
     return JSON.stringify(p, null, 2);

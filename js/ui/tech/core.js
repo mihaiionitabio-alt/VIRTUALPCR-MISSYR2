@@ -3,7 +3,7 @@
 (function (R2) {
   "use strict";
   const $ = R2.$, X = R2.tech = { tabs: [], cur: null, sample: null, plan: null, plate: [], sel: 0, ins: null, runInfo: null, settings: null, simInfo: {}, prof: null,
-    chosen: { screen: null, ident: null, quant: null }, stage: "screen", duplex: true, ng: R2.gmoplan.DEFAULT_NG, dna: { ...R2.gmoplan.DNA }, natural: true, layout: "mara17", f: null, seed: 7, methodShown: null, nameMode: "auto", manualName: "", extractions: Object.create(null),
+    chosen: { screen: null, ident: null, quant: null }, stage: "screen", duplex: true, ng: R2.gmoplan.DEFAULT_NG, dna: { ...R2.gmoplan.DNA }, natural: true, layout: "mara17", design: null, f: null, seed: 7, methodShown: null, nameMode: "auto", manualName: "", extractions: Object.create(null),
     extra: [], meta: [{ extractionDate: new Date().toISOString().slice(0, 10), label: "" }] };
   X.D = () => R2.GMO; X.M = id => R2.GMO.methods[id]; X.GP = () => R2.gmoplan;
   X.tab = t => { t.n = X.tabs.length + 1; X.tabs.push(t); };
@@ -18,11 +18,12 @@
     return out;
   };
   X.build = function (newFields) {
-    X.plan = X.GP().plate(X.sample, { stage: X.stage, assays: X.chosen[X.stage], duplex: X.duplex, ng: X.ng, layout: X.layout, samples: X.sampleList() }); X.plate = X.plan.wells; if (X.plate[X.sel].role === "empty") X.sel = 0;
+    X.plan = X.GP().plate(X.sample, { stage: X.stage, assays: X.chosen[X.stage], duplex: X.duplex, ng: X.ng, layout: X.layout, samples: X.sampleList(), design: X.design }); X.plate = X.plan.wells; if (X.plate[X.sel].role === "empty") X.sel = 0;
     const fl = X.GP().fields(X.plan.tubes); X.fl = fl; if (newFields || !X.f) X.f = Object.assign({}, fl.f);
     const ids = X.plan.tubes.flat(); if (!ids.includes(X.methodShown)) X.methodShown = ids.find(id => X.M(id).kind !== "taxon") || ids[0];
     X.prof = R2.planProfile(X.protocol()); X.marks();
   };
+  X.updateDesign=function(next){const old=structuredClone(X.design||null);try{X.design=structuredClone(next);X.build(false);if(X.sampleList().length>X.plan.capacity.maxSamples)throw new Error("The current samples do not fit this design. Reduce the sample count first.");}catch(e){X.design=old;X.build(false);throw e;}};
   X.maraDNA = function () {
     if (!R2.MARA.isLayout(X.layout) || X.stage === "screen") return;
     const method = R2.MARA.assays[X.chosen[X.stage][0]];

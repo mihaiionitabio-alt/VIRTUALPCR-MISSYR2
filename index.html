@@ -5,11 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>VIRTUALPCR/MISSYR2 · 0.4.29</title>
 <meta name="description" content="A browser-based virtual real-time PCR workbench with molecular-biology learning levels and MISSY analysis.">
-<script src="js/welcome.js?v=0.4.30" data-module-count="61"></script>
+<script src="js/welcome.js?v=0.4.30" data-module-count="62"></script>
 <link rel="stylesheet" href="css/site.css?v=0.4.30">
 <link rel="stylesheet" href="css/missy-workspace.css?v=0.4.30">
 <link rel="stylesheet" href="css/quiz.css?v=0.4.30">
 <link rel="stylesheet" href="css/welcome.css?v=0.4.30">
+<link rel="stylesheet" href="css/batch.css?v=0.4.30">
 </head>
 <body>
 <section id="welcome-screen" class="welcome-screen" aria-labelledby="welcome-title">
@@ -202,7 +203,8 @@
 <script src="js/ui/levels_install.js?v=0.4.30" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
 <script src="data/technician-assessment.js?v=0.4.30" onload="R2Boot.step('Loading assay and training data')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
 <script src="js/ui/technician_access.js?v=0.4.30" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/ui/batch.js?v=0.4.30" onload="R2Boot.step('Preparing batch profiles')"></script>
+<script src="js/ui/batch_runs.js?v=0.4.30" onload="R2Boot.step('Preparing batch profiles')"></script>
+<script src="js/ui/batch_builder.js?v=0.4.30" onload="R2Boot.step('Preparing batch builder')"></script>
 <script src="js/ui/app.js?v=0.4.30" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
 </body>
 </html>

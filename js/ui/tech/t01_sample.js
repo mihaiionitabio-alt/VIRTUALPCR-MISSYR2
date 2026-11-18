@@ -3,6 +3,7 @@
   "use strict";
   const $ = R2.$, X = R2.tech;
   function draw() {
+    $("g-design-extractions").value=X.design?.extractions??3;$("g-design-replicates").value=X.design?.replicates??3;
     const s = X.sample, c = X.D().crops[s.crop];
     $("g-sample-kv").innerHTML = `<dt>Species</dt><dd>${c.label}</dd><dt>Genome copies</dt><dd>about ${c.copiesPerNg} per ng DNA (assumed)</dd><dt>GM content</dt><dd>${s.blind ? "not disclosed; revealed on the quality bench after the analysis" : Object.keys(s.events).length ? "set below, in % of genome copies" : "none"}</dd><dt>In ${X.ng} ng</dt><dd>about ${Math.round(X.ng * c.copiesPerNg).toLocaleString("en")} genome copies (${Math.round(X.ng * c.copiesPerNg * (X.GP().AMPLIFIABLE[s.crop] || 1)).toLocaleString("en")} amplifiable in this model)</dd>`;
     $("g-comp").innerHTML = s.blind ? "" : `<h3>GM events in the sample</h3><div class="row">` + X.D().events.filter(e => e.crop === s.crop).map(e => `<label>${e.name} <input type="number" data-ev="${e.name}" min="0" max="100" step="0.01" value="${s.events[e.name] || 0}" style="width:4.8em"> %</label>`).join("") + `</div>`;
@@ -18,7 +19,7 @@
       <td class="l"><input type="date" data-date="${i}" value="${R2.esc(m.extractionDate)}"></td><td class="l"><input data-lab="${i}" maxlength="100" value="${R2.esc(m.label)}" style="width:12em" autocomplete="off"></td></tr>`).join("");
   }
   X.tab({ id: "sample", title: "Sample", done: () => true,
-    html: `<div class="panel" id="tpl-panel"><h3>New analysis</h3>
+    html: `<div class="panel"><h3>Extraction and PCR replication design</h3><div class="row"><label>Independent DNA extractions per sample <input id="g-design-extractions" type="number" min="1" max="12" value="3"></label><label>PCR replicates per extraction <input id="g-design-replicates" type="number" min="1" max="12" value="3"></label></div><p class="note">These are separate counts. Plate capacity is recalculated for every reaction mix. Configure run controls on the Plate step. Published-method acceptance rules still apply to altered designs.</p><p id="g-design-status" role="status"></p></div><div class="panel" id="tpl-panel"><h3>New analysis</h3>
         <div class="row"><label>Start from template <select id="tpl-sel" style="max-width:min(520px,80vw)"></select></label><button id="tpl-apply" class="primary">Start new analysis</button>
           <button id="tpl-dl">Download template</button><button id="tpl-del">Delete template</button><button id="tpl-imp">Import template (.json, OpticalCyclerA .ixo)</button><input type="file" id="tpl-file" accept=".json,.ixo,application/json" hidden></div>
         <p class="note" id="tpl-msg" role="status">A template sets species, step, assays, DNA per reaction, reagents, programme and reaction mixes. Save one after a run on the Run step.</p></div>
@@ -39,6 +40,7 @@
         <p class="note">Each sample is analysed as three parallel sub-samples (independent DNA extractions E1–E3), each in three PCR replicates. Names are <code>prefix-n-YYYYMMDD</code>: a random six-digit prefix drawn at run start and unique to the run, the sample number and the DNA extraction date, so that samples of independent runs never share a name.</p>
         <div class="scroll"><table class="sample-table" id="g-samples"></table></div></div>`,
     init() {
+      for(const id of ["g-design-extractions","g-design-replicates"])$(id).onchange=()=>{try{X.updateDesign({...X.design,extractions:+$("g-design-extractions").value,replicates:+$("g-design-replicates").value});$("g-design-status").textContent="Design updated.";}catch(e){$("g-design-status").textContent=e.message;}draw();};
       const T = R2.templates;
       X.fillTemplates = (sel) => { $("tpl-sel").innerHTML = T.list().map(t => `<option value="${R2.esc(t.id)}">${t.builtIn ? "Built-in · " : "Saved · "}${R2.esc(t.name)}${t.sop_id ? " · " + t.sop_id : ""}</option>`).join(""); if (sel) $("tpl-sel").value = sel; const t = T.get($("tpl-sel").value); $("tpl-del").disabled = !t || !!t.builtIn; };
       X.fillTemplates();

@@ -1,0 +1,55 @@
+{
+  "format": "missy-r2-batch/1",
+  "name": "Example: soybean screening and quantification",
+  "description": "Two screening runs with natural variation, one quantification with an aged probe, one run with an LED at half power.",
+  "defaults": {
+    "naturalVariation": true,
+    "samples": [
+      {
+        "extractionDate": "2026-11-18"
+      }
+    ]
+  },
+  "runs": [
+    {
+      "name": "screening soybean {i}",
+      "repeat": 2,
+      "template": "TPL-BUILTIN-SIMPLEX-SC-SOY",
+      "samples": [
+        {
+          "material": "soyA",
+          "extractionDate": "2026-11-18",
+          "label": "Lot A"
+        },
+        {
+          "material": "soyB",
+          "extractionDate": "2026-11-18",
+          "label": "Lot B"
+        }
+      ]
+    },
+    {
+      "name": "quantification 40-3-2 aged probe",
+      "material": "soyA",
+      "stage": "quant",
+      "procedure": "eurl",
+      "assays": [
+        "QT-EVE-GM-005"
+      ],
+      "reagents": {
+        "probeStoreC": 22,
+        "probeMonths": 6
+      }
+    },
+    {
+      "name": "screening LED 50 percent",
+      "template": "TPL-BUILTIN-SIMPLEX-SC-SOY",
+      "errorScenario": "hw-led-aged"
+    }
+  ],
+  "output": {
+    "openQuality": true,
+    "selectForMissy": true,
+    "downloadRdmltZip": false
+  }
+}

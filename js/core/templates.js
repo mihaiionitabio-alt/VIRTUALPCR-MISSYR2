@@ -27,7 +27,7 @@
   T.capture = function (X, name) {
     const t = { format: FORMAT, name: (name || "").trim() || "Template", created: new Date().toISOString(), samplePreset: X.sampleKey, crop: X.sample.crop,
       stage: X.stage, layout: X.layout || "eurl", assays: X.chosen[X.stage].slice(), duplex: !!X.duplex, dna: { ...X.dna }, settings: { ...X.settings }, fields: { ...X.f },
-      mix: X.mixSettings ? { ...X.mixSettings } : null, natural: X.natural !== false };
+      design: structuredClone(X.design || null), mix: X.mixSettings ? { ...X.mixSettings } : null, natural: X.natural !== false };
     if (X.meta?.some(row => row.label)) t.batch = X.meta.map((row, i) => ({ ...row, preset: i === 0 ? X.sampleKey : X.extra[i-1] }));
     t.sop_id = T.sopId(X);
     t.id = "TPL-" + R2.sha256(R2.utf8(R2.sop.canonical({ ...t, created: null, name: null }))).slice(0, 10).toUpperCase();
@@ -73,6 +73,7 @@
       X.f = { ...X.f, ...t.fields }; if (t.mix && t.mix.rxnUl) X.mixSettings = Object.assign({}, R2.mixcalc.DEFAULT, X.mixSettings || {}, { rxnUl: t.mix.rxnUl });
       X.prof = R2.planProfile(X.protocol()); X.templateUsed = { id: t.id, name: t.name, programmeOnly: true }; return X;
     }
+    X.design = structuredClone(t.design || null);
     const preset = R2.GMO.samples.find(s => s.key === t.samplePreset) || R2.GMO.samples.find(s => s.crop === t.crop && !s.blind);
     if (!X.sample || X.sample.crop !== t.crop || (t.samplePreset && X.sampleKey !== t.samplePreset)) X.setSample(preset.key);
     X.settings = Object.assign({}, R2.reagents.DEFAULT, t.settings || {});

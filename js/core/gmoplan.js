@@ -67,7 +67,8 @@
   P.LAYOUT = { extractions: 3, replicates: 3 };
   P.plate = function (sample, choice) {
     const samples = (choice.samples && choice.samples.length ? choice.samples : [sample]), first = samples[0], crop = first.crop, ng = choice.ng || P.DEFAULT_NG, notes = [];
-    const NW = R2.PLATE.n, COLS = R2.PLATE.cols, ROWS = R2.PLATE.rows, X = P.LAYOUT.extractions, REP = P.LAYOUT.replicates;
+    const NW = R2.PLATE.n, COLS = R2.PLATE.cols, ROWS = R2.PLATE.rows, X = choice.design?.extractions ?? P.LAYOUT.extractions, REP = choice.design?.replicates ?? P.LAYOUT.replicates;
+    if(!Number.isInteger(X)||X<1||X>12||!Number.isInteger(REP)||REP<1||REP>12)throw new Error("Extractions and PCR replicates must be whole numbers from 1 to 12.");
     const wells = Array.from({ length: NW }, () => ({ role: "empty", sample: "", t: [], sim: [] }));
     const short = id => M(id).kind === "taxon" ? M(id).target.split(" ")[0] : M(id).kind === "event" ? M(id).event : D().elementNames[M(id).el];
     const mixName = t => t.map(short).join("+");
@@ -148,9 +149,21 @@
       for (const id of ids) tubes.push([id]);
       controls = t => [ctl("positive", "PC", "PC " + mixName(t), m => control(m, crop, ng)), ctl("positive", "PC", "PC " + mixName(t), m => control(m, crop, ng)), ctl("ntc", "NTC", "NTC " + mixName(t), () => ({ copies: 0 })), ctl("ntc", "NTC", "NTC " + mixName(t), () => ({ copies: 0 }))];
     }
+    if(choice.design?.controlCounts){
+      const original=controls, requested=choice.design.controlCounts;
+      controls=t=>{const base=original(t),groups=new Map();for(const c of base){const key=c.ctl+"|"+c.label;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(c);}
+        for(const [code,n]of Object.entries(requested)){if(!["PC","NC","NTC","BLK","LOD","POS","CAL"].includes(code)||!Number.isInteger(n)||n<0||n>12)throw new Error("Control counts must be 0–12 for known control types.");if(n>0&&!base.some(c=>c.ctl===code)){
+          if(M(t[0]).kind==="taxon"&&(code==="LOD"||code==="POS"))continue;let c;if(code==="NC")c=ctl("negative",code,"Non-GM control",m=>({copies:m.kind==="taxon"?ng*cpn(crop):0,material:"Non-GM "+crop+" genomic DNA"}));
+          else if(code==="NTC"||code==="BLK")c=ctl("ntc",code,code==="BLK"?"Extraction blank":"NTC",()=>({copies:0,material:code==="BLK"?"DNA extraction blank":"Water"}));
+          else if(code==="PC")c=ctl("positive",code,"PC "+mixName(t),m=>control(m,crop,ng));
+          else throw new Error(code+" is not provided by this analysis template; choose a template containing it.");groups.set(code+"|"+c.label,[c]);}}
+        return [...groups.values()].flatMap(group=>Array.from({length:requested[group[0].ctl]??group.length},(_,i)=>({...group[i%group.length],rep:i+1})));};
+      notes.push("Custom control counts per mix (CAL count applies to each calibrant level). Original method acceptance requirements remain applicable.");
+    }
     // capacity: whole rows per mix
     const perSample = X * REP, rowsFor = n => tubes.reduce((a, t) => a + Math.ceil((n * perSample + controls(t).length) / COLS), 0);
     let maxN = 0; while (rowsFor(maxN + 1) <= ROWS) maxN++;
+    if(maxN===0)throw new Error("No sample fits with this extraction, replicate and control configuration.");
     let use = samples; if (samples.length > maxN) { notes.push(`${samples.length} samples requested; ${maxN} fit on the 384-well plate with these mixes and controls. The rest were left out.`); use = samples.slice(0, maxN); }
     let row = 0;
     for (const t of tubes) {
