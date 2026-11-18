@@ -21,3 +21,7 @@ Source acknowledgements are in [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt
 - Completed guided-run results stop redrawing, preserving editable fields.
 - Charts with measured points but insufficient history say “collecting baseline”.
 - Older workbench run files and templates remain readable.
+
+## Sources and credits
+
+The welcome page links to the [sources and credits](https://mihaiionitabio-alt.github.io/VIRTUALPCR-MISSYR2/credits.html): scientific references, source repositories, example-data credits and licence notices. The static page and `data/credits.json` are included in the offline website. Run `python scripts/build_credits.py` after editing the curated source list.

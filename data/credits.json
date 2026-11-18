@@ -1,0 +1,573 @@
+{
+  "reviewed": "2026-11-18",
+  "scope": "Recorded project sources, supplied development reading, implementation credits and bundled notices. A citation does not imply copied code or endorsement.",
+  "entries": [
+    {
+      "group": "Project and formats",
+      "title": "VIRTUALPCR/MISSYR2",
+      "use": "Source code for this workbench, configuration, simulator, export and integration.",
+      "links": [
+        {
+          "label": "GitHub",
+          "url": "https://github.com/mihaiionitabio-alt/VIRTUALPCR-MISSYR2"
+        },
+        {
+          "label": "Live website",
+          "url": "https://mihaiionitabio-alt.github.io/VIRTUALPCR-MISSYR2/"
+        }
+      ],
+      "credit": ""
+    },
+    {
+      "group": "Project and formats",
+      "title": "MISSY and zpcrweb",
+      "use": "Bundled MISSY analysis page; graph interaction and presentation ancestry. Workbench graph behaviour was independently reimplemented.",
+      "links": [
+        {
+          "label": "MISSY source snapshot",
+          "url": "https://github.com/mihaiionitabio-alt/zpcrweb/blob/missy-public-offline-2026-10-20/index.html"
+        },
+        {
+          "label": "Upstream zpcrweb",
+          "url": "https://github.com/RByers/zpcrweb"
+        }
+      ],
+      "credit": "GPL-3.0 attribution recorded in project notices; retain upstream notices."
+    },
+    {
+      "group": "Project and formats",
+      "title": "RDML Consortium",
+      "use": "Structured real-time PCR exchange format. RDMLt is this project’s draft telemetry package around an RDML core; it is not presented as a consortium standard.",
+      "links": [
+        {
+          "label": "RDML",
+          "url": "https://rdml.org/"
+        },
+        {
+          "label": "Reference Python implementation",
+          "url": "https://github.com/RDML-consortium/rdmlpython"
+        },
+        {
+          "label": "RDMLt implementation",
+          "url": "https://github.com/mihaiionitabio-alt/VIRTUALPCR-MISSYR2/blob/main/js/export/rdmlt.js"
+        }
+      ],
+      "credit": ""
+    },
+    {
+      "group": "Methods and databases",
+      "title": "GMOMETHODS — EURL GMFF / European Commission JRC",
+      "use": "Assay records, oligonucleotide sequences, reaction conditions, method performance and validation references.",
+      "links": [
+        {
+          "label": "Method database",
+          "url": "https://gmo-crl.jrc.ec.europa.eu/gmomethods/"
+        }
+      ],
+      "credit": "© European Union; acknowledgement retained. Individual DOI references are listed below."
+    },
+    {
+      "group": "Methods and databases",
+      "title": "JRC GMO-Matrix",
+      "use": "Element/event relationships used by the teaching scenarios.",
+      "links": [
+        {
+          "label": "JRC bioinformatics resources",
+          "url": "https://joint-research-centre.ec.europa.eu/scientific-activities/bioinformatics_en"
+        }
+      ],
+      "credit": ""
+    },
+    {
+      "group": "Methods and databases",
+      "title": "JRC136933 — Bioinformatics evaluation of GMO reference genes and their amplification systems",
+      "use": "Reference-gene copy-number and amplicon information; report identifier recorded in the original construction notes.",
+      "links": [
+        {
+          "label": "JRC publication record",
+          "url": "https://publications.jrc.ec.europa.eu/repository/handle/JRC136933"
+        },
+        {
+          "label": "EURL publication list",
+          "url": "https://gmo-crl.jrc.ec.europa.eu/publications"
+        }
+      ],
+      "credit": ""
+    },
+    {
+      "group": "Methods and databases",
+      "title": "MARA 1012 method series and explanatory translations",
+      "use": "Source-referenced draft method calculations, control rules and interpretation profiles. Published Chinese standards remain authoritative; local explanatory translations are supporting material.",
+      "links": [
+        {
+          "label": "Method catalogue provenance",
+          "url": "https://github.com/mihaiionitabio-alt/LIMS/blob/main/index.html"
+        },
+        {
+          "label": "Bundled profile definitions",
+          "url": "https://github.com/mihaiionitabio-alt/VIRTUALPCR-MISSYR2/blob/main/data/missy-native-sops.js"
+        }
+      ],
+      "credit": "The bundled profiles retain source PDF names, clause references and SHA-256 identifiers. Laboratory approval is separate from these teaching profiles."
+    },
+    {
+      "group": "Scientific articles",
+      "title": "Gevertz, J. L.; Dunn, S. M.; Roth, C. M. (2005). Mathematical model of real-time PCR kinetics. Biotechnology and Bioengineering 92:346–355.",
+      "use": "User-supplied development reading for amplification kinetics and curve-shape review; not a claim that every model equation was adopted.",
+      "links": [
+        {
+          "label": "DOI",
+          "url": "https://doi.org/10.1002/bit.20617"
+        }
+      ],
+      "credit": ""
+    },
+    {
+      "group": "Scientific articles",
+      "title": "Zhao, S.; Fernald, R. D. (2005). Comprehensive Algorithm for Quantitative Real-Time Polymerase Chain Reaction. Journal of Computational Biology 12:1047–1064.",
+      "use": "User-supplied development reading for exponential-phase analysis and fluorescence-curve fitting.",
+      "links": [
+        {
+          "label": "DOI",
+          "url": "https://doi.org/10.1089/cmb.2005.12.1047"
+        },
+        {
+          "label": "Full text",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2716216/"
+        }
+      ],
+      "credit": ""
+    },
+    {
+      "group": "Scientific articles",
+      "title": "Adams, G. (2020). A beginner’s guide to RT-PCR, qPCR and RT-qPCR. The Biochemist 42(3):48–53.",
+      "use": "User-supplied introductory reading for molecular-biology and qPCR teaching content.",
+      "links": [
+        {
+          "label": "DOI",
+          "url": "https://doi.org/10.1042/BIO20200034"
+        }
+      ],
+      "credit": ""
+    },
+    {
+      "group": "Scientific articles",
+      "title": "Vandesompele et al. (2002). Accurate normalization of real-time quantitative RT-PCR data by geometric averaging of multiple internal control genes. Genome Biology 3:research0034.",
+      "use": "geNorm M reference recorded in the project acknowledgements.",
+      "links": [
+        {
+          "label": "DOI",
+          "url": "https://doi.org/10.1186/gb-2002-3-7-research0034"
+        }
+      ],
+      "credit": ""
+    },
+    {
+      "group": "Code, examples and independent reimplementations",
+      "title": "PCR-Calculator — S. Gil",
+      "use": "Inspiration for reaction counts, excess, master-mix strength, rounded totals and copyable mix reports. No code copied.",
+      "links": [
+        {
+          "label": "GitHub",
+          "url": "https://github.com/shellygil/PCR-Calculator"
+        }
+      ],
+      "credit": "No licence stated in the original project review; idea-only reuse."
+    },
+    {
+      "group": "Code, examples and independent reimplementations",
+      "title": "Auto-qPCR — Maussion, Thomas, Demirova et al. (2021)",
+      "use": "Adapted example files, replicate cut-off behaviour and default-settings reference.",
+      "links": [
+        {
+          "label": "GitHub",
+          "url": "https://github.com/neuroeddu/Auto-qPCR"
+        },
+        {
+          "label": "Article",
+          "url": "https://doi.org/10.1038/s41598-021-99727-6"
+        }
+      ],
+      "credit": "GPL-3.0 recorded in project notices; example instrument labels were made neutral."
+    },
+    {
+      "group": "Code, examples and independent reimplementations",
+      "title": "Click-qPCR — Kubota and Tajima (2025)",
+      "use": "Reproduced template example and comparative ΔCq/ΔΔCq analysis with Welch t-test.",
+      "links": [
+        {
+          "label": "GitHub",
+          "url": "https://github.com/kubo-azu/Click-qPCR"
+        },
+        {
+          "label": "Article",
+          "url": "https://doi.org/10.21769/BioProtoc.5513"
+        }
+      ],
+      "credit": "The project notices record MIT for the software; the article has its own publication licence."
+    },
+    {
+      "group": "Code, examples and independent reimplementations",
+      "title": "qPCR plate planner — M. M. Ali",
+      "use": "Reproduced mixed plate JSON example in the file-analysis examples.",
+      "links": [
+        {
+          "label": "GitHub",
+          "url": "https://github.com/Mahmood-M-Ali/qPCR-plate-planner"
+        },
+        {
+          "label": "Project DOI",
+          "url": "https://doi.org/10.5281/zenodo.17410644"
+        }
+      ],
+      "credit": "CC BY-NC 4.0 recorded in the existing notices; exact source revision was not retained."
+    },
+    {
+      "group": "Code, examples and independent reimplementations",
+      "title": "rtpcr / shiny_rtpcr — Ghader Mirzaghaderi",
+      "use": "Reference for efficiency/Ct columns and efficiency weighting; workbench example values were constructed locally.",
+      "links": [
+        {
+          "label": "rtpcr",
+          "url": "https://github.com/mirzaghaderi/rtpcr"
+        },
+        {
+          "label": "shiny_rtpcr",
+          "url": "https://github.com/mirzaghaderi/shiny_rtpcr"
+        }
+      ],
+      "credit": ""
+    },
+    {
+      "group": "Code, examples and independent reimplementations",
+      "title": "PCRtools and virtualPCR — R. Kalendar",
+      "use": "Tm definitions, reaction conditions and primer-pairing concepts; independent implementation, no source code copied.",
+      "links": [
+        {
+          "label": "GitHub",
+          "url": "https://github.com/rkalendar/PCRtools"
+        },
+        {
+          "label": "Associated publication",
+          "url": "https://doi.org/10.1016/j.omtn.2025.102716"
+        }
+      ],
+      "credit": "GPL-3.0 reference recorded in construction notices."
+    },
+    {
+      "group": "Code, examples and independent reimplementations",
+      "title": "Chai Open qPCR",
+      "use": "Reference for sensor curves, protocol options and Cy0 behaviour.",
+      "links": [
+        {
+          "label": "GitHub",
+          "url": "https://github.com/chaibio/chaipcr"
+        }
+      ],
+      "credit": "Apache-2.0 recorded in original project acknowledgements. Specific revision was not retained."
+    },
+    {
+      "group": "Bundled libraries and fonts",
+      "title": "Plotly.js basic distribution 2.35.2",
+      "use": "Inlined interactive plotting library in the bundled MISSY page.",
+      "links": [
+        {
+          "label": "Source and licence",
+          "url": "https://github.com/plotly/plotly.js/tree/v2.35.2"
+        }
+      ],
+      "credit": "MIT; bundled comments and upstream notices remain in missy/index.html."
+    },
+    {
+      "group": "Bundled libraries and fonts",
+      "title": "Noto CJK fonts",
+      "use": "Offline interface font assets embedded in MISSY.",
+      "links": [
+        {
+          "label": "Source and licences",
+          "url": "https://github.com/notofonts/noto-cjk"
+        }
+      ],
+      "credit": "SIL Open Font License text remains embedded in MISSY."
+    },
+    {
+      "group": "Bundled libraries and fonts",
+      "title": "D3 formatting modules within Plotly",
+      "use": "Transitive number and time-formatting components.",
+      "links": [
+        {
+          "label": "d3-format",
+          "url": "https://github.com/d3/d3-format/tree/v1.4.5"
+        },
+        {
+          "label": "d3-time-format",
+          "url": "https://github.com/d3/d3-time-format/tree/v2.2.3"
+        }
+      ],
+      "credit": "See the inlined Plotly distribution for its full dependency notices."
+    },
+    {
+      "group": "Metadata and provenance references",
+      "title": "10.1038/sdata.2016.18",
+      "use": "Explicit citation in the bundled MISSY metadata-export profile. Listed as provenance guidance, not as a certification claim.",
+      "links": [
+        {
+          "label": "DOI",
+          "url": "https://doi.org/10.1038/sdata.2016.18"
+        }
+      ],
+      "credit": ""
+    },
+    {
+      "group": "Metadata and provenance references",
+      "title": "10.1038/s41597-020-0486-7",
+      "use": "Explicit citation in the bundled MISSY metadata-export profile. Listed as provenance guidance, not as a certification claim.",
+      "links": [
+        {
+          "label": "DOI",
+          "url": "https://doi.org/10.1038/s41597-020-0486-7"
+        }
+      ],
+      "credit": ""
+    },
+    {
+      "group": "Metadata and provenance references",
+      "title": "10.5334/dsj-2020-043",
+      "use": "Explicit citation in the bundled MISSY metadata-export profile. Listed as provenance guidance, not as a certification claim.",
+      "links": [
+        {
+          "label": "DOI",
+          "url": "https://doi.org/10.5334/dsj-2020-043"
+        }
+      ],
+      "credit": ""
+    },
+    {
+      "group": "Metadata and provenance references",
+      "title": "Schema.org, DCAT, PROV-O, PAV and SPDX",
+      "use": "Metadata vocabulary and provenance terms referenced by the bundled MISSY exports.",
+      "links": [
+        {
+          "label": "Schema.org datasets",
+          "url": "https://schema.org/docs/data-and-datasets.html"
+        },
+        {
+          "label": "DCAT",
+          "url": "https://www.w3.org/TR/vocab-dcat-3/"
+        },
+        {
+          "label": "PROV-O",
+          "url": "https://www.w3.org/TR/prov-o/"
+        },
+        {
+          "label": "PAV",
+          "url": "https://pav-ontology.github.io/pav/"
+        },
+        {
+          "label": "SPDX",
+          "url": "https://spdx.org/"
+        }
+      ],
+      "credit": ""
+    },
+    {
+      "group": "Assay validation publications",
+      "title": "10.1007/s00217-007-0748-z",
+      "use": "Method-specific validation publication cited in data/gmo_methods.js.",
+      "links": [
+        {
+          "label": "DOI",
+          "url": "https://doi.org/10.1007/s00217-007-0748-z"
+        }
+      ],
+      "credit": ""
+    },
+    {
+      "group": "Assay validation publications",
+      "title": "10.1007/s12161-014-9837-3",
+      "use": "Method-specific validation publication cited in data/gmo_methods.js.",
+      "links": [
+        {
+          "label": "DOI",
+          "url": "https://doi.org/10.1007/s12161-014-9837-3"
+        }
+      ],
+      "credit": ""
+    },
+    {
+      "group": "Assay validation publications",
+      "title": "10.1016/j.foodcont.2016.08.037",
+      "use": "Method-specific validation publication cited in data/gmo_methods.js.",
+      "links": [
+        {
+          "label": "DOI",
+          "url": "https://doi.org/10.1016/j.foodcont.2016.08.037"
+        }
+      ],
+      "credit": ""
+    },
+    {
+      "group": "Assay validation publications",
+      "title": "10.1021/jf901598r",
+      "use": "Method-specific validation publication cited in data/gmo_methods.js.",
+      "links": [
+        {
+          "label": "DOI",
+          "url": "https://doi.org/10.1021/jf901598r"
+        }
+      ],
+      "credit": ""
+    },
+    {
+      "group": "Assay validation publications",
+      "title": "10.1093/jaoac/87.6.1342",
+      "use": "Method-specific validation publication cited in data/gmo_methods.js.",
+      "links": [
+        {
+          "label": "DOI",
+          "url": "https://doi.org/10.1093/jaoac/87.6.1342"
+        }
+      ],
+      "credit": ""
+    },
+    {
+      "group": "Assay validation publications",
+      "title": "10.2760/720444",
+      "use": "Method-specific validation publication cited in data/gmo_methods.js.",
+      "links": [
+        {
+          "label": "DOI",
+          "url": "https://doi.org/10.2760/720444"
+        }
+      ],
+      "credit": ""
+    },
+    {
+      "group": "Assay validation publications",
+      "title": "10.2788/20464",
+      "use": "Method-specific validation publication cited in data/gmo_methods.js.",
+      "links": [
+        {
+          "label": "DOI",
+          "url": "https://doi.org/10.2788/20464"
+        }
+      ],
+      "credit": ""
+    },
+    {
+      "group": "Assay validation publications",
+      "title": "10.2788/22579",
+      "use": "Method-specific validation publication cited in data/gmo_methods.js.",
+      "links": [
+        {
+          "label": "DOI",
+          "url": "https://doi.org/10.2788/22579"
+        }
+      ],
+      "credit": ""
+    },
+    {
+      "group": "Assay validation publications",
+      "title": "10.2788/28149",
+      "use": "Method-specific validation publication cited in data/gmo_methods.js.",
+      "links": [
+        {
+          "label": "DOI",
+          "url": "https://doi.org/10.2788/28149"
+        }
+      ],
+      "credit": ""
+    },
+    {
+      "group": "Assay validation publications",
+      "title": "10.2788/31820",
+      "use": "Method-specific validation publication cited in data/gmo_methods.js.",
+      "links": [
+        {
+          "label": "DOI",
+          "url": "https://doi.org/10.2788/31820"
+        }
+      ],
+      "credit": ""
+    },
+    {
+      "group": "Assay validation publications",
+      "title": "10.2788/38101",
+      "use": "Method-specific validation publication cited in data/gmo_methods.js.",
+      "links": [
+        {
+          "label": "DOI",
+          "url": "https://doi.org/10.2788/38101"
+        }
+      ],
+      "credit": ""
+    },
+    {
+      "group": "Assay validation publications",
+      "title": "10.2788/4370",
+      "use": "Method-specific validation publication cited in data/gmo_methods.js.",
+      "links": [
+        {
+          "label": "DOI",
+          "url": "https://doi.org/10.2788/4370"
+        }
+      ],
+      "credit": ""
+    },
+    {
+      "group": "Assay validation publications",
+      "title": "10.2788/62889",
+      "use": "Method-specific validation publication cited in data/gmo_methods.js.",
+      "links": [
+        {
+          "label": "DOI",
+          "url": "https://doi.org/10.2788/62889"
+        }
+      ],
+      "credit": ""
+    },
+    {
+      "group": "Assay validation publications",
+      "title": "10.2788/68713",
+      "use": "Method-specific validation publication cited in data/gmo_methods.js.",
+      "links": [
+        {
+          "label": "DOI",
+          "url": "https://doi.org/10.2788/68713"
+        }
+      ],
+      "credit": ""
+    },
+    {
+      "group": "Development data and local records",
+      "title": "Instrument-export summary statistics and fitted curve profiles",
+      "use": "The original review records 730 run files for curve-shape/control-variation summaries. The model also retains 71 late P-35S profile shapes. These private source records have no public dataset URL.",
+      "links": [
+        {
+          "label": "Model implementation",
+          "url": "https://github.com/mihaiionitabio-alt/VIRTUALPCR-MISSYR2/blob/main/js/core/plant.js"
+        }
+      ],
+      "credit": "Model summaries are distinct from the user’s experiment files. No private local paths or raw run exports are published here."
+    },
+    {
+      "group": "Development data and local records",
+      "title": "Virtual control-chart histories",
+      "use": "Built-in simulated teaching histories derived from local instrument-record summaries. These are training examples, not new real instrument experiments.",
+      "links": [
+        {
+          "label": "Project source",
+          "url": "https://github.com/mihaiionitabio-alt/VIRTUALPCR-MISSYR2/tree/main/data"
+        }
+      ],
+      "credit": ""
+    },
+    {
+      "group": "Development data and local records",
+      "title": "Books and other supplied assets",
+      "use": "No named book citation is documented in the available construction notes or distributed source. Supplied Fritzing parts were development references; no copied Fritzing asset is identified in this runtime package. This list does not assign an invented author, book or repository.",
+      "links": [],
+      "credit": ""
+    }
+  ]
+}

@@ -215,3 +215,6 @@ body:has(#view-quality:not([hidden])) .wrap { max-width: none; padding-inline: c
 table.cq td, table.cq th { white-space: nowrap; }
 table.cq td.badcell { color: var(--bad); font-weight: 700; } table.cq td.warncell { color: var(--warn); font-weight: 700; }
 .choices > button.right:disabled, .choices > button.wrong:disabled { opacity: 1; }
+
+/* Welcome bibliography link uses the same button treatment. */
+.welcome-actions .welcome-sources{display:inline-flex;align-items:center;justify-content:center;padding:12px 22px;min-height:44px;border:1px solid #c99bcd;border-radius:24px;background:#170f22;color:#f4ebff;font-weight:600;text-decoration:none}.welcome-actions .welcome-sources:hover{background:#302039}.welcome-actions .welcome-sources:focus-visible{outline:3px solid #ff9b64;outline-offset:4px}

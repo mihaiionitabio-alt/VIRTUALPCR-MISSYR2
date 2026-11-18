@@ -6,7 +6,7 @@ import hashlib, re, shutil, zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "_site"
-files = [ROOT / "index.html", ROOT / "THIRD_PARTY_NOTICES.txt"]
+files = [ROOT / "index.html", ROOT / "credits.html", ROOT / "THIRD_PARTY_NOTICES.txt"]
 for name in ("assets", "css", "data", "js", "missy"):
     files.extend(p for p in (ROOT / name).rglob("*") if p.is_file())
 files = sorted(files)
@@ -27,7 +27,7 @@ class Dependencies(HTMLParser):
             assert target.is_relative_to(ROOT), (self.entry, ref)
             assert target.is_file(), (self.entry, ref)
 
-for entry in (ROOT / "index.html", ROOT / "missy/index.html"):
+for entry in (ROOT / "index.html", ROOT / "credits.html", ROOT / "missy/index.html"):
     parser = Dependencies(entry); parser.feed(entry.read_text(encoding="utf-8"))
 # Do not remove any path outside the generated output folder.
 if OUT.exists():
