@@ -35,3 +35,11 @@ The format is `missy-r2-batch/1`: `count` is a positive integer; `seed` is a pos
 Generation runs sequentially with progress and cancellation. Completed runs remain in the current browser tab and appear in Quality manager, including normal SOP and MISSY hand-off. Individual `.rdmlt` downloads and a generated-file ZIP are available in the runner. Each package retains the batch profile in `source/run-input.json`. Save both profile and output files before closing the tab. Large batches retain raw telemetry in browser memory; cancel and download completed runs when needed. This is an offline simulator, not executable JavaScript: uploaded profiles are parsed as JSON.
 
 Implementation: `js/ui/batch.js`; example profile: `data/batch-example.json`. Browser checks covered two complete normal runs opened together in MISSY (both Accepted, 17 result rows each), sample controls, profile import/export, a labelled light-source fault, ZIP output and cancellation.
+
+## Development preview: multi-configuration plans
+
+The public main branch has been restored to 0.4.29. This development worktree is a preview, not deployed to GitHub Pages.
+
+The compact builder groups controls into collapsible sections and maintains a configuration sidebar. Set the first configuration's file count, choose **Duplicate configuration**, change one parameter and give that variant its own file count. Each configuration is a complete independent snapshot; editing one does not alter the others. The sidebar shows total output count and differences against the baseline. Profiles download as `missy-r2-batch-plan/1` with a `configurations` array; each entry retains the original `missy-r2-batch/1` schema and its own `count`. Existing single-configuration profiles remain accepted. The runner executes the groups in order, preserves their distinct inputs in RDMLt and files all completed runs in Quality manager.
+
+Verified: two baseline runs at ambient 22 °C and one variant at 24 °C generated three completed runs with input values [22, 22, 24]; profile round-trip, mobile layout and rollback of the live site also passed. Example: `data/batch-plan-example.json`.
