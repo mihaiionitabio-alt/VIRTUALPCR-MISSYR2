@@ -1047,6 +1047,10 @@
     return {
       start, handle, resume, save, load, importProfile, profile, readback, decisionLog, longTermUpdate, agenda, progress,
       get state() { return st; }, get schema() { return schema; },
+      questionSpec: () => { if(!st.cursor)return null;const q = Q(st.cursor); if (!q) return null; const value = q.def ? q.def(ctx) : undefined;
+        return { kind:q.kind, min:q.min, max:q.limit ? q.limit(ctx) : q.max, step:q.step, integer:!!q.integer,
+          hasDefault:!!q.def, defaultValue:value, allowMethod:!!q.allowMethod,
+          options:q.options ? q.options(ctx).map((o,i)=>({n:i+1,value:o.value,label:o.label})) : [] }; },
       grammarFor: (id) => { const q = Q(id || st.cursor); if (!q) return []; const w = ["default", "back", "say again", "list options", "undo", "where am i", "[unk]"];
         if (q.kind === "number") for (let n = q.min; n <= Math.min(q.max, 200); n += 1) w.push(String(n));
         if (q.kind === "bool") w.push("yes", "no", "affirmative", "negative");

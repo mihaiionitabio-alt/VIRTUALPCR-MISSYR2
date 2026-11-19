@@ -3,13 +3,13 @@
   "use strict";
   const U=R2.batchUi,B=R2.batchRuns,V=R2.voiceConsole,esc=R2.esc;
   const KEY="missy-r2-voice-draft-v2", LT="missy-r2-voice-last-v2";
-  let dialog,engine,shared=null,paused=false,busy=false,ack=new Set(),result=null,expiryTimer,screen="question",lastQuestionId=null,staticText=[],staticAttrs=[];
+  let dialog,engine,shared=null,paused=false,busy=false,ack=new Set(),result=null,expiryTimer,screen="question",lastQuestionId=null,staticText=[],staticAttrs=[],cardPage=0,cardQuestion=null;
   const zh=()=>R2.i18n?.language==="zh";
-  const uiZh={"Go back":"返回","Back to question":"返回当前问题","Build a profile by voice":"通过语音创建配置","Assisted":"辅助式","Visual blocks":"可视积木","Audio interview":"语音访谈","Profile read-back":"配置复述","Voice command guide":"语音指令指南","JSON history":"JSON 历史","Previous question":"上一个问题","Resume saved interview":"继续已保存访谈","Answer or command":"答案或命令","Send":"发送","Undo":"撤销","Say again":"再说一遍","Review":"审核","Profile JSON · exact settings":"配置 JSON · 确切设置","Download profile (.json)":"下载配置 (.json)","Download decisions":"下载决策记录","Load interview":"加载访谈","Confirm build":"确认生成","Launch virtual runs":"启动虚拟运行","Stop generation":"停止生成","Open the Quality manager":"打开质量管理","Open MISSY":"打开 MISSY","Download these RDMLt files (.zip)":"下载这些 RDMLt 文件 (.zip)","Forget saved interview memory":"清除已保存的访谈记忆","Profile history · JSON only":"配置历史 · 仅 JSON","Interview":"访谈","Read-back":"复述","Ready to launch":"已准备启动","Complete":"已完成","Acknowledged.":"收到。"};
+  const uiZh={"Go back":"返回","Back to question":"返回当前问题","Build a profile by voice":"通过语音创建配置","Assisted":"辅助式","Visual blocks":"可视积木","Audio interview":"语音访谈","Profile read-back":"配置复述","Voice command guide":"语音指令指南","JSON history":"JSON 历史","Previous question":"上一个问题","Resume saved interview":"继续已保存访谈","Answer or command":"答案或命令","Send":"发送","Undo":"撤销","Say again":"再说一遍","Review":"审核","Profile JSON · exact settings":"配置 JSON · 确切设置","Download profile (.json)":"下载配置 (.json)","Download decisions":"下载决策记录","Load interview":"加载访谈","Confirm build":"确认生成","Launch virtual runs":"启动虚拟运行","Stop generation":"停止生成","Open the Quality manager":"打开质量管理","Open MISSY":"打开 MISSY","Download these RDMLt files (.zip)":"下载这些 RDMLt 文件 (.zip)","Forget saved interview memory":"清除已保存的访谈记忆","Profile history · JSON only":"配置历史 · 仅 JSON","Interview":"访谈","Read-back":"复述","Ready to launch":"已准备启动","Complete":"已完成","Acknowledged.":"收到。","Console menu":"控制台菜单","Console":"控制台","Previous cards":"上一页卡片","Next cards":"下一页卡片","Today":"今天","Yesterday":"昨天","Type a custom answer":"输入自定义答案"};
   const tr=s=>zh()?(uiZh[s]||R2.i18n?.text(s)||s):s;
   function captureUiText(){
     staticText=[];staticAttrs=[];const walker=document.createTreeWalker(dialog,NodeFilter.SHOW_TEXT);let node;
-    const dynamic='#vi-page-title,#vi-back,#vi-question,#vi-options,#vi-count,#vi-phase,#vi-expiry,#vi-caption,#vi-error,#vi-clauses,#vi-check,#vi-hash,#vi-json,#vi-log,#vi-memory,pre,code';
+    const dynamic='#vi-card-position,#vi-page-title,#vi-back,#vi-question,#vi-options,#vi-count,#vi-phase,#vi-expiry,#vi-caption,#vi-error,#vi-clauses,#vi-check,#vi-hash,#vi-json,#vi-log,#vi-memory,pre,code';
     while((node=walker.nextNode()))if(node.nodeValue.trim()&&!node.parentElement.closest(dynamic))staticText.push([node,node.nodeValue]);
     for(const el of dialog.querySelectorAll('[title],[aria-label],[placeholder]'))for(const key of ['title','aria-label','placeholder'])if(el.hasAttribute(key))staticAttrs.push([el,key,el.getAttribute(key)]);
   }
@@ -66,7 +66,7 @@
   function caption(message){const n=dialog?.querySelector("#vi-caption");if(n){n.textContent=message;n.hidden=!message;}}
   const wakeInstruction=()=>zh()?"请以 Computer 或 Missy 开头作答，例如 Computer default 或 Missy yes。":"Begin each spoken answer or command with Computer or Missy, for example Computer default or Missy yes.";
   function showScreen(next){
-    screen=next;dialog.querySelectorAll('[data-vi-screen]').forEach(n=>n.hidden=n.dataset.viScreen!==next);
+    screen=next;const menu=dialog.querySelector('#vi-console-menu');if(menu)menu.open=false;dialog.querySelectorAll('[data-vi-screen]').forEach(n=>n.hidden=n.dataset.viScreen!==next);
     dialog.dataset.voiceScreen=next;dialog.scrollTop=0;
     V.pauseRecognition();V.resumeSession();
     const title=next==='readback'?'Profile read-back':next==='guide'?'Voice command guide':next==='history'?'Profile history · JSON only':'Build a profile by voice';dialog.querySelector('#vi-page-title').textContent=tr(title);dialog.querySelector('#vi-back').textContent=tr(next==='question'?'Go back':'Back to question');
@@ -74,12 +74,30 @@
     const heading=next==='question'?dialog.querySelector('#vi-question'):dialog.querySelector('#vi-page-title');if(heading){heading.tabIndex=-1;heading.focus({preventScroll:true});}
   }
   function openReadback(narrate=true){const changed=screen!=='readback';showScreen('readback');render();if(narrate&&V.speechOn)V.respond((zh()?"收到，已打开配置复述。":"Acknowledged. Profile read-back opened. ")+readbackClauses().map(c=>zh()?c.zh:c.en).join(' '),{viewChanged:changed});return changed;}
+  function answerCards(){
+    const spec=engine.questionSpec();if(!spec)return [];
+    const cards=[];const add=(label,command)=>cards.push({label,command});
+    if(spec.hasDefault||spec.allowMethod)add(tr('Use default / method'),spec.allowMethod?'method':'default');
+    if(spec.options.length)for(const o of spec.options)add(tr(String(o.label)),"option "+o.n);
+    else if(spec.kind==='bool'){add(tr('Yes'),'yes');add(tr('No'),'no');}
+    else if(spec.kind==='number'){
+      const id=engine.state.cursor,lo=Number.isFinite(spec.min)?spec.min:0,hi=Number.isFinite(spec.max)?spec.max:lo;
+      let values;
+      if(spec.integer&&hi-lo<=12)values=Array.from({length:Math.floor(hi-lo)+1},(_,i)=>lo+i);
+      else if(spec.integer)values=[spec.defaultValue,1,2,3,5,10,20,50,100,200];
+      else {const step=spec.step||1,mid=Number(((lo+hi)/2/step).toFixed(0))*step;values=[spec.defaultValue,lo,mid,hi];}
+      for(const v of [...new Set(values)].filter(v=>typeof v==='number'&&v>=lo&&v<=hi))add(String(v),String(v));
+    }else if(spec.kind==='date'){add(tr('Today'),'today');add(tr('Yesterday'),'yesterday');}
+    return cards;
+  }
+  function visibleCards(){return answerCards().slice(cardPage*6,cardPage*6+6);}
+  function cardInstruction(){const cards=visibleCards();if(!cards.length)return wakeInstruction();return (zh()?'说 Computer option 加卡片编号，或点击卡片。 ':'Say Computer option and the card number, or select a card. ')+cards.map((c,i)=>(i+1)+': '+c.label).join('; ')+(answerCards().length>6?(zh()?'。可说 Computer next cards 或 Computer previous cards。':'. Say Computer next cards or Computer previous cards to browse.'):'');}
   function sayLatest(){
     let message;
     if(screen==='guide')message=guideSpeech();
     else if(screen==='readback'||["review","armed"].includes(engine.state.phase))message=readbackClauses().map(c=>zh()?c.zh:c.en).join(' ');
     else{const turns=engine.state.turns.filter(x=>x.role==='missy'),last=current()||turns.at(-1);message=last?text(last):'';}
-    V.speak(wakeInstruction()+' '+message);
+    V.speak(wakeInstruction()+' '+message+' '+(screen==='question'?cardInstruction():''));
   }
   function guideSpeech(){return zh()?"在底栏开始语音访谈，然后启动麦克风一次。会话默认十分钟。以 Computer 或 Missy 开头说答案或命令。播放时麦克风暂停，结束后自动恢复。可说 Computer back、Computer undo、Computer say again、Computer where am I、Computer read back、Computer confirm build 或 Computer launch。生成期间请使用停止生成按钮。":"Start spoken interview in the bottom bar, then start the microphone once. The session defaults to ten minutes. Begin spoken answers and commands with Computer or Missy. The microphone pauses for playback and resumes automatically. Say Computer back, Computer undo, Computer say again, Computer where am I, Computer read back, Computer confirm build, or Computer launch. During generation, use the Stop generation button.";}
   function appliedSummary(before,after,turns,command){
@@ -109,6 +127,18 @@
       answer=wake[1];
     }
     let command=canonicalCommand(answer).trim();
+    if(screen==='question'){
+      if(/^(?:next|previous) cards$/i.test(command)){
+        const last=Math.max(0,Math.ceil(answerCards().length/6)-1);cardPage=Math.min(last,Math.max(0,cardPage+(command.toLowerCase().startsWith('next')?1:-1)));render();
+        if(V.speechOn)V.respond(cardInstruction(),{wake:meta.via==='voice'});V.resumeSession();return;
+      }
+      if(/^(?:list options|options|what are (?:the|my) options|what can i say)$/i.test(command)){if(V.speechOn)V.respond(cardInstruction(),{wake:meta.via==='voice'});V.resumeSession();return;}
+      const pick=command.match(/^(?:option|card|number)\s+(.+)$/i);
+      if(pick){const n=MissyVoiceInterview.parseNumber(pick[1]);const card=visibleCards()[n-1];
+        if(!Number.isInteger(n)||!card){const message=zh()?'请选择当前显示的卡片编号。':'Choose a card number shown on this page.';caption(message);if(V.speechOn)V.respond(message,{wake:meta.via==='voice'});V.resumeSession();return;}
+        command=card.command;
+      }
+    }
     if(/^(?:profile )?read[- ]?back$/i.test(command))command="read back";
     if(/^(?:voice )?(?:command )?guide$/i.test(command)){const changed=screen!=='guide';showScreen('guide');if(V.speechOn)V.respond(guideSpeech(),{wake:meta.via==='voice',viewChanged:changed});return;}
     if(command==='read back'){const changed=openReadback(false);if(V.speechOn)V.respond((zh()?"收到。":"Acknowledged. ")+readbackClauses().map(c=>zh()?c.zh:c.en).join(' '),{wake:meta.via==='voice',viewChanged:changed});return;}
@@ -137,7 +167,7 @@
     if(['review','armed','done'].includes(engine.state.phase))showScreen('readback');
     const summary=appliedSummary(before,shared,turns,command),failure=turns.some(t=>['clarify','refuse','error','nogo','refused'].includes(t.kind));
     caption((failure?'':tr('Acknowledged.')+' ')+summary);
-    const nextQuestion=engine.state.phase==='interview'&&current()?text(current()):'';
+    const nextQuestion=engine.state.phase==='interview'&&current()?text(current())+' '+cardInstruction():'';
     const response=(failure?'':tr('Acknowledged.')+' ')+summary+(nextQuestion?' '+nextQuestion+' '+wakeInstruction():'');
     if(!paused)V.respond(response,{wake:meta.via==='voice',viewChanged:previousCursor!==engine.state.cursor||previousScreen!==screen});
     if(turns.some(x=>x.kind==="save"))downloadProfile();
@@ -153,12 +183,17 @@
     dialog.querySelector("#vi-question").textContent=state.phase==="interview"&&q?text(q):tr("Review your profile before generating virtual runs.");
     dialog.querySelector("#vi-progress").value=progress.answered/Math.max(1,progress.total);
     dialog.querySelector("#vi-count").textContent=zh()?`已回答 ${progress.answered} / ${progress.total} 项；已记录 ${engine.decisionLog().changes.length} 次 JSON 修订`:`${progress.answered} / ${progress.total} answered · ${engine.decisionLog().changes.length} JSON revisions`;
+    if(cardQuestion!==state.cursor){cardQuestion=state.cursor;cardPage=0;dialog.querySelector('#vi-custom-entry').open=false;}
     const opts=dialog.querySelector("#vi-options");opts.replaceChildren();
-    if(state.phase==="interview"&&q){
-      if(q.options)for(const o of q.options)opts.append(button(o.n+" · "+tr(o.label),()=>input("option "+o.n,{via:"button"})));
-      else if(/Yes or no/.test(q.text))for(const [value,label] of [["yes","Yes"],["no","No"]])opts.append(button(label,()=>input(value,{via:"button"})));
-      opts.append(button("Use default / method",()=>input("default",{via:"button"})));
+    if(state.phase==='interview'&&q){
+      for(const [i,c] of visibleCards().entries()){
+        const b=button('',()=>input('option '+(i+1),{via:'button'}));b.className='vi-answer-card';b.dataset.card=String(i+1);
+        const meta=document.createElement('span');meta.className='vi-card-meta';const n=document.createElement('span');n.textContent=(i+1)+(zh()?' · 按键':' · key');const voice=document.createElement('span');voice.className='vi-card-voice';voice.textContent=(zh()?'语音：option ':'Voice: option ')+(i+1);meta.append(n,voice);const label=document.createElement('span');label.className='vi-card-label';label.textContent=c.label;b.append(meta,label);opts.append(b);
+      }
     }
+    const pages=Math.ceil(answerCards().length/6),pager=dialog.querySelector('#vi-card-pages');pager.hidden=pages<=1;
+    dialog.querySelector('#vi-card-position').textContent=zh()?`第 ${cardPage+1} / ${pages} 页`:`${cardPage+1} / ${pages}`;
+    dialog.querySelector('#vi-cards-prev').disabled=cardPage===0;dialog.querySelector('#vi-cards-next').disabled=cardPage+1>=pages;
     dialog.querySelector("#vi-json").textContent=JSON.stringify(shared||engine.profile(),null,2);
     const clauses=dialog.querySelector("#vi-clauses");clauses.replaceChildren();
     for(const clause of readbackClauses()){const item=document.createElement("li");item.textContent=zh()?clause.zh:clause.en;if(clause.mismatch)item.className="vi-caution";clauses.append(item);}
@@ -236,13 +271,12 @@
       shared=profile;engine.resume();}}
     else if(!engine.state.turns.length){engine.start();shared=engine.profile();}
     R2.annunciator?.clearSource("voice-import");disarm();paused=false;result=null;screen="question";lastQuestionId=null;
-    dialog.innerHTML=`<div class="batch-shell voice-shell vi-vui"><div class="batch-top"><button type="button" id="vi-back">Go back</button><nav class="studio-switch"><button type="button" data-mode="assisted">Assisted</button><button type="button" data-mode="visual">Visual blocks</button><button type="button" aria-pressed="true">Audio interview</button></nav></div>
-      <header class="vi-vui-heading"><h1 id="vi-page-title">Build a profile by voice</h1><nav class="vi-screen-shortcuts" aria-label="Voice workspace shortcuts"><button type="button" id="vi-readback-shortcut" class="vi-shortcut"><svg viewBox="0 0 48 38" aria-hidden="true"><path d="M5 31h38M5 31V5M10 26h8l8-14h15M11 17h30"/></svg><span>Profile read-back</span></button><button type="button" id="vi-guide-shortcut" class="vi-shortcut"><svg viewBox="0 0 48 38" aria-hidden="true"><path d="M8 8h32v21H22l-9 6v-6H8zM16 14h16M16 21h12"/></svg><span>Voice command guide</span></button><button type="button" id="vi-history-shortcut" class="vi-shortcut"><svg viewBox="0 0 48 38" aria-hidden="true"><path d="M17 7h-6v10l-4 2 4 2v10h6M31 7h6v10l4 2-4 2v10h-6M21 13h6M21 19h6M21 25h6"/></svg><span>JSON history</span></button></nav></header>
+    dialog.innerHTML=`<div class="batch-shell voice-shell vi-vui vi-console"><header class="vi-console-top"><button type="button" id="vi-back">Go back</button><h1 id="vi-page-title">Build a profile by voice</h1><details id="vi-console-menu"><summary>Console menu</summary><div class="vi-console-menu-body"><nav class="studio-switch"><button type="button" data-mode="assisted">Assisted</button><button type="button" data-mode="visual">Visual blocks</button><button type="button" aria-pressed="true">Audio interview</button></nav><nav class="vi-screen-shortcuts" aria-label="Voice workspace shortcuts"><button type="button" id="vi-readback-shortcut" class="vi-shortcut"><svg viewBox="0 0 48 38" aria-hidden="true"><path d="M5 31h38M5 31V5M10 26h8l8-14h15M11 17h30"/></svg><span>Profile read-back</span></button><button type="button" id="vi-guide-shortcut" class="vi-shortcut"><svg viewBox="0 0 48 38" aria-hidden="true"><path d="M8 8h32v21H22l-9 6v-6H8zM16 14h16M16 21h12"/></svg><span>Voice command guide</span></button><button type="button" id="vi-history-shortcut" class="vi-shortcut"><svg viewBox="0 0 48 38" aria-hidden="true"><path d="M17 7h-6v10l-4 2 4 2v10h6M31 7h6v10l4 2-4 2v10h-6M21 13h6M21 19h6M21 25h6"/></svg><span>JSON history</span></button></nav><div class="vi-tools row"><button type="button" data-command="back">Previous question</button><button type="button" data-command="undo">Undo</button><button type="button" data-command="say again">Say again</button><button type="button" data-command="finish">Review</button></div></div></details></header>
       <div class="vi-stage-row"><span id="vi-phase" class="pill"></span><span id="vi-count"></span><span id="vi-expiry"></span><button type="button" id="vi-resume" ${resume?'':'hidden'}>Resume saved interview</button></div><progress id="vi-progress" max="1" value="0"></progress><p id="vi-error" role="alert" hidden></p>
-      <section data-vi-screen="question" class="vi-pane vi-step"><div class="vi-wake-format">Computer / Missy …</div><h2 id="vi-question"></h2><div id="vi-options" class="vi-options"></div><form id="vi-form"><label for="vi-answer">Answer or command</label><div class="row"><input id="vi-answer" autocomplete="off" maxlength="300"><button id="vi-send" type="submit" class="primary">Send</button></div></form><p id="vi-caption" class="vi-implementation" role="status" hidden></p><div class="vi-tools row"><button type="button" data-command="back">Previous question</button><button type="button" data-command="undo">Undo</button><button type="button" data-command="say again">Say again</button><button type="button" data-command="finish">Review</button></div></section>
+      <section data-vi-screen="question" class="vi-pane vi-step"><div class="vi-wake-format">Computer / Missy …</div><h2 id="vi-question"></h2><div id="vi-options" class="vi-options"></div><div id="vi-card-pages" hidden><button type="button" id="vi-cards-prev">Previous cards</button><span id="vi-card-position"></span><button type="button" id="vi-cards-next">Next cards</button></div><details id="vi-custom-entry"><summary>Type a custom answer</summary><form id="vi-form"><label for="vi-answer">Answer or command</label><div class="row"><input id="vi-answer" autocomplete="off" maxlength="300"><button id="vi-send" type="submit" class="primary">Send</button></div></form></details><p id="vi-caption" class="vi-implementation" role="status" hidden></p></section>
       <section data-vi-screen="readback" class="vi-pane vi-readback" hidden><h2>Profile read-back</h2><ol id="vi-clauses"></ol><div id="vi-check"></div><code id="vi-hash"></code><details><summary>Profile JSON · exact settings</summary><pre id="vi-json"></pre></details><div class="row"><button type="button" id="vi-save">Download profile (.json)</button><button type="button" id="vi-decisions">Download decisions</button><button type="button" id="vi-load">Load interview</button><input type="file" id="vi-file" accept=".json" hidden></div><div class="row"><button type="button" id="vi-confirm">Confirm build</button><button type="button" id="vi-launch" class="vi-launch" disabled>Launch virtual runs</button><button type="button" id="vi-cancel-run" hidden>Stop generation</button></div><progress id="vi-run-progress" max="1" value="0"></progress><div id="vi-result" class="stack" hidden><button type="button" id="vi-quality">Open the Quality manager</button><button type="button" id="vi-missy">Open MISSY</button><button type="button" id="vi-rdmlt">Download these RDMLt files (.zip)</button></div><button type="button" id="vi-forget">Forget saved interview memory</button></section>
       <section data-vi-screen="history" class="vi-pane" hidden><h2>Profile history · JSON only</h2><pre id="vi-log" class="vi-log"></pre><pre id="vi-memory"></pre></section>
-      <section data-vi-screen="guide" class="vi-pane vi-guide" hidden><h2>Voice command guide</h2><p>Recognition uses English voice commands; the examples below are spoken in English.</p><p>Begin every spoken answer or command with Computer or Missy. Typed answers and buttons do not need a wake word.</p><dl><dt>Computer default / Missy yes / Computer option two</dt><dd>Answer the current question.</dd><dt>Computer back / Computer undo / Computer say again</dt><dd>Return to the previous question, undo an accepted setting, or repeat the prompt.</dd><dt>Computer where am I / Missy read back</dt><dd>Hear progress or open the full-screen profile read-back.</dd><dt>Computer change replicates in group one to two</dt><dd>Change a named setting; the applied value is read back.</dd><dt>Computer same as group one / Missy same as last time / Computer rest as method</dt><dd>Reuse settings or accept the remaining method defaults.</dd><dt>Computer confirm build / Computer launch</dt><dd>Review the complete profile and acknowledge cautions first. Confirm the build, then launch within the displayed time window.</dd><dt>Computer stop</dt><dd>Stop listening, pause the interview and disarm launch. While audio is playing, use the bottom-bar Stop button.</dd></dl><p>Start spoken interview in the bottom bar, then start the microphone once. Set the session duration in Microphone settings using min and ✓. The default is 10 minutes. Listening pauses during playback and resumes automatically while the session remains valid.</p><p>Each accepted answer is acknowledged, followed by a summary of the applied setting and the next question. Unprefixed speech is ignored and is not added to JSON history.</p><p>During generation the microphone is off. Use Stop generation to finish and file the current run before stopping the batch.</p></section></div>`;
+      <section data-vi-screen="guide" class="vi-pane vi-guide" hidden><h2>Voice command guide</h2><p>Recognition uses English voice commands; the examples below are spoken in English.</p><p>Begin every spoken answer or command with Computer or Missy. Typed answers and buttons do not need a wake word.</p><dl><dt>Computer default / Missy yes / Computer option two</dt><dd>Choose a numbered answer card on the current page, or answer the current question.</dd><dt>Computer next cards / Computer previous cards / Computer list options</dt><dd>Browse the predefined choices or hear the cards currently shown.</dd><dt>Computer back / Computer undo / Computer say again</dt><dd>Return to the previous question, undo an accepted setting, or repeat the prompt.</dd><dt>Computer where am I / Missy read back</dt><dd>Hear progress or open the full-screen profile read-back.</dd><dt>Computer change replicates in group one to two</dt><dd>Change a named setting; the applied value is read back.</dd><dt>Computer same as group one / Missy same as last time / Computer rest as method</dt><dd>Reuse settings or accept the remaining method defaults.</dd><dt>Computer confirm build / Computer launch</dt><dd>Review the complete profile and acknowledge cautions first. Confirm the build, then launch within the displayed time window.</dd><dt>Computer stop</dt><dd>Stop listening, pause the interview and disarm launch. While audio is playing, use the bottom-bar Stop button.</dd></dl><p>Start spoken interview in the bottom bar, then start the microphone once. Set the session duration in Microphone settings using min and ✓. The default is 10 minutes. Listening pauses during playback and resumes automatically while the session remains valid.</p><p>Each accepted answer is acknowledged, followed by a summary of the applied setting and the next question. Unprefixed speech is ignored and is not added to JSON history.</p><p>During generation the microphone is off. Use Stop generation to finish and file the current run before stopping the batch.</p></section></div>`;
     captureUiText();if(!dialog.open)dialog.showModal();
     const $=s=>dialog.querySelector(s);
     $("#vi-back").onclick=()=>screen==='question'?switchMode('picker'):showScreen('question');
@@ -250,10 +284,12 @@
     $("#vi-guide-shortcut").onclick=()=>{const changed=screen!=='guide';showScreen('guide');if(V.speechOn)V.respond(guideSpeech(),{viewChanged:changed});};
     $("#vi-history-shortcut").onclick=()=>{const changed=screen!=='history';showScreen('history');if(V.speechOn)V.respond(zh()?'收到，已打开 JSON 历史。':'Acknowledged. JSON history opened.',{viewChanged:changed});};
     dialog.querySelectorAll('[data-return-question]').forEach(b=>b.onclick=()=>showScreen('question'));
+    $("#vi-cards-prev").onclick=()=>input('previous cards',{via:'button'});
+    $("#vi-cards-next").onclick=()=>input('next cards',{via:'button'});
     $("#vi-cancel-run").onclick=()=>{B.cancel();caption(tr('Stopping after this run…'));};
     dialog.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>switchMode(b.dataset.mode));
-    $("#vi-form").onsubmit=e=>{e.preventDefault();const raw=$("#vi-answer").value;$("#vi-answer").value="";input(raw);};
-    dialog.querySelectorAll("[data-command]").forEach(b=>b.onclick=()=>input(b.dataset.command,{via:"button"}));
+    $("#vi-form").onsubmit=e=>{e.preventDefault();const raw=$("#vi-answer").value;$("#vi-answer").value="";input(raw);$("#vi-custom-entry").open=false;};
+    dialog.querySelectorAll("[data-command]").forEach(b=>b.onclick=()=>{dialog.querySelector("#vi-console-menu").open=false;input(b.dataset.command,{via:"button"});});
     $("#vi-confirm").onclick=()=>input("confirm build",{via:"button"});$("#vi-launch").onclick=()=>input("launch",{via:"button"});
     $("#vi-save").onclick=downloadProfile;$("#vi-decisions").onclick=downloadMemory;
     $("#vi-quality").onclick=()=>quality(false);$("#vi-missy").onclick=()=>quality(true);
@@ -283,6 +319,11 @@
     if(event.detail.source==="voice"&&dialog?.open)requestAnimationFrame(()=>render());
   });
   document.addEventListener("r2-language",()=>{if(dialog?.open){V.stopRecognition();V.cancelSpeech();disarm();persist();render();showScreen(screen);}});
+  document.addEventListener('keydown',event=>{
+    if(!dialog?.open||screen!=='question'||busy||event.repeat||event.altKey||event.ctrlKey||event.metaKey||!/^([1-6])$/.test(event.key))return;
+    if(event.target.closest('input,textarea,select,[contenteditable="true"]')||dialog.querySelector('#vi-console-menu').open||V.topDialog()?.id!=='voice-builder')return;
+    const card=dialog.querySelector('[data-card="'+event.key+'"]');if(card){event.preventDefault();card.click();}
+  });
   window.addEventListener("hashchange",()=>{if(dialog?.open&&!busy)close();});
   R2.voiceBuilder={open,input,openReadback,get screen(){return screen;},get canListen(){return !!dialog?.open;},get engine(){return engine;},get profile(){return shared;}};
 })(window.R2);

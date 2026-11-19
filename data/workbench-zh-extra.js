@@ -547,7 +547,7 @@ Object.assign(window.R2_WORKBENCH_ZH,{
   "Return to the question to answer it.": "请返回当前问题后作答。",
   "Stop generation": "停止生成",
   "Begin every spoken answer or command with Computer or Missy. Typed answers and buttons do not need a wake word.": "每次语音回答或命令都应以 Computer 或 Missy 开头。输入文字和点击按钮时无需唤醒词。",
-  "Answer the current question.": "回答当前问题。",
+  "Choose a numbered answer card on the current page, or answer the current question.":"选择当前页的编号答案卡片，或回答当前问题。","Browse the predefined choices or hear the cards currently shown.":"浏览预设选项，或收听当前显示的卡片。","Answer the current question.": "回答当前问题。",
   "Return to the previous question, undo an accepted setting, or repeat the prompt.": "返回上一个问题、撤销已接受的设置，或重复提示。",
   "Hear progress or open the full-screen profile read-back.": "收听进度或打开全屏配置复述。",
   "Change a named setting; the applied value is read back.": "修改指定设置，并复述实际应用的值。",
