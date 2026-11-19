@@ -22,3 +22,9 @@ Opening runs with different procedures produces a full-page warning. Review the 
 ![Telemetry charts](images/missy-control-panel.png)
 
 Charts may contain points while still collecting a baseline. The current chart rules generally need about 20 compatible runs before baseline alarms become meaningful. Two loaded experiments are not a mature control-chart history. Run durations and thermal timestamps refer to simulated instrument time; the animated display uses accelerated playback. Amplification acquisitions occur at integer cycle numbers.
+
+## Twenty-run import capture
+
+The demonstrated history contains 20 virtual RDMLt experiments. The full-screen progress display stays available while their raw records and procedures are prepared and read.
+
+![Twenty-run loading display](images/missy-loading-20.png)

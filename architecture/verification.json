@@ -17,5 +17,16 @@
   "browserGeneratedRuns": 4,
   "separateTelemetryBaselineRuns": 20,
   "physicalMicrophoneTested": false,
-  "generatedCppTestsExecuted": false
+  "generatedCppTestsExecuted": false,
+  "liveDeploymentChecks": {
+    "version": "0.4.40",
+    "languages": [
+      "en",
+      "zh"
+    ],
+    "generatedRuns": 4,
+    "missySopResultsTelemetryPassed": true,
+    "wikiArchitectureImages": 13,
+    "missingWikiLinks": 0
+  }
 }

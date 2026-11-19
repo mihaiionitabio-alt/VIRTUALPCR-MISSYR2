@@ -14,3 +14,5 @@
 - Five-minute silent 1920×1080, 30 fps walkthrough with English SRT: startup, profile builders, voice cards, generation, 24-second integer-acquisition PCR replay, raw RDMLt files, real full-screen import progress, SOP, Results, 20-run Control panel, seven-second What if scene, architecture and wiki.
 
 Reproduction: see docs/wiki/Reproduction.md, package.json, architecture/tool-validation.json and architecture/verification.json. The generated website is built with python scripts/build_site.py. Source and browser/runtime output remain separate.
+
+Post-deployment verification: both complete interviews were repeated successfully on the live 0.4.40 URL, generating four additional runs and opening them in MISSY. All 13 wiki architecture images and the live native-function catalogue loaded without browser errors.
