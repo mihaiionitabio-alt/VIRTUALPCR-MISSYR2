@@ -877,10 +877,22 @@
 
   /* ============================== Home page buttons ============================== */
   function install() {
-    const create = document.querySelector("[data-batch-create]"),
-      run = document.querySelector("[data-batch-run]");
-    if (create) create.onclick = () => openBuilder(null);
-    if (run) run.onclick = () => openRunner(null);
+    // The JSON shortcuts belong only to the initial welcome screen.
+    document.querySelectorAll("[data-batch-create]").forEach((b) => (b.onclick = () => openBuilder(null)));
+    document.querySelectorAll("[data-batch-run]").forEach((b) => (b.onclick = () => openRunner(null)));
+    const corner = document.getElementById("json-corner");
+    if (corner) {
+      const sync = () => {
+        const welcome = document.getElementById("welcome-screen");
+        const hide = !welcome || welcome.hidden;
+        if (corner.hidden !== hide) corner.hidden = hide; // write only on change, so the observer does not re-trigger itself
+      };
+      window.addEventListener("hashchange", () => setTimeout(sync, 0));
+      new MutationObserver((records) => {
+        if (records.some((r) => r.target !== corner)) sync();
+      }).observe(document.body, { subtree: true, attributes: true, attributeFilter: ["hidden"] });
+      sync();
+    }
   }
   R2.batchUi = { openRunner, openBuilder, install };
   if (document.readyState === "loading")

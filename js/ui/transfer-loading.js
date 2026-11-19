@@ -28,10 +28,11 @@
     function sample() {
       if (!screen || settled) return;
       const now = performance.now(), memory = performance.memory;
-      const heap = memory ? Math.round(memory.usedJSHeapSize / 1048576) + " MB browser JavaScript memory" : "Browser memory reporting unavailable";
+      const zh = document.documentElement.lang.startsWith("zh");
+      const heap = memory ? Math.round(memory.usedJSHeapSize / 1048576) + (zh ? " MB 浏览器 JavaScript 内存" : " MB browser JavaScript memory") : zh ? "浏览器未提供内存信息" : "Browser memory reporting unavailable";
       screen.querySelector("[data-computer]").textContent =
-        "Elapsed " + ((now - began) / 1000).toFixed(1) + " s\n" + heap +
-        "\nUI scheduling delay " + Math.max(0, Math.round(now - previous - 500)) + " ms";
+        (zh ? "已用时 " : "Elapsed ") + ((now - began) / 1000).toFixed(1) + " s\n" + heap +
+        (zh ? "\n界面调度延迟 " : "\nUI scheduling delay ") + Math.max(0, Math.round(now - previous - 500)) + " ms";
       previous = now;
     }
     sample(); timer = setInterval(sample, 500); update(5, status);

@@ -1,6 +1,36 @@
 /* RDMLt adapter for the bundled MISSY. The native reader still owns RDML analysis. */
 (() => {
   "use strict";
+  // Display additions to MISSY's existing Chinese catalogue; no reader or
+  // numerical analysis changes are made for language selection.
+  Object.assign(ZH_TERMS, {
+    "Download raw RDMLt": "下载原始 RDMLt",
+    "Opening your experiments in MISSY": "正在 MISSY 中打开实验",
+    "Preparing the analysis workspace…": "正在准备分析工作区…",
+    "Starting MISSY’s analysis tools…": "正在启动 MISSY 分析工具…",
+    "Verifying the selected RDMLt packages and SOPs…": "正在验证所选 RDMLt 包和 SOP…",
+    "Reading raw curves and integrating telemetry…": "正在读取原始曲线并整合遥测数据…",
+    "Early-cycle fluorescence variation": "早期循环荧光变异",
+    "Early-cycle baseline drift": "早期循环基线漂移",
+    "Endpoint spread across wells": "孔间终点信号离散程度",
+    "Recorded acquisition temperature variation": "记录的采集温度变异",
+    "Cooling fan speed": "散热风扇转速",
+    "Peak thermoelectric current": "热电驱动峰值电流",
+    "Mean thermoelectric drive": "热电驱动平均占空比",
+    "Mean heated-lid drive": "热盖驱动平均占空比",
+    "Block hold error RMS": "模块恒温误差均方根",
+    "Maximum block-zone difference": "模块温区最大温差",
+    "Median lid temperature": "热盖温度中位数",
+    "Peak heat-sink temperature": "散热器峰值温度",
+    "Independent sensor versus controller gap": "独立传感器与控制器的温差",
+    "Verified RDMLt simulator telemetry": "已校验的 RDMLt 模拟器遥测数据",
+    "Continue to Control Panel": "继续前往控制面板",
+    "Different SOPs selected": "所选运行的 SOP 不同",
+    "The selected runs use different SOPs": "所选运行使用不同的 SOP",
+    "All selected runs were loaded. Choose the SOP for the run you are reviewing before interpreting results.": "已加载所有选中运行。解释结果前，请选择正在审核的运行所对应的 SOP。",
+    "SOP identity unavailable": "无法取得 SOP 身份",
+    "Download SOP JSON": "下载 SOP JSON"
+  });
   const token = new URLSearchParams(location.hash.slice(1)).get("workbench");
   const parentWindow = window.opener;
   const allowed = !!parentWindow && /^[0-9a-f-]{36}$/i.test(token || "");
@@ -630,6 +660,7 @@
       } catch (error) { window.R2TransferLoading.fail(error.message); tell("r2-missy-error", { error: error.message }); }
       finally { pending = false; }
     });
+    if (new URLSearchParams(location.search).get("lang") === "zh") setLanguage("zh", false);
     tell("r2-missy-ready");
   }, { once: true });
 })();

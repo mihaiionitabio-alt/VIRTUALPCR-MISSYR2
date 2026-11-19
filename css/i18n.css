@@ -1,0 +1,7 @@
+.r2-language{position:fixed;bottom:12px;left:14px;z-index:100000;border:1px solid #cc99cc;border-radius:22px;padding:8px 15px;background:#171020;color:#f5e5ff;font:600 13px/1.4 Arial,sans-serif;cursor:pointer}
+dialog>.r2-language{position:sticky;top:8px;left:auto;float:right;margin:8px 12px;z-index:10}
+.r2-language:focus-visible{outline:3px solid #ff9966;outline-offset:3px}
+.lang-zh{font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",Arial,sans-serif;line-height:1.65}
+.lang-zh button,.lang-zh select,.lang-zh input{font-family:inherit}
+.lang-zh .workspace-choice{line-height:1.7}
+@media(max-width:520px){.r2-language{font-size:12px;bottom:6px;padding:6px 10px}dialog>.r2-language{margin:4px}}

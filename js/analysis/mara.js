@@ -109,6 +109,10 @@
     if (!M.protocolMatches(run.protocol, "screen")) return finish("invalid run", "The programme differs from the Standard 17 rapid-PCR range.", "fail");
     if (Object.values(audit.controls).some(assay => Object.values(assay).some(c => !c.accepted)))
       return finish("control fail", "One or more shared rapid-screen controls failed.", "fail");
+    // Standard 17 interprets exactly 3 extracts x 3 PCR replicates per sample; any other design goes to review
+    const sampleWells = run.plate.filter(w => w.role === "unknown"), exts = new Set(sampleWells.map(w => w.ext)), reps = new Set(sampleWells.map(w => w.rep));
+    const is123 = set => set.size === 3 && [...set].every(v => [1, 2, 3].includes(v));
+    if (!is123(exts) || !is123(reps)) return finish("review required", `Custom design (${exts.size} extraction${exts.size === 1 ? "" : "s"} × ${reps.size} PCR replicate${reps.size === 1 ? "" : "s"}) differs from the published 3 × 3 rapid-screen design. Review all raw wells; the fixed-method interpretation was not applied.`);
     const extraction = (assay, ext) => group(run, assay, W => W.role === "unknown" && W.ext === ext);
     const reference = [1,2,3].map(ext => extraction(ref, ext));
     if (reference.some(x => x.call !== "detected")) return finish("invalid sample", "At least one crop-reference triplicate is invalid.", "fail");

@@ -226,7 +226,7 @@ window.R2.assessmentQuestions = {
         "20.0 · 25.0 · 30.0",
         "23.0 · 23.9 · 23.4"
       ],
-      "why": "The first group has a range of only 0.2 cycles; the other groups have larger ranges."
+      "why": "The values 23.4, 23.5 and 23.6 have a range of only 0.2 cycles; the other groups have larger ranges."
     },
     {
       "id": "intermediate-6",

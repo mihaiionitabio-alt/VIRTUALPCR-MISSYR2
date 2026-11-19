@@ -305,7 +305,8 @@
       const planned = document.definition.layout
         .map((x) => x.per_sample)
         .filter(Boolean)
-        .map((x) => x.extractions * x.pcr_replicates);
+        // MISSY evaluates each extraction as its own sample group, so the cap is the PCR replicates per extraction.
+        .map((x) => x.pcr_replicates);
       const minimum =
         document.experimentalDesign && planned.length
           ? Math.min(3, ...planned)
@@ -338,7 +339,6 @@
       const d = document.experimentalDesign;
       if (
         mara &&
-        mara.mode !== "screen" &&
         ((d.extractions ?? 3) !== 3 || (d.replicates ?? 3) !== 3)
       ) {
         p.evaluationMode = "unconfigured";

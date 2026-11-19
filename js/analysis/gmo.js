@@ -476,7 +476,17 @@
               : "."),
         });
       }
+      // The quantification interpretation (and MISSY's native one) needs exactly three extractions, each with at least PCR triplicates.
+      const dExt = g.design?.extractions ?? 3,
+        dRep = g.design?.replicates ?? 3,
+        designShort = dExt !== 3 || dRep < 3;
+      if (designShort && completed && e.valid && tax.valid)
+        out.findings.push({
+          level: "warn",
+          text: `GM content withheld: quantification requires exactly three extractions, each with at least three PCR replicates; this design has ${dExt} extraction${dExt === 1 ? "" : "s"} × ${dRep} PCR replicate${dRep === 1 ? "" : "s"}.`,
+        });
       if (!completed || !e.valid || !tax.valid) out.quantStatus = "invalid run";
+      else if (designShort) out.quantStatus = "inconclusive";
       else if (
         !taxonOk ||
         !e.curveOk ||

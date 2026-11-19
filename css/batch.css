@@ -52,3 +52,25 @@
 .batch-shell{display:grid;grid-template-columns:265px minmax(0,1fr);gap:14px 20px;max-width:1600px}.batch-top,.batch-shell>h1,.bf-head{grid-column:1/-1}.bf-groups{grid-column:1;grid-row:4;flex-direction:column;align-items:stretch;position:sticky;top:12px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px}.bf-tab{display:grid;grid-template-columns:1fr auto;gap:6px;text-align:left}.bf-tab strong{font-size:14px}.bf-tab small{grid-column:1/-1;font-size:12px;white-space:normal}.bf-cols{grid-column:2;grid-row:4;display:flex;flex-direction:column;min-width:0}.bf-form{width:100%;order:2}.bf-side{position:static;width:100%;order:1;gap:8px}.bf-check dl{display:grid;grid-template-columns:120px 1fr 110px 1fr;gap:4px 10px;font-size:13px}.bf-check h3{margin:0 0 8px}.bf-code{border:1px solid var(--line);border-radius:10px;padding:10px}.bf-code summary{cursor:pointer;font-weight:bold;color:var(--missy-lavender)}.bf-head{grid-template-columns:1fr 2fr}.bf-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.bf-grid>.bf-row{display:grid;grid-template-columns:auto minmax(0,1fr) 90px;align-items:center}.bf-grid>.bf-row input:last-child,.bf-grid>.bf-row select:last-child{width:90px}.bf-body>.bf-row{grid-template-columns:auto minmax(0,1fr) 120px}.bf-body{gap:7px}.bf-sec input,.bf-sec select{max-width:100%;box-sizing:border-box}.bf-head label input{min-height:34px}.batch-shell textarea{min-height:100px}.bf-side textarea{min-height:250px}.bf-shell small{overflow-wrap:anywhere}@media(max-width:1050px){.bf-check dl{grid-template-columns:110px 1fr}.bf-grid{grid-template-columns:1fr}}@media(max-width:760px){.batch-shell{grid-template-columns:1fr}.bf-groups,.bf-cols{grid-column:1;grid-row:auto}.bf-groups{position:static}.bf-head{grid-template-columns:1fr}.bf-check dl{grid-template-columns:105px minmax(0,1fr)}.bf-check dd{margin:0;overflow-wrap:anywhere}.bf-top{flex-wrap:wrap}}@media(max-width:520px){.bf-row{grid-template-columns:auto minmax(0,1fr) 90px}.bf-row>input:last-child,.bf-row>select:last-child{grid-column:3}.bf-head .bf-inline-set{gap:8px}}
 
 .bf-groups{align-self:start}.bf-grid .bf-radio label,.bf-inline-set label{flex-direction:row;align-items:center;gap:6px}.bf-inline-set label{display:inline-flex}.bf-tab span{white-space:nowrap}
+
+/* JSON profile logos in the top-right corner of the welcome screen and home page: no box, just the logo and its word */
+.json-corner { position: fixed; top: 12px; right: 18px; z-index: 40; display: flex; gap: 14px; }
+.json-corner[hidden] { display: none; }
+.json-corner-btn { padding: 0; border: 0; background: none; cursor: pointer; line-height: 0; transition: transform .15s ease, filter .15s ease;
+  filter: drop-shadow(0 0 1px rgba(255,255,255,.55)) drop-shadow(0 0 6px rgba(201,155,208,.25)); }
+.json-corner-btn img { display: block; width: 56px; height: 69px; }
+.json-corner-btn:hover { transform: translateY(-2px); filter: drop-shadow(0 0 1px rgba(255,255,255,.8)) drop-shadow(0 0 10px rgba(201,155,208,.55)); }
+.json-corner-btn:focus-visible { outline: 2px solid var(--missy-indigo, #a79bff); outline-offset: 4px; border-radius: 8px; }
+@media (max-width: 720px) {
+  .json-corner { position: static; justify-content: flex-end; padding: 10px 16px 0; }
+  .json-corner-btn img { width: 46px; height: 57px; }
+}
+
+/* Phone width: keep every builder row inside the dialog (overrides the fixed 90 px third column above). */
+@media (max-width: 520px) {
+  .bf-row, .bf-grid > .bf-row, .bf-body > .bf-row { grid-template-columns: auto minmax(0, 1fr); }
+  .bf-row > input:last-child, .bf-row > select:last-child,
+  .bf-grid > .bf-row input:last-child, .bf-grid > .bf-row select:last-child { grid-column: 2; justify-self: start; width: auto; max-width: 100%; min-width: 0; }
+  .bf-row > span, .bf-grid label { min-width: 0; overflow-wrap: anywhere; }
+  .bf-sec select { width: 100%; min-width: 0; }
+}
