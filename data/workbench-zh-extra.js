@@ -561,3 +561,18 @@ Object.assign(window.R2_WORKBENCH_ZH,{
 });
 
 Object.assign(window.R2_WORKBENCH_ZH,{"Voice workspace shortcuts":"语音工作区快捷方式","Recognition uses English voice commands; the examples below are spoken in English.":"语音识别使用英语，以下示例应以英语说出。"});
+
+Object.assign(window.R2_WORKBENCH_ZH, {
+"Wake-word listening during reply.":"回复时监听唤醒词。",
+"Wake acknowledged. Listening for command…":"唤醒已确认，正在等待命令……",
+"Speaking question.":"正在朗读问题。",
+"Question finished. Start microphone to answer.":"问题已读完，启动麦克风后作答。",
+"Start spoken interview in the bottom bar, then start the microphone once. Set the session duration in Microphone settings using min and ✓. The default is 10 minutes. Listening pauses during playback and resumes automatically while the session remains valid.":"在底栏启动语音访谈和麦克风。默认会话为 10 分钟。",
+"Start spoken interview and the microphone in the bottom bar. Set the session duration in Microphone settings using min and ✓. The default is 10 minutes. During a reply, only a wake word can interrupt. Say Computer or Missy, hear the wake cue, then give the command within 10 seconds. Other sounds pause recognition.":"在底栏启动语音访谈和麦克风。在麦克风设置中用 min 和 ✓ 设置会话时长，默认为 10 分钟。回复期间只监听唤醒词。说 Computer 或 Missy 打断回复，听到唤醒音后，在 10 秒内说出命令。其他音效播放时暂停识别。",
+"Each accepted answer is acknowledged, followed by the applied setting and a short next question. Options are read only when you say list options. Unprefixed speech outside the 10-second wake window is ignored and is not added to JSON history.":"每个有效答案都会得到确认，随后读出实际设置和简短的下一题。只有说 list options 才会朗读选项。10 秒唤醒窗口以外、不带唤醒词的语音会被忽略，且不写入 JSON 历史。"
+});
+
+Object.assign(window.R2_WORKBENCH_ZH, {
+"Start spoken interview in the bottom bar; this also starts the timed microphone session. Set the session duration in Microphone settings using min and ✓. The default is 10 minutes. During a reply, only a wake word can interrupt. Say Computer or Missy, hear the wake cue, then give the command within 10 seconds. Other sounds pause recognition.":"在底栏启动语音访谈，会同时启动麦克风会话。在麦克风设置中用 min 和 ✓ 设置会话时长，默认为 10 分钟。回复期间只监听唤醒词。说 Computer 或 Missy 打断回复，听到唤醒音后，在 10 秒内说出命令。其他音效播放时暂停识别。",
+"Stop listening, pause the interview and disarm launch. Interrupt a reply with the wake word first, or use the bottom-bar Stop button.":"停止聆听、暂停访谈并解除启动确认。先用唤醒词打断回复，或使用底栏的停止按钮。"
+});

@@ -27,11 +27,17 @@
     nodes.add(source);source.onended=()=>{nodes.delete(source);source.disconnect();fil?.disconnect();g.disconnect();ended?.();};source.start(start);source.stop(start+length+.01);
   }
   async function play(id='affirmative', preview=false,sequence=false){
-    if(!enabled||(!preview&&(disabled.has(id)||R2.voiceConsole?.listening||R2.voiceConsole?.pending||(!sequence&&R2.voiceConsole?.playbackBusy)))||document.hidden)return false;
+    if(!enabled||(!preview&&(disabled.has(id)||(!sequence&&(R2.voiceConsole?.listening||R2.voiceConsole?.pending||R2.voiceConsole?.playbackBusy))))||document.hidden)return false;
     const item=byId.get(id);if(!item)return false;const generation=previewGeneration;
     if(preview)R2.voiceConsole?.cancelSpeech();
-    let settle;const completed=new Promise(resolve=>settle=resolve);const release=()=>{unlock();settle();};const unlock=R2.voiceConsole?.beginPlayback('interface-effect')||(()=>{});releases.add(release);const done=()=>{release();releases.delete(release);};
+    let settle;const completed=new Promise(resolve=>settle=resolve);const release=()=>{unlock();settle();};const unlock=R2.voiceConsole?.beginPlayback(sequence?'vui-effect':'interface-effect')||(()=>{});releases.add(release);const done=()=>{release();releases.delete(release);};
     try{const c=await engine();if(!c||!enabled||generation!==previewGeneration){done();return false;}
+      if(item.sample){
+        const pcm=atob(item.sample.pcm16le),frames=item.sample.frames,buffer=c.createBuffer(1,frames,item.sample.rate),data=buffer.getChannelData(0);
+        for(let i=0;i<frames;i++){const v=pcm.charCodeAt(i*2)|(pcm.charCodeAt(i*2+1)<<8);data[i]=(v>=32768?v-65536:v)/32768;}
+        const source=c.createBufferSource(),gain=c.createGain();source.buffer=buffer;gain.gain.value=volume*(item.volume??1);source.connect(gain).connect(c.destination);nodes.add(source);
+        source.onended=()=>{nodes.delete(source);source.disconnect();gain.disconnect();done();};source.start();played++;lastId=id;await completed;return generation===previewGeneration;
+      }
       let remaining=item.pattern.length;
       for(const p of item.pattern)note(c,p,(item.group==='Background'?.009:.055)*volume*(item.volume??1),()=>{if(--remaining===0)done();});
       if(!remaining)done();played++;lastId=id;await completed;return generation===previewGeneration;

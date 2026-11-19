@@ -31,3 +31,5 @@ Additional bundled-library notices remain in source and the embedded MISSY page.
 0.4.34 interface additions:
 - 505 synthesized oscillator/noise effect patterns and their EN/ZH catalogue labels adapted from the bundled MISSY interface sound catalogue. No recorded voice/audio samples were extracted or duplicated. Preserve MISSY source and dependency notices.
 - Animal-shortcut presentation and microphone meter behavior adapted from bundled MISSY; R2 destinations and navigation handlers are specific to this workbench.
+
+- Version 0.4.39 also reuses the exact wakeTone and navigationTone PCM samples from the bundled MISSY catalogue, retaining their source and PCM SHA-256 metadata. Other interface effects remain synthesized.
