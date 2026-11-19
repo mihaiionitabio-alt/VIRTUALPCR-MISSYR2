@@ -41,7 +41,7 @@
     if (requestingRun) return null;
     if (X.running()) return "A run is in progress.";
     X.go("run");
-    if ($("t-start").disabled) return "The run cannot start: " + ($("run-sum").textContent.match(/Reduce.*|Restore.*|requires.*/) || ["check the set-up on the full bench (Expert)."])[0];
+    if ($("t-start").disabled) return "The run cannot start: " + (X.running() ? "A run is in progress." : X.startProblem || "Check the set-up on the full bench (Expert).");
     requestingRun = true;
     const n0 = (R2.session.runs || []).length;
     view().classList.add("lv-run");

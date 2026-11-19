@@ -70,6 +70,21 @@
       .join("\n");
     p.reviewOnly = true;
     if (entry) {
+      // Assigned content is a property of the virtual procedure, not a measured result.
+      if (mara.mode !== "screen") {
+        p.control_identity = { ...p.control_identity, event,
+          positive_percent: mara.comparatorPct };
+        for (const c of p.controls.filter(c => /^pos-/.test(c.id))) {
+          c.event = event;
+          c.content_percent = mara.comparatorPct;
+          c.name = event + " · " + mara.comparatorPct + " % (virtual assigned control)";
+        }
+      }
+      if (mara.mode === "quant") Object.assign(p.calibrator, {
+        qc_kind: "laboratory", content_basis: "copy-number ratio",
+        certified_content_percent: mara.comparatorPct,
+        material: "Laboratory-prepared virtual control; assigned content is a simulator input, not a CRM certificate"
+      });
       const reference = document.methods.find(
         (method) => method.role === "species reference gene",
       );
@@ -150,7 +165,11 @@
         p.comparison &&
         Number.isFinite(mara.comparatorPct)
       )
-        p.comparison.control_content_percent = mara.comparatorPct;
+        Object.assign(p.comparison, { control_content_percent: mara.comparatorPct,
+          labelling_threshold_percent: mara.comparatorPct,
+          control_expanded_uncertainty_percent: 0 });
+      if (mara.mode === "ddct") p.comparison.virtual_assignment_note =
+        "Control and threshold are exact simulator inputs. Zero assigned uncertainty is a teaching assumption, not laboratory uncertainty.";
     } else {
       p.evaluationMode = "automatic-with-evidence";
       p.profileFamily = "R2-workbench";

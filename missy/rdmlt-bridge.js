@@ -3,7 +3,7 @@
   "use strict";
   // Display additions to MISSY's existing Chinese catalogue; no reader or
   // numerical analysis changes are made for language selection.
-  Object.assign(ZH_TERMS, {
+  if (typeof ZH_TERMS === "object" && ZH_TERMS) Object.assign(ZH_TERMS, {
     "Download raw RDMLt": "下载原始 RDMLt",
     "Opening your experiments in MISSY": "正在 MISSY 中打开实验",
     "Preparing the analysis workspace…": "正在准备分析工作区…",
@@ -89,9 +89,16 @@
     const cadence = ccMedian(intervals);
     return intervals.filter(value=>value>3*cadence).reduce((sum,value)=>sum+value-cadence,0);
   }
-  async function connectTelemetry() {
-    for (const bundle of bundles) {
-      const target = RUNS.find(run => run.file === bundle.file.name);
+  const yieldFrame = () => new Promise(resolve => setTimeout(resolve, 0));
+  const loadingText = (en, zh) => document.documentElement.lang.startsWith("zh") ? zh : en;
+  function loadingProgress(value, status) {
+    window.R2TransferLoading.update(value, status);
+    tell("r2-missy-progress", { progress: value, status });
+  }
+  let decodedFiles = 0;
+  async function connectTelemetry(selected = bundles, decoded = RUNS) {
+    for (const bundle of selected) {
+      const target = decoded.find(run => run.file === bundle.file.name);
       if (!target) continue;
       let sourceRecord = null;
       if (bundle.files.has("source/simulator-record.json")) {
@@ -195,6 +202,11 @@
   };
   const nativeEvaluate = sopEvaluateRun;
   sopEvaluateRun = function(run, ri) {
+    if (run.r2Virtual && SOP.sourceWorkbenchSop?.id && SOP.sourceWorkbenchSop.id !== run.r2Virtual.sourceSop) {
+      const applicability = sopRunApplicability(run);
+      return { run, ri, rows: [], criteria: [{ criterion: "Source procedure", action: "unresolved", status: "n/a", evidence: applicability.reason }],
+        status: "Profile not applicable", rejected: [], reviewed: [], icMedian: NaN, times: runTimes(run), applicability };
+    }
     if (run.r2Virtual && SOP.sourceWorkbenchSop?.id === run.r2Virtual.sourceSop && SOP.evaluationMode === "unconfigured" && SOP.experimentalDesign) {
       const applicability = sopRunApplicability(run);
       return { run, ri, rows: [], criteria: [{criterion:"Custom experimental design",action:"unresolved",status:"n/a",evidence:applicability.reason}],status:"Profile not applicable",rejected:[],reviewed:[],icMedian:NaN,times:runTimes(run),applicability };
@@ -304,22 +316,42 @@
   };
   const nativeRead = readStaged;
   readStaged = async function(...args) {
-    const result = await nativeRead(...args);
-    await connectTelemetry();
-    return result;
+    decodedFiles = 0;
+    const ownsLoading = STAGED.some(s => s.r2Bundle) && !window.R2TransferLoading.active;
+    if (ownsLoading) window.R2TransferLoading.open(loadingText("Reading raw curves and integrating telemetry…", "正在读取原始曲线并整合遥测数据…"));
+    try {
+      const result = await nativeRead(...args);
+      if (STAGED.length && STAGED.every(s => s.r2Bundle?.input?.gmo && s.r2Bundle.files.has("source/simulator-record.json")) && RUNS.length !== STAGED.length) throw new Error("MISSY could not read every selected experiment.");
+      paint();
+      if (ownsLoading) {
+        window.R2TransferLoading.close();
+        if (sopConflict(bundles)) showSopWarning(bundles);
+      }
+      return result;
+    } catch (error) {
+      if (!ownsLoading) throw error;
+      window.R2TransferLoading.fail(error.message);
+    }
   };
   const nativeDecode = decodeReaderSource;
   decodeReaderSource = async function(source) {
     const bundle = source.r2Bundle;
     if (!bundle) return nativeDecode(source);
+    loadingProgress(72 + 24 * decodedFiles / Math.max(1, bundles.length),
+      loadingText("Reading run " + (decodedFiles + 1) + " of " + bundles.length + " · " + source.name,
+        "正在读取运行 " + (decodedFiles + 1) + " / " + bundles.length + " · " + source.name));
+    await yieldFrame();
+    if (bundle.files.has("source/simulator-record.json")) bundle.record = JSON.parse(text(await extract(bundle, "source/simulator-record.json")));
     const runs = await nativeDecode({ ...source, name: bundle.core.name, path: "rdml_data.xml",
       bytes: new Uint8Array(await bundle.core.arrayBuffer()), r2Bundle: undefined });
     const digest = await sourceSha256(source.bytes);
     for (const run of runs) {
       run.file = bundle.file.name;
       run.meta ||= {};
+      run.meta.rdmlCoreBytes = bundle.core.size;
+      run.meta.sourceBytes = source.bytes.length;
       run.meta.sourceSHA256 = digest;
-      run.rdmltSource = { name: bundle.file.name, bytes: source.bytes.length, sha256: digest };
+      run.rdmltSource = { name: bundle.file.name, bytes: source.bytes.length, sha256: digest, coreBytes: bundle.core.size };
       if (bundle.input?.injectedFault) {
         run.injectedFault = structuredClone(bundle.input.injectedFault);
         run.meta.TrainingScenario = run.injectedFault.title;
@@ -365,7 +397,48 @@
         }
       }
     }
+    await connectTelemetry([bundle], runs);
+    for (const run of runs) {
+      if (run.r2Virtual && bundle.methodEvidence) {
+        run.r2MethodEvidence = bundle.methodEvidence;
+        run.r2EvidenceProfileHash = sopHash(bundle.profile);
+      }
+    }
+    bundle.timingEvents = (bundle.record?.events || []).filter(e => ["RUN_START", "RUN_COMPLETE", "RUN_ABORTED"].includes(e.code));
+    delete bundle.record;
+    decodedFiles++;
+    await yieldFrame();
     return runs;
+  };
+  const nativeMaraInput = maraInput;
+  maraInput = function(run, profile = SOP, evidence = maraEvidence(run)) {
+    const proof = run.r2MethodEvidence;
+    if (run.r2Virtual && proof?.sourceSop === profile.sourceWorkbenchSop?.id && run.r2EvidenceProfileHash === sopHash(profile)) {
+      for (const [key, value] of Object.entries(proof.context)) if (!(key in evidence.context)) evidence.context[key] = value;
+      for (const [index, well] of run.wells.entries()) {
+        const observed = proof.reactions.find(r => r.position === well.pos && r.method === well.r2Well?.method);
+        if (!observed) continue;
+        const id = maraWellID(well, index);
+        evidence.reactions[id] ||= {};
+        for (const key of ["curve", "copies", "level", "pair"]) if (!(key in evidence.reactions[id]) && observed[key] !== undefined) evidence.reactions[id][key] = observed[key];
+      }
+      evidence.context.virtualEvidenceSource = proof.provenance;
+    }
+    return nativeMaraInput(run, profile, evidence);
+  };
+  const nativeMethodInputs = maraRenderEvidence;
+  maraRenderEvidence = function(index = 0) {
+    const result = nativeMethodInputs(index), run = RUNS[index];
+    const section = document.getElementById("mara-run-inputs");
+    if (section && run?.r2MethodEvidence && run.r2EvidenceProfileHash === sopHash(SOP)) {
+      const note = document.createElement("p");
+      note.dataset.virtualMethodEvidence = "";
+      note.textContent = loadingText(
+        "Virtual setup confirmations were derived from verified RDMLt inputs and recorded curve analysis. They are not laboratory approval. Your manual evidence changes are retained.",
+        "虚拟设置确认来自已校验的 RDMLt 输入和已记录的曲线分析，不代表实验室批准。手动修改的证据将保留。");
+      section.querySelector("summary").after(note);
+    }
+    return result;
   };
   const nativeIntake = intake;
   const bundles = [];
@@ -395,7 +468,22 @@
       tell("r2-missy-profile-request", { requestId, procedure });
     });
   }
+  function repairEvidence(bundle, diagnostics) {
+    return new Promise((resolve, reject) => {
+      const requestId = crypto.randomUUID();
+      const receive = event => {
+        if (event.source !== parentWindow || event.data?.token !== token || event.data?.requestId !== requestId || event.data?.type !== "r2-missy-evidence") return;
+        clearTimeout(timer); window.removeEventListener("message", receive);
+        event.data.error ? reject(new Error(event.data.error)) : resolve(event.data.proof);
+      };
+      const timer = setTimeout(() => { window.removeEventListener("message", receive); reject(new Error("Virtual method evidence request did not respond")); }, 180000);
+      window.addEventListener("message", receive);
+      tell("r2-missy-evidence-request", { requestId, input: bundle.input, procedure: bundle.procedure, diagnostics });
+    });
+  }
+  const preparedBundles = new WeakMap();
   async function openBundle(file) {
+    if (preparedBundles.has(file)) return preparedBundles.get(file);
     const manifests = await readZipFiltered(await file.arrayBuffer(), { name: file.name }, exact("rdmlt_data.xml"));
     if (manifests.length !== 1) throw new Error("Expected one RDMLt companion XML document");
     const doc = new DOMParser().parseFromString(text(manifests[0].bytes), "application/xml");
@@ -425,15 +513,25 @@
       bundle.procedure = JSON.parse(text(await extract(bundle, "analysis/sop.json")));
       bundle.sopId ||= bundle.procedure.sop_id;
     }
-    if (bundle.procedure && (!bundle.profile || bundle.profile.evaluationMode === "unconfigured" || bundle.profile.profileFamily === "R2-workbench" && bundle.profile.version !== "1.2")) {
+    if (bundle.procedure && (!bundle.profile || bundle.procedure.definition?.mara || bundle.profile.evaluationMode === "unconfigured" || bundle.profile.profileFamily === "R2-workbench" && bundle.profile.version !== "1.2")) {
       // Repair the adapter in memory; preserve the original signed package unchanged.
       bundle.profile = await repairProfile(bundle.procedure);
       bundle.profileRepaired = true;
     }
     if (files.has("source/run-input.json") && files.has("source/simulator-record.json")) {
       bundle.input = JSON.parse(text(await extract(bundle, "source/run-input.json")));
-      bundle.record = JSON.parse(text(await extract(bundle, "source/simulator-record.json")));
+      if (bundle.procedure?.definition?.mara) {
+        if (files.has("analysis/mara-evidence.json")) {
+          const archived = JSON.parse(text(await extract(bundle, "analysis/mara-evidence.json")));
+          if (archived.schema !== "missy-r2-mara-evidence/1" || archived.sourceSop !== bundle.sopId) throw new Error("MARA evidence source procedure mismatch");
+        }
+        const diagnostics = JSON.parse(text(await extract(bundle, "analysis/assay-detail.json")));
+        // Re-derive from verified source inputs, including legacy packages. Do not
+        // trust an arbitrary file of asserted confirmation booleans.
+        bundle.methodEvidence = await repairEvidence(bundle, diagnostics);
+      }
     }
+    preparedBundles.set(file, bundle);
     return bundle;
   }
   function setProfile(profile) {
@@ -472,8 +570,8 @@
         scenario.textContent = "Deliberate training scenario: " + fault.title + " · " + fault.kind + ". " + fault.note;
         row.append(scenario);
       }
-      const start = bundle.record?.events?.find(event => event.code === "RUN_START");
-      const end = bundle.record?.events?.findLast(event => ["RUN_COMPLETE", "RUN_ABORTED"].includes(event.code));
+      const start = bundle.timingEvents?.find(event => event.code === "RUN_START");
+      const end = bundle.timingEvents?.findLast(event => ["RUN_COMPLETE", "RUN_ABORTED"].includes(event.code));
       if (end && Number.isFinite(end.t_ms)) {
         const timing = document.createElement("p");
         timing.textContent = "Simulated instrument duration: " + ((end.t_ms - (start?.t_ms || 0)) / 60000).toFixed(2) + " min. Browser playback: " +
@@ -570,10 +668,16 @@
     const files = [...fileList];
     if (files.reduce((total, file) => total + file.size, 0) > APP_STATE.limits.maxBytes) throw new Error("The selected raw files exceed MISSY’s staging limit.");
     const expanded = [], opened = [], errors = [];
-    for (const file of files) {
+    for (const [index, file] of [...files].entries()) {
       try {
         if (!/\.rdmlt$/i.test(file.name)) expanded.push(file);
         else {
+          if (!preparedBundles.has(file)) {
+            loadingProgress(10 + 60 * index / Math.max(1, files.length),
+              loadingText("Verifying RDMLt " + (index + 1) + " of " + files.length + " · " + file.name,
+                "正在验证 RDMLt " + (index + 1) + " / " + files.length + " · " + file.name));
+            await yieldFrame();
+          }
           const bundle = await openBundle(file);
           opened.push(bundle);
           expanded.push(bundle.core);
@@ -592,11 +696,13 @@
     // Keep it disabled until raw identity, telemetry and SOP are ready together.
     const readButton = document.getElementById("read");
     readButton.disabled = true;
-    const prepared = await Promise.all(STAGED.map(async source => {
+    const prepared = [];
+    for (const source of STAGED) {
       const bundle = opened.find(item => item.core.name === source.name);
-      return bundle ? { ...source, name: bundle.file.name, path: bundle.file.name,
-        bytes: new Uint8Array(await bundle.file.arrayBuffer()), r2Bundle: bundle } : source;
-    }));
+      prepared.push(bundle ? { ...source, name: bundle.file.name, path: bundle.file.name,
+        bytes: new Uint8Array(await bundle.file.arrayBuffer()), r2Bundle: bundle } : source);
+      await yieldFrame();
+    }
     if (generation !== selection) return;
     STAGED = prepared;
     bundles.splice(0, bundles.length, ...opened);
@@ -625,27 +731,68 @@
     const fileInput = document.getElementById("file");
     fileInput.accept = [fileInput.accept || readerAccept(), ".rdmlt"].join(",");
     const manualIntake = intake;
-    intake = async files => { try { return await manualIntake(files); } catch (error) {
-      document.getElementById("loadmsg").textContent = error.message;
-    } };
+    intake = async files => {
+      const virtual = [...files].some(file => /\.rdmlt$/i.test(file.name));
+      if (virtual) window.R2TransferLoading.open(loadingText("Verifying the selected RDMLt packages and SOPs…", "正在验证所选 RDMLt 包和 SOP…"));
+      try {
+        const result = await manualIntake([...files]);
+        if (result?.errors?.length) throw new Error(result.errors.join(" "));
+        if (virtual) window.R2TransferLoading.close();
+        return result;
+      } catch (error) {
+        document.getElementById("loadmsg").textContent = error.message;
+        if (virtual) window.R2TransferLoading.fail(error.message);
+      }
+    };
+    let incoming = null;
     window.addEventListener("message", async event => {
-      const message = event.data;
+      let message = event.data;
       if (event.source !== parentWindow || message?.token !== token) return;
       if (message.type === "r2-missy-transfer-error") { window.R2TransferLoading.fail(message.error || "The selected files could not be prepared."); return; }
       if (message.type === "r2-missy-progress") { window.R2TransferLoading.update(message.progress, message.status); return; }
+      if (message.type === "r2-missy-transfer-begin") {
+        if (pending || incoming) return;
+        if (!Number.isInteger(message.total) || message.total < 0 || message.total > APP_STATE.limits.maxFiles) {
+          tell("r2-missy-error", { error: "Invalid number of selected files" }); return;
+        }
+        incoming = { total: message.total, files: [], bytes: 0, busy: false };
+        return;
+      }
+      if (message.type === "r2-missy-transfer-file") {
+        if (!incoming || incoming.busy || message.index !== incoming.files.length || !message.file || incoming.files.length >= incoming.total) return;
+        incoming.busy = true;
+        try {
+          if (incoming.bytes + message.file.size > APP_STATE.limits.maxBytes) throw new Error("The selected raw files exceed MISSY’s staging limit.");
+          loadingProgress(10 + 60 * (message.index + 0.8) / incoming.total,
+            loadingText("Verifying RDMLt " + (message.index + 1) + " of " + incoming.total + " · " + message.file.name,
+              "正在验证 RDMLt " + (message.index + 1) + " / " + incoming.total + " · " + message.file.name));
+          await yieldFrame();
+          await openBundle(message.file);
+          incoming.files.push(message.file); incoming.bytes += message.file.size;
+          tell("r2-missy-file-ready", { index: message.index });
+        } catch (error) { tell("r2-missy-file-ready", { index: message.index, error: error.message }); window.R2TransferLoading.fail(error.message); }
+        finally { if (incoming) incoming.busy = false; }
+        return;
+      }
+      if (message.type === "r2-missy-transfer-end") {
+        if (!incoming || incoming.busy || incoming.files.length !== incoming.total) {
+          tell("r2-missy-error", { error: "Not every selected file was transferred" }); return;
+        }
+        message = { ...message, type: "r2-missy-transfer", files: incoming.files }; incoming = null;
+      }
       if (message.type !== "r2-missy-transfer" || pending) return;
       pending = true;
       try {
         let mixed = false;
         if (message.files?.length) {
-          window.R2TransferLoading.update(60, "Verifying the selected RDMLt packages and SOPs…");
-          tell("r2-missy-progress", { progress:60, status:"Verifying RDMLt packages and SOPs…" });
+          window.R2TransferLoading.update(70, "Verifying the selected RDMLt packages and SOPs…");
+          tell("r2-missy-progress", { progress:70, status:"Verifying RDMLt packages and SOPs…" });
           await new Promise(resolve => setTimeout(resolve, 0));
           const staged = await manualIntake(message.files);
           if (staged.errors.length) throw new Error(staged.errors.join(" "));
           if (STAGED.length !== message.files.length) throw new Error("MISSY could not stage every selected experiment.");
-          window.R2TransferLoading.update(75, "Reading raw curves and integrating telemetry…");
-          tell("r2-missy-progress", { progress:75, status:"Reading raw curves and integrating telemetry…" });
+          window.R2TransferLoading.update(72, "Reading raw curves and integrating telemetry…");
+          tell("r2-missy-progress", { progress:72, status:"Reading raw curves and integrating telemetry…" });
           await new Promise(resolve => setTimeout(resolve, 0));
           await readStaged();
           if (RUNS.length !== message.files.length) throw new Error("MISSY could not read every selected experiment.");
@@ -653,6 +800,8 @@
           mixed = staged.mixed;
           if (mixed) showSopWarning(staged.opened);
         }
+        loadingProgress(99, loadingText("Drawing control charts and final checks…", "正在绘制控制图并完成最终核查…"));
+        await yieldFrame();
         showTab("panel");
         window.scrollTo({ top: 0, behavior: "instant" });
         window.R2TransferLoading.close();

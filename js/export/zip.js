@@ -30,7 +30,8 @@
     return R2.zipBytes(files);
   };
   R2.downloadAsync = async (button, name, prepare) => {
-    const label = button.textContent;
+    // restore the English source label; the language layer paints it again
+    const label = R2.i18n?.source ? R2.i18n.source(button) : button.textContent;
     button.disabled = true;
     button.textContent = "Preparing download…";
     try {

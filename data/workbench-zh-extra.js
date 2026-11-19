@@ -368,4 +368,31 @@ Ignoring amplification efficiency (event assay at 88 % of the reference efficien
 Misinterpreting high Cq values (sample at 1/40 of the GM content)|误读高 Cq 值（样品转基因含量为原值的 1/40）
 Overlooking extraction contamination (in place of gDNA in −RT controls)|忽略提取污染（替代无逆转录酶对照中的基因组 DNA 场景）
 Unstable reference gene (reference varies ±1.6 cycles by extract)|内参基因不稳定（不同提取物间相差 ±1.6 个循环）
+none (normal run)|无（正常运行）
+Reference-method screening (default)|参考方法筛查（默认）
+P-35S, T-nos and reference gene, simplex|P-35S、T-nos 和内参基因，单重
+Blind sample|盲样
+Blind sample (composition drawn from the seed, revealed after the analysis)|盲样（组成由随机种子生成，分析后揭晓）
+Soybean meal B (two events, one near the detection limit)|大豆粉 B（两个转化体，其中一个接近检测限）
+Processed soybean product F (degraded DNA, inhibitors carried over)|大豆加工产品 F（DNA 已降解，残留抑制剂）
+Maize flour C|玉米粉 C
+Maize flour D (three events)|玉米粉 D（三个转化体）
+Maize flour E (non-GM)|玉米粉 E（非转基因）
+Non-GM cotton (simulated)|非转基因棉花（模拟）
+cotton|棉花
+by time, newest first|按时间，最新在前
+by time, oldest first|按时间，最早在前
+as in the method|与方法一致
+Fit this acquisition|适配本次采集
+100 % for every gene (E = 2)|所有基因均按 100 %（E = 2）
+from the data (efficiency-weighted, Pfaffl)|由数据计算（效率加权，Pfaffl）
+Preparing download…|正在准备下载…
+Retry download|重试下载
+The run cannot start|无法开始运行
+A run is in progress.|运行正在进行。
+Problem|问题
+Check the set-up on the full bench (Expert).|请在完整工作台（高级）中检查设置。
+Reduce the number of samples or assays to fit the plate.|请减少样品或检测项目数量，使其能放入板中。
+The selected MARA method requires its stated DNA mass per well.|所选 MARA 方法要求每孔使用其规定的 DNA 量。
+Restore the cycling programme for the selected MARA method.|请恢复所选 MARA 方法的循环程序。
 `.trim().split("\n").map(row => { const i = row.indexOf("|"); return [row.slice(0, i), row.slice(i + 1)]; })));

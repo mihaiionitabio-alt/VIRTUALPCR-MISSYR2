@@ -79,6 +79,7 @@
   function failHandoff(state, message, notifyChild = true) {
     if (handoff !== state || state.failed) return;
     state.failed = true;
+    state.fileAckReject?.(new Error(message)); state.fileAck = null; state.fileAckReject = null;
     stopHandoffTimers(state);
     status.textContent = message;
     window.R2TransferLoading.fail(message);
@@ -86,10 +87,17 @@
   }
   function closeHandoff() {
     if (administrator()) return;
-    stopHandoffTimers(handoff);
-    handoff?.child.close();
-    handoff = null;
+    releaseHandoff();
     window.R2TransferLoading.close();
+  }
+  function releaseHandoff() {
+    const previous = handoff;
+    handoff = null;
+    stopHandoffTimers(previous);
+    if (!previous) return;
+    previous.failed = true;
+    previous.fileAckReject?.(new Error("The previous transfer was closed."));
+    previous.child.close();
   }
   R2.levels.on("quality", level => { if (level === "admin") refresh(); else closeHandoff(); });
   window.addEventListener("hashchange", closeHandoff);
@@ -99,9 +107,7 @@
     const marked = new Set([...checklist.querySelectorAll("input:checked")].map(input => Number(input.value)));
     const runs = (R2.session.runs || []).filter(run => run.record && !!run.outcome && marked.has(run.no));
     const token = crypto.randomUUID();
-    stopHandoffTimers(handoff);
-    handoff?.child.close();
-    handoff = null;
+    releaseHandoff();
     window.R2TransferLoading.close();
     window.R2TransferLoading.open("Starting MISSY and preparing the selected runs…");
     const child = window.open("missy/index.html?v=" + encodeURIComponent(R2.BUILD || R2.VERSION) + "&lang=" + (R2.i18n?.language || "en") + "#workbench=" + token, "_blank");
@@ -131,6 +137,15 @@
       } catch (error) {
         state.child.postMessage({ type: "r2-missy-profile", token: state.token, requestId: message.requestId, error: error.message }, "*");
       }
+    } else if (message.type === "r2-missy-evidence-request") {
+      try {
+        const proof = R2.maraEvidenceFrom(message.input, message.diagnostics, message.procedure);
+        state.child.postMessage({ type: "r2-missy-evidence", token: state.token, requestId: message.requestId, proof }, "*");
+      } catch (error) {
+        state.child.postMessage({ type: "r2-missy-evidence", token: state.token, requestId: message.requestId, error: error.message }, "*");
+      }
+    } else if (message.type === "r2-missy-file-ready") {
+      state.fileAck?.(message);
     } else if (message.type === "r2-missy-progress") {
       window.R2TransferLoading.update(message.progress, message.status);
     } else if (message.type === "r2-missy-loaded") {
@@ -147,11 +162,11 @@
       state.sent = true;
       clearTimeout(state.readyTimer);
       try {
-        const files = [];
+        state.child.postMessage({ type: "r2-missy-transfer-begin", token: state.token, total: state.runs.length }, "*");
         if (state.runs.length) status.textContent = "Preparing local RDMLt experiment files…";
         for (const [index, run] of state.runs.entries()) {
           if (handoff !== state || state.failed || state.child.closed) return;
-          const progress = 15 + 35 * index / state.runs.length;
+          const progress = 10 + 60 * index / state.runs.length;
           const label = "Preparing RDMLt " + (index + 1) + " of " + state.runs.length + " · " + run.name;
           window.R2TransferLoading.update(progress, label);
           state.child.postMessage({ type: "r2-missy-progress", token: state.token, progress, status: label }, "*");
@@ -160,12 +175,17 @@
           const evaluation = R2.gmoeval.run(run, { cqMethod: "auto", thresholds: {} });
           const bytes = await R2.rdmltCompressed(run, evaluation);
           if (handoff !== state || state.failed || state.child.closed) return;
-          files.push(new File([bytes], run.name.replace(/[^A-Za-z0-9_-]/g, "_") + ".rdmlt"));
+          const file = new File([bytes], run.name.replace(/[^A-Za-z0-9_-]/g, "_") + ".rdmlt");
+          await new Promise((resolve, reject) => {
+            state.fileAckReject = reject;
+            state.fileAck = ack => { if (ack.index !== index) return; state.fileAck = null; state.fileAckReject = null; ack.error ? reject(new Error(ack.error)) : resolve(); };
+            state.child.postMessage({ type: "r2-missy-transfer-file", token: state.token, index, file }, "*");
+          });
         }
         if (handoff !== state || state.failed || state.child.closed) return;
-        window.R2TransferLoading.update(55, "Sending the selected RDMLt files to MISSY…");
+        window.R2TransferLoading.update(70, "Sending the selected RDMLt files to MISSY…");
         if (handoff === state && !state.child.closed)
-          state.child.postMessage({ type: "r2-missy-transfer", token: state.token, files }, "*");
+          state.child.postMessage({ type: "r2-missy-transfer-end", token: state.token }, "*");
       } catch (error) {
         failHandoff(state, "The RDMLt could not be prepared. " + error.message);
       }

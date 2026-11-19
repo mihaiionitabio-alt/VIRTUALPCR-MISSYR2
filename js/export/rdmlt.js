@@ -174,6 +174,8 @@
     file("analysis-file", "analysis/evaluation.json", R2.analysisJson(run, ev, null), "application/json");
     const diagnostics = Object.fromEntries(ev.order.map(method => [method, ev.assays[method].one.res]));
     file("assay-detail", "analysis/assay-detail.json", JSON.stringify(diagnostics), "application/json");
+    const methodEvidence = R2.maraEvidenceForRun?.(run, ev);
+    if (methodEvidence) file("mara-evidence", "analysis/mara-evidence.json", JSON.stringify(methodEvidence), "application/json");
     file("sop-file", "analysis/sop.json", R2.sopJson(run), "application/json");
     if (R2.missySopForRun) file("missy-sop-profile", "analysis/missy.sop.json", R2.missySopForRun(run), "application/json");
     if (run.chemLog?.length) file("chemistry-file", "source/simulator-chemistry.json", JSON.stringify(run.chemLog), "application/json");

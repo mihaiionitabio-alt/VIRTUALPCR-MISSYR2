@@ -1,7 +1,7 @@
 /* Actual workbench-resource loading and the public/offline entry screen. */
 (() => {
  "use strict";
- const total=Number(document.currentScript.dataset.moduleCount),began=performance.now(),waiting=[];
+ let total=Number(document.currentScript.dataset.moduleCount);const began=performance.now(),waiting=[];
  let loaded=0,failed=false,entered=false,ready=false,timer,finishedAt=null;
  const $=id=>document.getElementById(id);
  function paint(){if(!$("welcome-progress"))return;$("welcome-progress").value=ready?100:Math.min(95,Math.round(loaded/total*95));const memory=performance.memory;$("welcome-computer").textContent=`${loaded} of ${total} workbench modules loaded · ${(((finishedAt??performance.now())-began)/1000).toFixed(1)} s`+(memory?` · ${Math.round(memory.usedJSHeapSize/1048576)} MB browser memory`:"");}
@@ -11,8 +11,9 @@
  window.R2Boot={get entered(){return entered},step(status){loaded++;paint();if(!failed&&$("welcome-status"))$("welcome-status").textContent=status+'…';},fail,whenEntered(fn){if(entered)fn();else waiting.push(fn)}};
  window.addEventListener('error',event=>{if((event.error||['SCRIPT','LINK'].includes(event.target?.tagName))&&!ready)fail('The workbench could not finish loading. Reload the page or extract the complete download.');});
  document.addEventListener('DOMContentLoaded',()=>{
+  total=document.querySelectorAll('script[onload*="R2Boot.step"]').length;
   paint();
-  if(!failed&&(loaded!==total||!window.R2?.techAccess||!R2.gmoeval||!R2.templates||!R2.ui?.quality||!R2.batchRuns||!R2.batchUi))fail('The workbench is missing a required component. Reload the page or extract the complete download.');
+  if(!failed&&(loaded!==total||!window.R2?.techAccess||!R2.gmoeval||!R2.templates||!R2.ui?.quality||!R2.batchRuns||!R2.batchUi||!R2.maraEvidenceFrom))fail('The workbench is missing a required component. Reload the page or extract the complete download.');
   if(!failed){finishedAt=performance.now();ready=true;clearInterval(timer);paint();$("welcome-status").textContent='Ready. Virtual instrument, learning levels and file-analysis tools are loaded.';$("welcome-enter").disabled=false;$("welcome-enter").textContent='Choose your role';}
   $("welcome-enter").onclick=enter;
   document.querySelectorAll('[data-app-version]').forEach(node=>node.textContent=window.R2?.VERSION||'0.4.29');

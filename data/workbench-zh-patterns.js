@@ -71,6 +71,7 @@ channel 1: FAM, SYBR Green|通道 1：FAM、SYBR Green
 channel 2: VIC, HEX, Yakima Yellow|通道 2：VIC、HEX、Yakima Yellow
 `.trim().split("\n").map(row => { const i = row.indexOf("|"); return [row.slice(0, i), row.slice(i + 1)]; })));
 window.R2_ZH_PATTERNS.push(
+  [/^([^·]+?) at ([\d.]+) % \(simulated\)$/, "$1，含量 $2 %（模拟）"],
   [/^Preparing RDMLt (\d+) of (\d+) · (.+)$/, "正在准备 RDMLt $1 / $2 · $3"],
   [/^about ([\d,]+) genome copies \(([\d,]+) amplifiable in this model\)$/, "约 $1 个基因组拷贝（本模型中约 $2 个可扩增）"],
   [/^(MARA-[\w-]+) · (.+) · (\d+) cycles, (.+)$/, "$1 · $2 · $3 个循环，$4"],

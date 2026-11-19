@@ -44,6 +44,7 @@
       <dt>Programme</dt><dd>${X.f.ung ? "UNG " + X.f.ung + " s; " : ""}95 °C ${X.f.act} s; ${X.f.cycles} × (95 °C ${X.f.denS} s, ${X.f.annT} °C ${X.f.annS} s${X.f.extS ? ", 72 °C " + X.f.extS + " s" : ""})${X.f.melt ? "; melt" : ""} · ${R2.hms(X.prof.total)} instrument time</dd>
       <dt>Reagents and handling</dt><dd>${ch.length ? ch.length + " setting" + (ch.length > 1 ? "s" : "") + " changed from the method" : "as the method records state"}</dd><dt>Template</dt><dd>${X.templateUsed ? R2.esc(X.templateUsed.name) : "none (set up by hand)"}</dd><dt>SOP</dt><dd>${R2.templates.sopId(X)}</dd><dt>Runs so far</dt><dd>${(R2.session.runs || []).length}</dd>` + (err ? `<dt>Problem</dt><dd style="color:var(--bad)">${R2.esc(err)}</dd>` : "");
     $("run-name-mode").textContent = "Sample names are assigned at start: a random six-digit prefix unique to this run, the sample number and the DNA extraction date (" + X.meta.map((m, i) => "######-" + (i + 1) + "-" + R2.materials.dateCode(m.extractionDate)).slice(0, 4).join(", ") + (X.meta.length > 4 ? ", …" : "") + ").";
+    X.startProblem = err || ""; // read by the guided levels; never parse the displayed (possibly translated) text
     $("t-start").disabled = X.running() || !!err;
   }
   function ask() {
