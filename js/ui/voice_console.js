@@ -32,7 +32,7 @@
         const ok=await C.install({langs:[selected],processLocally:true});
         packState=ok?await C.available({langs:[selected],processLocally:true}):"unavailable";
       }
-      packMessage(packState==="available"?"English offline recognition pack is ready. Microphone permission is still required.":
+      packMessage(packState==="available"?"English offline recognition pack is ready.":
         packState==="downloadable"?"English offline pack is available. Click Download / install English pack.":
         packState==="downloading"?"English pack is downloading. Check again after it completes.":
         "No local English pack is available for this browser. You can type or tap every answer.");
@@ -52,7 +52,7 @@
   function pauseRecognition(){generation++;const rec=recognition;recognition=null;listening=false;micPending=false;status="Ready";try{rec?.abort();}catch{}closeMeter();paint();meterPaint();}
   function endSession(){sessionActive=false;sessionUntil=0;sessionHandlers=null;clearTimeout(resumeTimer);resumeTimer=null;clearInterval(sessionTimer);sessionTimer=null;}
   function stopRecognition(){endSession();pauseRecognition();}
-  function sessionScopeReady(){return !document.hidden&&(sessionScope!=="interview"||(voiceActive&&topDialog()?.id==="voice-builder"));}
+  function sessionScopeReady(){return !document.hidden&&(sessionScope!=="interview"||(voiceActive&&topDialog()?.id==="voice-builder"&&(R2.voiceBuilder?.canListen!==false)));}
   function resumeSession(){
     clearTimeout(resumeTimer);resumeTimer=null;
     if(!sessionActive||listening||micPending||playbackLocks.size||!sessionScopeReady())return;
@@ -91,6 +91,17 @@
       synth.speak(msg);if(speechPending)speechTimer=setTimeout(()=>{if(token===speechGeneration&&speechPending){finish(true);synth.cancel();}},5000);return true;
     }catch{if(token===speechGeneration){speechPending=false;speaking=false;release();speechRelease=null;setStatus("Speech output unavailable. Captions remain available.");}return false;}
   }
+  async function respond(message,{wake=false,viewChanged=false}={}){
+    if(!speechOn){if(wake)void R2.sound?.play('received');return;}
+    cancelSpeech();R2.sound?.stop();const token=speechGeneration,release=beginPlayback('voice-response');
+    try{
+      if(wake)await R2.sound?.play('received',false,true);
+      if(token!==speechGeneration||!speechOn)return;
+      if(viewChanged)await R2.sound?.play('viewMenu',false,true);
+      if(token!==speechGeneration||!speechOn)return;
+      await speak(message);
+    }finally{release();}
+  }
   function startDialogue(){speechOn=true;replay?.();paint();}
   function pauseDialogue(){speechOn=false;stopRecognition();cancelSpeech();setStatus("Spoken interview paused.");}
   async function listen(onFinal,onInterim) {
@@ -128,7 +139,7 @@
     bar.querySelector(".r2-voice-stop").hidden=!voiceActive;
     bar.querySelector(".r2-voice-stop").textContent="■ "+tr("Stop");
     bar.querySelector(".r2-voice-play").setAttribute("aria-pressed",String(speechOn));
-    bar.querySelector(".r2-voice-play").textContent=tr("Read prompt");
+    bar.querySelector(".r2-voice-play").textContent=tr(speechOn?"■ Pause spoken interview":"▶ Start spoken interview");
     bar.querySelector(".r2-listening").hidden=!listening;
     document.dispatchEvent(new Event("r2-voice-state"));
   }
@@ -147,7 +158,7 @@
   function init(){
     bar=document.createElement("footer");bar.id="r2-console-bar";bar.dataset.i18nSkip="";
     bar.innerHTML='<span class="r2-console-brand">MISSY R2</span><span class="r2-console-state"></span><span class="r2-listening" hidden>● MIC</span><span class="r2-machine" title="Browser heap, logical processors and timer scheduling delay; not CPU utilisation"></span><button type="button" class="r2-voice-play" hidden></button><button type="button" class="r2-voice-stop" hidden>■ Stop</button>';
-    bar.querySelector(".r2-voice-play").onclick=startDialogue;
+    bar.querySelector(".r2-voice-play").onclick=()=>speechOn?pauseDialogue():startDialogue();
     bar.querySelector(".r2-voice-stop").onclick=stop;document.body.append(bar);
     document.getElementById("voice-pack-install").onclick=()=>pack(true);
     document.getElementById("voice-pack-check").onclick=()=>pack(false);
@@ -161,10 +172,10 @@
     document.addEventListener("visibilitychange",()=>{if(document.hidden){stopRecognition();cancelSpeech();}});
     window.addEventListener("pagehide",()=>{stopRecognition();cancelSpeech();});
   }
-  R2.voiceConsole={pack,listen,stopRecognition,pauseRecognition,startSession,resumeSession,setSessionMinutes,speak,stop,setStatus,topDialog,beginPlayback,startDialogue,pauseDialogue,cancelSpeech,
+  R2.voiceConsole={pack,listen,stopRecognition,pauseRecognition,startSession,resumeSession,setSessionMinutes,speak,stop,setStatus,topDialog,beginPlayback,respond,startDialogue,pauseDialogue,cancelSpeech,
     stopMicrophone(){stopRecognition();cancelSpeech();R2.sound?.stop();},
-    activate(handlers){voiceActive=!!handlers;replay=handlers?.play||null;stopAction=handlers?.stop||null;micAction=handlers?.microphone||null;if(!handlers){speechOn=false;stopRecognition();cancelSpeech();}paint();},
-    startMicrophone(){if(listening||micPending)return;if(playbackLocks.size){setStatus("Wait for playback to finish before starting the microphone.");return;}if(micAction)return micAction();return startSession(raw=>R2.consoleUi?.command(raw));},
+    activate(handlers){voiceActive=!!handlers;replay=handlers?.play||null;stopAction=handlers?.stop||null;micAction=handlers?.microphone||null;if(!handlers){speechOn=false;stopRecognition();cancelSpeech();R2.sound?.stop();}paint();},
+    startMicrophone(){if(listening||micPending)return;if(playbackLocks.size){setStatus("Wait for playback to finish before starting the microphone.");return;}if(micAction)return micAction();return startSession(raw=>R2.consoleUi?.command(raw,true));},
     get sessionActive(){return sessionActive;},get sessionMinutes(){return sessionMinutes;},get sessionRemaining(){return sessionActive?Math.max(0,Math.ceil((sessionUntil-Date.now())/1000)):0;},
     get playbackBusy(){return playbackLocks.size>0;},get speechOn(){return speechOn;},get speaking(){return speaking||speechPending;},
     get status(){return status;},get pending(){return micPending;},get level(){return level;},get active(){return voiceActive;},get listening(){return listening;},get language(){return lang();},get packState(){return packState;}};

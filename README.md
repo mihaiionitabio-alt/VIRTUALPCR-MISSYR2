@@ -4,8 +4,8 @@ Live page: [https://mihaiionitabio-alt.github.io/VIRTUALPCR-MISSYR2/](https://mi
 
 - Virtual real-time PCR on a 384-well plate, with amplification curves and instrument telemetry.
 - Configurable samples, DNA extractions, PCR replicates, controls, reagents and thermal programmes.
-- Assisted forms, visual blocks and a spoken interview for creating reusable JSON batch profiles.
-- Timed microphone sessions, defaulting to 10 minutes, with automatic pauses during audio playback.
+- Assisted forms, visual blocks and a full-screen spoken interview for creating reusable JSON batch profiles.
+- Timed microphone sessions, defaulting to 10 minutes, with Computer/Missy wake words, spoken setting confirmations and automatic pauses during audio playback.
 - RDMLt exports containing fluorescence, SOP information, run metadata and telemetry.
 - Bundled MISSY tools for reviewing results, SOP evidence, curves and control charts.
 - Technician learning levels, quizzes and configurable fault scenarios.

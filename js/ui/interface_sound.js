@@ -26,15 +26,15 @@
     g.gain.setValueAtTime(0,start);g.gain.linearRampToValueAtTime(gain,start+attack);g.gain.setValueAtTime(gain,start+release);g.gain.linearRampToValueAtTime(0,start+length);g.connect(c.destination);
     nodes.add(source);source.onended=()=>{nodes.delete(source);source.disconnect();fil?.disconnect();g.disconnect();ended?.();};source.start(start);source.stop(start+length+.01);
   }
-  async function play(id='affirmative', preview=false){
-    if(!enabled||(!preview&&(disabled.has(id)||R2.voiceConsole?.listening||R2.voiceConsole?.pending||R2.voiceConsole?.playbackBusy))||document.hidden)return false;
+  async function play(id='affirmative', preview=false,sequence=false){
+    if(!enabled||(!preview&&(disabled.has(id)||R2.voiceConsole?.listening||R2.voiceConsole?.pending||(!sequence&&R2.voiceConsole?.playbackBusy)))||document.hidden)return false;
     const item=byId.get(id);if(!item)return false;const generation=previewGeneration;
     if(preview)R2.voiceConsole?.cancelSpeech();
-    const release=R2.voiceConsole?.beginPlayback('interface-effect')||(()=>{});releases.add(release);const done=()=>{release();releases.delete(release);};
+    let settle;const completed=new Promise(resolve=>settle=resolve);const release=()=>{unlock();settle();};const unlock=R2.voiceConsole?.beginPlayback('interface-effect')||(()=>{});releases.add(release);const done=()=>{release();releases.delete(release);};
     try{const c=await engine();if(!c||!enabled||generation!==previewGeneration){done();return false;}
       let remaining=item.pattern.length;
       for(const p of item.pattern)note(c,p,(item.group==='Background'?.009:.055)*volume*(item.volume??1),()=>{if(--remaining===0)done();});
-      if(!remaining)done();played++;lastId=id;return true;
+      if(!remaining)done();played++;lastId=id;await completed;return generation===previewGeneration;
     }catch{done();return false;}
   }
   function stop(){previewGeneration++;for(const n of nodes){try{n.stop();}catch{}}nodes.clear();for(const release of releases)release();releases.clear();}

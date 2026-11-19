@@ -536,3 +536,28 @@ Object.assign(window.R2_WORKBENCH_ZH,{
 Object.assign(window.R2_WORKBENCH_ZH,{"Microphone session duration in minutes":"麦克风会话时长（分钟）","Apply session duration":"应用会话时长","Use 1 to 120 minutes.":"请输入 1 至 120 分钟。"});
 
 Object.assign(window.R2_WORKBENCH_ZH,{"Microphone paused while audio is playing.":"播放声音时麦克风暂停。"});
+
+Object.assign(window.R2_WORKBENCH_ZH,{
+  "Profile read-back": "配置复述",
+  "JSON history": "JSON 历史",
+  "Back to question": "返回当前问题",
+  "Previous question": "上一个问题",
+  "Begin spoken answers with Computer or Missy.": "请以 Computer 或 Missy 开头作答。",
+  "Begin spoken commands with Computer or Missy.": "请以 Computer 或 Missy 开头说出命令。",
+  "Return to the question to answer it.": "请返回当前问题后作答。",
+  "Stop generation": "停止生成",
+  "Begin every spoken answer or command with Computer or Missy. Typed answers and buttons do not need a wake word.": "每次语音回答或命令都应以 Computer 或 Missy 开头。输入文字和点击按钮时无需唤醒词。",
+  "Answer the current question.": "回答当前问题。",
+  "Return to the previous question, undo an accepted setting, or repeat the prompt.": "返回上一个问题、撤销已接受的设置，或重复提示。",
+  "Hear progress or open the full-screen profile read-back.": "收听进度或打开全屏配置复述。",
+  "Change a named setting; the applied value is read back.": "修改指定设置，并复述实际应用的值。",
+  "Reuse settings or accept the remaining method defaults.": "复用设置，或接受剩余方法默认值。",
+  "Review the complete profile and acknowledge cautions first. Confirm the build, then launch within the displayed time window.": "先审核完整配置并确认注意事项，然后确认生成，并在显示的时限内启动。",
+  "Stop listening, pause the interview and disarm launch. While audio is playing, use the bottom-bar Stop button.": "停止聆听、暂停访谈并解除启动确认。播放声音时，请使用底部栏的停止按钮。",
+  "Start spoken interview in the bottom bar, then start the microphone once. Set the session duration in Microphone settings using min and ✓. The default is 10 minutes. Listening pauses during playback and resumes automatically while the session remains valid.": "在底部栏开始语音访谈，再启动一次麦克风。在麦克风设置中使用 min 和 ✓ 设置会话时长，默认为 10 分钟。播放声音时聆听暂停，会话有效期间会自动恢复。",
+  "Each accepted answer is acknowledged, followed by a summary of the applied setting and the next question. Unprefixed speech is ignored and is not added to JSON history.": "每个已接受的答案都会得到确认，然后概述实际应用的设置，并提出下一个问题。没有唤醒词的语音会被忽略，不会加入 JSON 历史。",
+  "During generation the microphone is off. Use Stop generation to finish and file the current run before stopping the batch.": "生成期间麦克风关闭。使用“停止生成”可在停止批次前完成并保存当前运行。",
+  "English offline recognition pack is ready.": "英语离线识别语音包已就绪。"
+});
+
+Object.assign(window.R2_WORKBENCH_ZH,{"Voice workspace shortcuts":"语音工作区快捷方式","Recognition uses English voice commands; the examples below are spoken in English.":"语音识别使用英语，以下示例应以英语说出。"});
