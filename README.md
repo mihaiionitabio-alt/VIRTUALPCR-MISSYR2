@@ -1,27 +1,36 @@
 # VIRTUALPCR/MISSYR2
 
-## Live website
+[Open the live website](https://mihaiionitabio-alt.github.io/VIRTUALPCR-MISSYR2/) · [Download offline 0.4.33](https://mihaiionitabio-alt.github.io/VIRTUALPCR-MISSYR2/downloads/MISSY_R2_workbench_site_0.4.33.zip)
 
-site is live at https://mihaiionitabio-alt.github.io/VIRTUALPCR-MISSYR2/
+Version **0.4.33**, under active development. A browser-based virtual real-time PCR workbench for research and training, with Technician learning levels and bundled MISSY analysis. It is not validated for laboratory use.
 
-Version **0.4.29** — a browser-based virtual real-time PCR workbench with Technician learning levels and MISSY analysis.
+## Features
 
-## Offline download
+- Prepare a virtual 384-well plate; configure samples, DNA extractions, PCR replicates, controls, reagents, handling, programmes and teaching fault scenarios.
+- Follow amplification and block-temperature traces, then review results, SOP evidence and telemetry in MISSY.
+- Build reusable JSON run profiles using **Assisted**, **Visual blocks** or **Audio interview**; run multiple independent configurations with their own repeat counts.
+- Generate raw `.rdmlt` packages containing fluorescence, run metadata, SOPs and simulated instrument telemetry. RDMLt is this project's draft telemetry package around an RDML core.
+- Use English or Simplified Chinese, keyboard/mouse controls, optional local speech recognition and MISSY-style full-screen panels.
+- Keep experiment processing on your computer. Saved Audio history contains structured JSON settings/decisions, not raw conversation wording.
 
-[Download the complete offline website](https://mihaiionitabio-alt.github.io/VIRTUALPCR-MISSYR2/downloads/MISSY_R2_workbench_site_0.4.29.zip).
+## Offline use
 
-Extract the ZIP and open `pcr-workbench/index.html`. Experiment files stay in your browser. The level-unlock quizzes are separate from PCR runs; starting a run does not open another quiz.
+Download and extract the whole ZIP, then open `pcr-workbench/index.html` in a compatible desktop browser. No installation or server is needed for ordinary simulation and analysis. A supported browser and initial language-pack installation are needed for optional on-device voice recognition. Speech support depends on the browser and installed pack; typed controls remain available.
 
-Source acknowledgements are in [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt).
+The JSON Create and Run shortcuts are on the welcome page. The profile format is `missy-r2-batch/1`; use the builders or examples in `data/` to create independent run groups. Download profiles to reuse settings. Generation runs sequentially; completed runs remain available in the current browser tab and Quality manager. Download output files before closing the tab. Large batches and telemetry use browser memory.
 
-## 0.4.29 fixes
+## 0.4.33 fixes and checks
 
-- Loading counters stop at completion or error; failed transfers can be retried.
-- Startup timeouts and cancelled transfers no longer leave stale progress screens.
-- Completed guided-run results stop redrawing, preserving editable fields.
-- Charts with measured points but insufficient history say “collecting baseline”.
-- Older workbench run files and templates remain readable.
+- Prevent maize profiles from inheriting soybean material; reset incompatible template-dependent settings and validate actual crop/SOP/well count.
+- Preserve shared drafts and advanced settings across all three editors; recover invalid Audio answers without discarding the profile.
+- Make Audio read-back describe the effective bench configuration; retain or withdraw warning acknowledgements correctly.
+- Respect selected-run output choices and wait for MISSY hand-over readiness. Align generated SOP eligibility with existing workbench design requirements.
+- Add a bilingual alert catalogue and full-screen alert board, with optional tones off by default.
+- Validated nine configuration intents across four editor paths; generated 19 complete virtual runs and opened 18 in MISSY. The remaining run verified explicit no-selection behavior.
+- English/Chinese checks, JSON-only history regressions, 92 voice-engine assertions and 500 profile round trips passed. Speech-adapter checks used controlled recognition events, not acoustic accuracy measurements.
 
-## Sources and credits
+## Sources and development
 
-The welcome page links to the [sources and credits](https://mihaiionitabio-alt.github.io/VIRTUALPCR-MISSYR2/credits.html): scientific references, source repositories, example-data credits and licence notices. The static page and `data/credits.json` are included in the offline website. Run `python scripts/build_credits.py` after editing the curated source list.
+[Sources and credits](https://mihaiionitabio-alt.github.io/VIRTUALPCR-MISSYR2/credits.html), [source notices](THIRD_PARTY_NOTICES.txt) and embedded dependency notices document the supplied references and code ancestry. Preserve these notices when redistributing; do not assume a single licence covers every bundled asset.
+
+Build the static website and matching offline ZIP with `python scripts/build_site.py`. The GitHub Pages workflow publishes `_site` from `main`. Simulator outputs are artificial teaching data and do not establish real sample results, instrument qualification or clinical validity.

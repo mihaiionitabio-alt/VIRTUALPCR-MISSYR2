@@ -1,0 +1,212 @@
+{
+  "format": "missy-r2-batch-plan/1",
+  "name": "Virtual run plan",
+  "configurations": [
+    {
+      "format": "missy-r2-batch/1",
+      "name": "Baseline",
+      "count": 2,
+      "seed": 7,
+      "scenarioIds": [],
+      "template": {
+        "format": "missy-r2-workbench-template/0.1",
+        "name": "Batch setup",
+        "created": "2026-11-18T18:51:14.840Z",
+        "samplePreset": "soyA",
+        "crop": "soybean",
+        "stage": "screen",
+        "layout": "simplex",
+        "assays": [
+          "QL-ELE-00-012",
+          "QL-ELE-00-013",
+          "QT-ELE-00-002",
+          "QL-CON-00-008"
+        ],
+        "duplex": false,
+        "dna": {
+          "concNgPerUl": 40,
+          "volUl": 5
+        },
+        "settings": {
+          "primerF": 1,
+          "primerR": 1,
+          "probe": 1,
+          "quencher": "method",
+          "probeMismatch": false,
+          "probeStoreC": -20,
+          "probeMonths": 0,
+          "probeLightH": 0,
+          "freezeThaw": 0,
+          "primerStoreC": -20,
+          "primerMonths": 0,
+          "mixStoreC": -20,
+          "mixMonths": 0,
+          "hotStart": true,
+          "benchMin": 5,
+          "ambientC": 22,
+          "carryover": 0,
+          "ungActive": true,
+          "pipetCV": 0,
+          "inhibitor": 0
+        },
+        "fields": {
+          "ung": 0,
+          "act": 600,
+          "cycles": 45,
+          "denS": 15,
+          "annT": 60,
+          "annS": 60,
+          "extT": 72,
+          "extS": 1,
+          "melt": false,
+          "coolT": 40,
+          "coolS": 30
+        },
+        "mix": {
+          "masterMixX": 2,
+          "excessPct": 10,
+          "extraReactions": 0,
+          "roundUl": 0.1,
+          "minPipetUl": 0.5,
+          "primerStockUM": 10,
+          "probeStockUM": 10,
+          "rxnUl": 25,
+          "sampleStockNgPerUl": 120,
+          "crmStockNgPerUl": 100,
+          "minSolutionUl": 20
+        },
+        "natural": true,
+        "sop_id": "SOP-FE0771E0164B",
+        "id": "TPL-406C144E7F",
+        "batch": [
+          {
+            "extractionDate": "2026-11-18",
+            "label": "",
+            "preset": "soyA"
+          }
+        ]
+      },
+      "sample": {
+        "key": "soyA",
+        "label": "Soybean meal A",
+        "crop": "soybean",
+        "events": {
+          "40-3-2": 1
+        },
+        "frag": 2000,
+        "inhibitor": 0
+      },
+      "extractions": {},
+      "samples": [
+        {
+          "extractionDate": "2026-11-18",
+          "label": "",
+          "preset": "soyA"
+        }
+      ]
+    },
+    {
+      "format": "missy-r2-batch/1",
+      "name": "Ambient 24",
+      "count": 1,
+      "seed": 7,
+      "scenarioIds": [],
+      "template": {
+        "format": "missy-r2-workbench-template/0.1",
+        "name": "Batch setup",
+        "created": "2026-11-18T18:51:14.840Z",
+        "samplePreset": "soyA",
+        "crop": "soybean",
+        "stage": "screen",
+        "layout": "simplex",
+        "assays": [
+          "QL-ELE-00-012",
+          "QL-ELE-00-013",
+          "QT-ELE-00-002",
+          "QL-CON-00-008"
+        ],
+        "duplex": false,
+        "dna": {
+          "concNgPerUl": 40,
+          "volUl": 5
+        },
+        "settings": {
+          "primerF": 1,
+          "primerR": 1,
+          "probe": 1,
+          "quencher": "method",
+          "probeMismatch": false,
+          "probeStoreC": -20,
+          "probeMonths": 0,
+          "probeLightH": 0,
+          "freezeThaw": 0,
+          "primerStoreC": -20,
+          "primerMonths": 0,
+          "mixStoreC": -20,
+          "mixMonths": 0,
+          "hotStart": true,
+          "benchMin": 5,
+          "ambientC": 24,
+          "carryover": 0,
+          "ungActive": true,
+          "pipetCV": 0,
+          "inhibitor": 0
+        },
+        "fields": {
+          "ung": 0,
+          "act": 600,
+          "cycles": 45,
+          "denS": 15,
+          "annT": 60,
+          "annS": 60,
+          "extT": 72,
+          "extS": 1,
+          "melt": false,
+          "coolT": 40,
+          "coolS": 30
+        },
+        "mix": {
+          "masterMixX": 2,
+          "excessPct": 10,
+          "extraReactions": 0,
+          "roundUl": 0.1,
+          "minPipetUl": 0.5,
+          "primerStockUM": 10,
+          "probeStockUM": 10,
+          "rxnUl": 25,
+          "sampleStockNgPerUl": 120,
+          "crmStockNgPerUl": 100,
+          "minSolutionUl": 20
+        },
+        "natural": true,
+        "sop_id": "SOP-FE0771E0164B",
+        "id": "TPL-406C144E7F",
+        "batch": [
+          {
+            "extractionDate": "2026-11-18",
+            "label": "",
+            "preset": "soyA"
+          }
+        ]
+      },
+      "sample": {
+        "key": "soyA",
+        "label": "Soybean meal A",
+        "crop": "soybean",
+        "events": {
+          "40-3-2": 1
+        },
+        "frag": 2000,
+        "inhibitor": 0
+      },
+      "extractions": {},
+      "samples": [
+        {
+          "extractionDate": "2026-11-18",
+          "label": "",
+          "preset": "soyA"
+        }
+      ]
+    }
+  ]
+}

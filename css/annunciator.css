@@ -1,0 +1,49 @@
+/* MISSY R2 annunciator · NASA-STD-3001 V2 Table 10.3-1 colours: warning red, caution yellow,
+   advisory blue; status neutral. Each class also has a shape and a text label, so colour is
+   never the only cue (ECSS-E-ST-10-11C 4.7.3). Flashing red is reserved for emergencies (unused). */
+:root { --r2-warning: #ff4d4d; --r2-caution: #f2c94c; --r2-advisory: #5aa9ff; --r2-status: #d9cfe0; }
+.r2-cls { display: inline-block; font: 700 11px/1.2 ui-monospace, Consolas, monospace; letter-spacing: .06em; padding: 3px 7px; border-radius: 4px; border: 1px solid currentColor; white-space: nowrap; }
+.r2-cls.r2-warning { color: #1a0000; background: var(--r2-warning); border-color: var(--r2-warning); }
+.r2-cls.r2-caution { color: #1a1400; background: var(--r2-caution); border-color: var(--r2-caution); }
+.r2-cls.r2-advisory { color: #001226; background: var(--r2-advisory); border-color: var(--r2-advisory); }
+.r2-cls.r2-status { color: var(--r2-status); background: transparent; }
+#r2-master-alarm { min-height: 30px; padding: 3px 10px; border-radius: 6px; font: 700 12px/1 ui-monospace, Consolas, monospace; letter-spacing: .05em; cursor: pointer; border: 2px solid #5e4967; background: #160e1b; color: #d9cfe0; }
+#r2-master-alarm.r2-warning { background: var(--r2-warning); border-color: var(--r2-warning); color: #1a0000; }
+#r2-master-alarm.r2-caution { background: var(--r2-caution); border-color: var(--r2-caution); color: #1a1400; }
+#r2-master-alarm.r2-advisory { background: var(--r2-advisory); border-color: var(--r2-advisory); color: #001226; }
+#r2-master-alarm:not(.r2-unacked):not(.r2-nominal) { background: transparent; color: inherit; }
+#r2-master-alarm.r2-warning:not(.r2-unacked) { color: var(--r2-warning); }
+#r2-master-alarm.r2-caution:not(.r2-unacked) { color: var(--r2-caution); }
+#r2-master-alarm.r2-advisory:not(.r2-unacked) { color: var(--r2-advisory); }
+dialog.r2-annun { width: min(1180px, 96vw); max-height: 92vh; }
+.r2-annun-shell { display: flex; flex-direction: column; gap: 10px; }
+.r2-annun-head { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; border-bottom: 1px solid #5e4967; padding-bottom: 8px; }
+.r2-annun-head h2 { margin: 2px 0 0; }
+.r2-mode { font: 700 11px ui-monospace, Consolas, monospace; letter-spacing: .08em; color: var(--r2-caution); border: 1px solid var(--r2-caution); border-radius: 999px; padding: 3px 10px; }
+.r2-counts { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; font: 600 13px ui-monospace, Consolas, monospace; }
+.r2-annun-tools, .r2-annun-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.r2-annun-tabs button[aria-selected="true"] { border-color: #c99bd0; background: #3a2342; }
+.r2-annun-body { overflow: auto; max-height: 62vh; }
+table.r2-alerts { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+table.r2-alerts td, table.r2-alerts th { border-bottom: 1px solid #2a1f31; padding: 7px 8px; vertical-align: top; text-align: left; }
+table.r2-alerts tr.r2-row { border-left: 5px solid transparent; }
+table.r2-alerts tr.r2-warning td:first-child { box-shadow: inset 5px 0 0 var(--r2-warning); }
+table.r2-alerts tr.r2-caution td:first-child { box-shadow: inset 5px 0 0 var(--r2-caution); }
+table.r2-alerts tr.r2-advisory td:first-child { box-shadow: inset 5px 0 0 var(--r2-advisory); }
+table.r2-alerts tr.r2-acked { opacity: .72; }
+.r2-actions { display: flex; flex-direction: column; gap: 4px; min-width: 150px; }
+.r2-actions button { min-height: 34px; font-size: 12.5px; }
+.r2-ackd { font: 600 12px ui-monospace, Consolas, monospace; color: #7fd1a0; }
+.r2-stale { display: inline-block; margin-left: 6px; font: 700 10px ui-monospace, Consolas, monospace; color: #000; background: #9b8ea3; padding: 2px 5px; border-radius: 3px; }
+.r2-meta { color: #b9a6c2; font-size: 12px; }
+.r2-log { max-height: 46vh; overflow: auto; font: 12px/1.4 ui-monospace, Consolas, monospace; background: #000; border: 1px solid #2a1f31; padding: 8px; border-radius: 6px; }
+.r2-refs { font-size: 11.5px; color: #b9a6c2; }
+.r2-annun-test { position: fixed; inset: auto 16px 64px auto; z-index: 99; display: flex; gap: 8px; padding: 10px; background: #000; border: 1px solid #5e4967; border-radius: 10px; }
+.r2-nominal-text { color: #7fd1a0; font-weight: 600; }
+@media (max-width: 760px) { table.r2-alerts thead { display: none; } table.r2-alerts tr { display: grid; grid-template-columns: 1fr; } .r2-actions { flex-direction: row; flex-wrap: wrap; } }
+
+/* Same full-screen frame as MISSY and the profile editors. */
+dialog.r2-annun{position:fixed;inset:0;width:100%;height:100dvh;max-width:none;max-height:none;margin:0;border:0;padding:32px 28px 90px;background:#000;color:#f1e4f5;box-sizing:border-box;}
+.r2-annun-shell{max-width:1500px;margin:0 auto;border-top:18px solid #ff9966;border-left:24px solid #cc99cc;border-bottom:16px solid #cc99cc;border-radius:64px 0 0 48px;padding:24px;box-sizing:border-box;min-height:calc(100dvh - 125px);}
+.r2-annun-head h2{color:#ff9966;font-size:30px}.r2-annun button{border-radius:22px;min-height:40px;padding:8px 16px}.r2-annun-body{max-height:calc(100dvh - 330px)}.r2-annun-tools{gap:10px}.r2-annun-tabs{border-bottom:5px solid #cc99cc;padding-bottom:10px}.r2-alerts{line-height:1.5}#r2-master-alarm{font-size:11px;min-height:30px!important;padding:5px 10px!important;}
+@media(max-width:1050px){dialog.r2-annun{padding:24px 16px 90px}.r2-annun-shell{padding:18px;border-left-width:16px}.r2-annun-body{max-height:calc(100dvh - 340px)}}

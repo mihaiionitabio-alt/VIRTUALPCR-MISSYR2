@@ -3,27 +3,38 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>VIRTUALPCR/MISSYR2 · 0.4.29</title>
+<title>VIRTUALPCR/MISSYR2 · 0.4.33</title>
 <meta name="description" content="A browser-based virtual real-time PCR workbench with molecular-biology learning levels and MISSY analysis.">
-<script src="js/welcome.js?v=0.4.29-r3" data-module-count="60"></script>
-<link rel="stylesheet" href="css/site.css?v=0.4.29-r3">
-<link rel="stylesheet" href="css/missy-workspace.css?v=0.4.29-r3">
-<link rel="stylesheet" href="css/quiz.css?v=0.4.29-r3">
-<link rel="stylesheet" href="css/welcome.css?v=0.4.29-r3">
+<script src="js/welcome.js?v=0.4.33" data-module-count="63"></script>
+<link rel="stylesheet" href="css/site.css?v=0.4.33">
+<link rel="stylesheet" href="css/missy-workspace.css?v=0.4.33">
+<link rel="stylesheet" href="css/quiz.css?v=0.4.33">
+<link rel="stylesheet" href="css/batch.css?v=0.4.33">
+<link rel="stylesheet" href="css/profile-studio.css?v=0.4.33">
+<link rel="stylesheet" href="css/i18n.css?v=0.4.33">
+<link rel="stylesheet" href="css/missy-startup.css?v=0.4.33">
+<link rel="stylesheet" href="css/missy-display.css?v=0.4.33">
+<link rel="stylesheet" href="css/annunciator.css?v=0.4.33">
+<script defer src="data/missy-zh.js?v=0.4.33"></script>
+<script defer src="data/workbench-zh.js?v=0.4.33"></script>
+<script defer src="data/workbench-zh-extra.js?v=0.4.33"></script>
+<script defer src="data/workbench-zh-patterns.js?v=0.4.33"></script>
+<script defer src="data/assessment-zh.js?v=0.4.33"></script>
+<script defer src="js/ui/i18n.js?v=0.4.33"></script>
 </head>
 <body>
-<section id="welcome-screen" class="welcome-screen" aria-labelledby="welcome-title">
-  <div class="welcome-rail" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
-  <div class="welcome-frame">
-    <div class="welcome-heading"><div><span class="welcome-kicker">VIRTUALPCR/MISSYR2</span><h1 id="welcome-title">Welcome to VIRTUALPCR/MISSYR2</h1><p class="welcome-version">Version <strong data-app-version>0.4.29</strong></p></div><img src="assets/missy-logo.svg" alt="MISSY · Research use only"></div>
-    <p class="welcome-intro">Explore real-time PCR, prepare a virtual plate and review your experiments with MISSY.</p>
-    <div class="welcome-loading"><p id="welcome-status" role="status">Loading the workbench…</p><progress id="welcome-progress" max="100" value="0" aria-label="Workbench loading progress"></progress><p id="welcome-computer" class="welcome-computer"></p></div>
-    <div class="welcome-actions"><button type="button" id="welcome-enter" disabled>Loading…</button><button type="button" data-download-website disabled>Download website</button><a class="welcome-sources" href="credits.html" target="_blank" rel="noopener">Sources and credits</a></div>
-    <p id="website-download-status" class="welcome-note" role="status"></p>
-    <p class="welcome-note">Your experiment files stay in your browser. The downloaded website also works offline.</p>
-    <noscript><p>Enable JavaScript to use the virtual instrument.</p></noscript>
-  </div>
-</section>
+<nav id="json-corner" class="json-corner" aria-label="JSON run profiles"><button type="button" class="json-corner-btn" data-batch-create title="Create a JSON run profile" aria-label="Create JSON profile"><img src="assets/json-create.svg?v=0.4.33" alt="" width="56" height="69"></button><button type="button" class="json-corner-btn" data-batch-run title="Run a JSON run profile" aria-label="Run JSON profile"><img src="assets/json-run.svg?v=0.4.33" alt="" width="56" height="69"></button></nav>
+<section id="welcome-screen" aria-labelledby="welcome-title">
+<div class="startup-window"><div class="startup-title"><span>MISSY / SYSTEM INITIALIZATION</span><button type="button" class="startup-sound" id="welcome-sound" aria-label="Toggle interface sound">🔊</button></div><div class="startup-content">
+<div class="startup-radial"><svg viewBox="0 0 250 250" aria-label="Five startup stages"><g data-boot-step="1"><path d="M132.53 17.26 A108 108 0 0 1 225.14 84.54 L198.25 95.41 A79 79 0 0 0 130.51 46.19 Z" fill="#f59b48"></path><text x="180.25" y="52.95" text-anchor="middle" fill="#090909" font-size="12" font-weight="bold">01</text></g><g data-boot-step="2"><path d="M229.79 98.87 A108 108 0 0 1 194.42 207.73 L175.78 185.52 A79 79 0 0 0 201.65 105.89 Z" fill="#d9895c"></path><text x="214.40" y="158.05" text-anchor="middle" fill="#090909" font-size="12" font-weight="bold">02</text></g><g data-boot-step="3"><path d="M182.23 216.59 A108 108 0 0 1 67.77 216.59 L83.14 192.00 A79 79 0 0 0 166.86 192.00 Z" fill="#d6a2d3"></path><text x="125.00" y="223.00" text-anchor="middle" fill="#090909" font-size="12" font-weight="bold">03</text></g><g data-boot-step="4"><path d="M55.58 207.73 A108 108 0 0 1 20.21 98.87 L48.35 105.89 A79 79 0 0 0 74.22 185.52 Z" fill="#ab7fc0"></path><text x="35.60" y="158.05" text-anchor="middle" fill="#090909" font-size="12" font-weight="bold">04</text></g><g data-boot-step="5"><path d="M24.86 84.54 A108 108 0 0 1 117.47 17.26 L119.49 46.19 A79 79 0 0 0 51.75 95.41 Z" fill="#e0a560"></path><text x="69.75" y="52.95" text-anchor="middle" fill="#090909" font-size="12" font-weight="bold">05</text></g><circle cx="125" cy="125" r="64" fill="none" stroke="#684c70"></circle><text x="125" y="111" text-anchor="middle" fill="#d3a0d7" font-size="11" letter-spacing="2">STARTUP</text><text id="welcome-modules" x="125" y="143" text-anchor="middle" fill="#f5a355" font-size="27">0 / 5</text></svg></div>
+<div class="startup-instrument"><button id="welcome-enter" type="button" disabled aria-label="Enter MISSY R2"><img src="assets/missy-logo.svg" alt="MISSY · RUO · NOT VALIDATED" width="300" height="100"></button></div>
+<h1 id="welcome-title">VIRTUALPCR / MISSY R2</h1><p id="welcome-status" role="status">Loading the workbench…</p><div class="startup-track" id="welcome-progress" role="progressbar" aria-label="Startup stages" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0"><div id="welcome-progress-fill"></div></div>
+<div class="startup-log-title">BOOT LOG / EMBEDDED COMPONENTS</div><pre id="welcome-log" aria-label="Embedded component loading log"></pre>
+<div class="startup-calibration" aria-hidden="true"><i style="--swatch:#cbd6df"></i><i style="--swatch:#d0c64c"></i><i style="--swatch:#48c9ce"></i><i style="--swatch:#53b679"></i><i style="--swatch:#b66bba"></i><i style="--swatch:#d56e6e"></i><i style="--swatch:#627dc6"></i></div>
+<div class="startup-footer"><span class="startup-version">Version <strong data-app-version>0.4.33</strong></span><button type="button" data-download-website disabled>Download website</button><a href="credits.html" target="_blank" rel="noopener">Sources and credits</a></div>
+<div class="startup-extra"><p id="welcome-computer" class="welcome-computer"></p><div class="row"><button type="button" id="voice-pack-install">Download / install English pack</button><details><summary>Offline voice commands</summary><label>Recognition language <select id="voice-pack-language"><option value="en-US">English (US)</option><option value="en-GB">English (UK)</option></select></label><button type="button" id="voice-pack-check">Check pack</button><p>Internet is needed only to install the recognition pack. Downloads are managed by the browser; no separate pack file or percentage is provided.</p></details></div><p id="voice-pack-status" role="status">Optional. Install once for local English recognition. No microphone opens during startup.</p><p id="website-download-status" role="status"></p></div><noscript>Enable JavaScript to use the virtual instrument.</noscript>
+</div></div></section>
+
 <main id="workbench-app" class="wrap" hidden>
 <!-- ================= OVERVIEW ================= -->
 <section id="view-home" class="stack">
@@ -31,12 +42,12 @@
     <div class="workspace-rail" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
     <div class="workspace-content">
       <div class="workspace-heading">
-        <div class="lead"><h1>Choose your role</h1><p class="home-version">VIRTUALPCR/MISSYR2 · Version <strong data-app-version>0.4.29</strong></p><p>Choose Technician to unlock a learning level, or Quality manager to analyse experiments.</p></div>
+        <div class="lead"><span class="entry-eyebrow">MISSY / ROLE ACCESS</span><h1>Choose your role</h1><p class="home-version">VIRTUALPCR/MISSYR2 · Version <strong data-app-version>0.4.33</strong></p><p>Choose Technician to unlock a learning level, or Quality manager to analyse experiments.</p></div>
         <img src="assets/missy-logo.svg" alt="MISSY · Research use only">
       </div>
       <div class="workspace-options role-options">
-        <a class="workspace-choice" href="#technician"><svg class="role-art" viewBox="0 0 230 145" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3"><path d="M25 45h172v83H25zM36 45l16-22h122l23 22"/><circle cx="48" cy="65" r="5"/><circle cx="72" cy="65" r="5"/><circle cx="96" cy="65" r="5"/><circle cx="120" cy="65" r="5"/><circle cx="144" cy="65" r="5"/><circle cx="168" cy="65" r="5"/><circle cx="48" cy="85" r="5"/><circle cx="72" cy="85" r="5"/><circle cx="96" cy="85" r="5"/><circle cx="120" cy="85" r="5"/><circle cx="144" cy="85" r="5"/><circle cx="168" cy="85" r="5"/><circle cx="48" cy="105" r="5"/><circle cx="72" cy="105" r="5"/><circle cx="96" cy="105" r="5"/><circle cx="120" cy="105" r="5"/><circle cx="144" cy="105" r="5"/><circle cx="168" cy="105" r="5"/><path d="m174 12 28 26m-19-34 26 26"/></svg><strong>Technician</strong><span>Set up assays, prepare a 384-well plate and run the virtual PCR instrument.</span></a>
-        <a class="workspace-choice" href="#quality"><svg class="role-art" viewBox="0 0 230 145" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3"><path d="M28 18v110h180M40 112h35c40 0 25-73 80-73h42"/><path d="M42 76h155" stroke-dasharray="7 6"/><circle cx="129" cy="77" r="7"/><path d="m162 105 11 11 25-28"/></svg><strong>Quality manager</strong><span>Review runs and controls, inspect curves and manage SOPs.</span></a>
+        <a class="workspace-choice" href="#technician"><span class="entry-number">01</span><svg class="role-art" viewBox="0 0 230 145" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3"><path d="M25 45h172v83H25zM36 45l16-22h122l23 22"/><circle cx="48" cy="65" r="5"/><circle cx="72" cy="65" r="5"/><circle cx="96" cy="65" r="5"/><circle cx="120" cy="65" r="5"/><circle cx="144" cy="65" r="5"/><circle cx="168" cy="65" r="5"/><circle cx="48" cy="85" r="5"/><circle cx="72" cy="85" r="5"/><circle cx="96" cy="85" r="5"/><circle cx="120" cy="85" r="5"/><circle cx="144" cy="85" r="5"/><circle cx="168" cy="85" r="5"/><circle cx="48" cy="105" r="5"/><circle cx="72" cy="105" r="5"/><circle cx="96" cy="105" r="5"/><circle cx="120" cy="105" r="5"/><circle cx="144" cy="105" r="5"/><circle cx="168" cy="105" r="5"/><path d="m174 12 28 26m-19-34 26 26"/></svg><strong>Technician</strong><span>Set up assays, prepare a 384-well plate and run the virtual PCR instrument.</span></a>
+        <a class="workspace-choice" href="#quality"><span class="entry-number">02</span><svg class="role-art" viewBox="0 0 230 145" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3"><path d="M28 18v110h180M40 112h35c40 0 25-73 80-73h42"/><path d="M42 76h155" stroke-dasharray="7 6"/><circle cx="129" cy="77" r="7"/><path d="m162 105 11 11 25-28"/></svg><strong>Quality manager</strong><span>Review runs and controls, inspect curves and manage SOPs.</span></a>
       </div>
       <div class="workspace-footer"><span>Experiment files stay on this computer.</span><button type="button" id="workbench-sound" class="workspace-sound" aria-pressed="true">Sound on</button></div>
     </div>
@@ -45,7 +56,7 @@
 
 <!-- ================= TECHNICIAN ================= -->
 <section id="view-technician" class="stack" hidden>
-  <div class="lead"><h1>Technician bench</h1><p>Prepare a batch on the virtual 384-well plate. Each sample has three independent extracts and three PCR replicates per extract. Choose the analysis procedure on the Analysis step.</p></div>
+  <div class="lead"><h1>Technician bench</h1><p>Prepare a batch on the virtual 384-well plate. Set the independent extraction and PCR replicate counts on the Sample step. Choose the analysis procedure on the Analysis step.</p></div>
   <div id="tech-guided" class="stack lv-guided"></div>
   <div id="tech-admin" class="stack lv-admin"></div>
   <div class="subtabs" id="tech-tabs" role="tablist" aria-label="Steps of the analysis"></div>
@@ -102,7 +113,7 @@
     <div class="grid bench">
       <div class="stack">
         <div class="panel"><h3>Run</h3><dl class="kv" id="q-run"></dl></div>
-        <div class="panel" id="q-sample-wrap" hidden><h3>Samples of this run</h3><label>Sample shown <select id="q-sample" style="max-width:100%"></select></label><div class="scroll"><table id="q-samples"></table></div><p class="note">Every sample is judged with the run's shared controls. Its result uses its nine wells per assay: three independent extractions × three PCR replicates.</p></div>
+        <div class="panel" id="q-sample-wrap" hidden><h3>Samples of this run</h3><label>Sample shown <select id="q-sample" style="max-width:100%"></select></label><div class="scroll"><table id="q-samples"></table></div><p class="note">Every sample is judged with the run's shared controls. Its result uses the extraction and PCR replicate counts recorded for this run.</p></div>
         <div class="panel"><h3>Analysis settings</h3>
           <label>Assay shown <select id="q-assay" style="max-width:100%"></select></label>
           <label>Cq method <select id="q-method"><option value="threshold">threshold crossing</option><option value="cy0">Cy0 (sigmoid fit)</option><option value="sdm">second-derivative maximum</option></select></label>
@@ -144,64 +155,73 @@
 </main>
 
 
-<script src="js/core/util.js?v=0.4.29-r3" onload="R2Boot.step('Preparing the virtual instrument')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/core/thermistor.js?v=0.4.29-r3" onload="R2Boot.step('Preparing the virtual instrument')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/core/chemistry.js?v=0.4.29-r3" onload="R2Boot.step('Preparing the virtual instrument')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/core/oligo.js?v=0.4.29-r3" onload="R2Boot.step('Preparing the virtual instrument')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/core/reagents.js?v=0.4.29-r3" onload="R2Boot.step('Preparing the virtual instrument')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/core/plant.js?v=0.4.29-r3" onload="R2Boot.step('Preparing the virtual instrument')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/core/firmware.js?v=0.4.29-r3" onload="R2Boot.step('Preparing the virtual instrument')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/core/instrument.js?v=0.4.29-r3" onload="R2Boot.step('Preparing the virtual instrument')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/analysis/analysis.js?v=0.4.29-r3" onload="R2Boot.step('Preparing analysis tools')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/analysis/gmo.js?v=0.4.29-r3" onload="R2Boot.step('Preparing analysis tools')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/analysis/tempstats.js?v=0.4.29-r3" onload="R2Boot.step('Preparing analysis tools')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/analysis/external.js?v=0.4.29-r3" onload="R2Boot.step('Preparing analysis tools')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/export/zip.js?v=0.4.29-r3" onload="R2Boot.step('Preparing offline file support')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/export/rdml.js?v=0.4.29-r3" onload="R2Boot.step('Preparing offline file support')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/export/rdmlt.js?v=0.4.29-r3" onload="R2Boot.step('Preparing offline file support')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/export/run_import.js?v=0.4.29-r3" onload="R2Boot.step('Preparing offline file support')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/export/exports.js?v=0.4.29-r3" onload="R2Boot.step('Preparing offline file support')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/export/sop.js?v=0.4.29-r3" onload="R2Boot.step('Preparing offline file support')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="data/missy-native-sops.js?v=0.4.29-r3" onload="R2Boot.step('Loading assay and training data')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/export/missy-sop.js?v=0.4.29-r3" onload="R2Boot.step('Preparing offline file support')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/export/rdmlt_import.js?v=0.4.29-r3" onload="R2Boot.step('Preparing offline file support')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="data/presets.js?v=0.4.29-r3" onload="R2Boot.step('Loading assay and training data')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="data/gmo_methods.js?v=0.4.29-r3" onload="R2Boot.step('Loading assay and training data')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="data/mara_methods.js?v=0.4.29-r3" onload="R2Boot.step('Loading assay and training data')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/analysis/mara.js?v=0.4.29-r3" onload="R2Boot.step('Preparing analysis tools')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="data/examples.js?v=0.4.29-r3" onload="R2Boot.step('Loading assay and training data')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="data/lab_sops.js?v=0.4.29-r3" onload="R2Boot.step('Loading assay and training data')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/core/gmoplan.js?v=0.4.29-r3" onload="R2Boot.step('Preparing the virtual instrument')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/core/qpcr_faults.js?v=0.4.29-r3" onload="R2Boot.step('Preparing the virtual instrument')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/core/materials.js?v=0.4.29-r3" onload="R2Boot.step('Preparing the virtual instrument')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/core/mixcalc.js?v=0.4.29-r3" onload="R2Boot.step('Preparing the virtual instrument')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/core/templates.js?v=0.4.29-r3" onload="R2Boot.step('Preparing the virtual instrument')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/ui/chart.js?v=0.4.29-r3" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/ui/plate_selection.js?v=0.4.29-r3" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/ui/tech/core.js?v=0.4.29-r3" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/ui/tech/t01_sample.js?v=0.4.29-r3" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/ui/tech/t02_step.js?v=0.4.29-r3" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/ui/tech/t03_plate.js?v=0.4.29-r3" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/ui/tech/t04_method.js?v=0.4.29-r3" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/ui/tech/t05_mix.js?v=0.4.29-r3" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/ui/tech/t06_reagents.js?v=0.4.29-r3" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/ui/tech/t07_storage.js?v=0.4.29-r3" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/ui/tech/t08_programme.js?v=0.4.29-r3" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/ui/tech/t09_run.js?v=0.4.29-r3" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/ui/tech/t10_temperature.js?v=0.4.29-r3" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/ui/tech/t11_tube.js?v=0.4.29-r3" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/ui/tech/t12_record.js?v=0.4.29-r3" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/ui/quality.js?v=0.4.29-r3" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/ui/quality_import.js?v=0.4.29-r3" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/ui/levels.js?v=0.4.29-r3" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/ui/quiz_visuals.js?v=0.4.29-r3" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/ui/tech/guided.js?v=0.4.29-r3" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/ui/tech/fault_scenarios.js?v=0.4.29-r3" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/ui/quality_cases.js?v=0.4.29-r3" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/ui/transfer-loading.js?v=0.4.29-r3" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script><script src="js/ui/workspace.js?v=0.4.29-r3" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/ui/levels_install.js?v=0.4.29-r3" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="data/technician-assessment.js?v=0.4.29-r3" onload="R2Boot.step('Loading assay and training data')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/ui/technician_access.js?v=0.4.29-r3" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
-<script src="js/ui/app.js?v=0.4.29-r3" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/core/util.js?v=0.4.33" onload="R2Boot.step('Preparing the virtual instrument')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/core/thermistor.js?v=0.4.33" onload="R2Boot.step('Preparing the virtual instrument')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/core/chemistry.js?v=0.4.33" onload="R2Boot.step('Preparing the virtual instrument')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/core/oligo.js?v=0.4.33" onload="R2Boot.step('Preparing the virtual instrument')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/core/reagents.js?v=0.4.33" onload="R2Boot.step('Preparing the virtual instrument')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/core/plant.js?v=0.4.33" onload="R2Boot.step('Preparing the virtual instrument')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/core/firmware.js?v=0.4.33" onload="R2Boot.step('Preparing the virtual instrument')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/core/instrument.js?v=0.4.33" onload="R2Boot.step('Preparing the virtual instrument')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/analysis/analysis.js?v=0.4.33" onload="R2Boot.step('Preparing analysis tools')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/analysis/gmo.js?v=0.4.33" onload="R2Boot.step('Preparing analysis tools')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/analysis/tempstats.js?v=0.4.33" onload="R2Boot.step('Preparing analysis tools')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/analysis/external.js?v=0.4.33" onload="R2Boot.step('Preparing analysis tools')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/export/zip.js?v=0.4.33" onload="R2Boot.step('Preparing offline file support')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/export/rdml.js?v=0.4.33" onload="R2Boot.step('Preparing offline file support')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/export/rdmlt.js?v=0.4.33" onload="R2Boot.step('Preparing offline file support')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/export/run_import.js?v=0.4.33" onload="R2Boot.step('Preparing offline file support')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/export/exports.js?v=0.4.33" onload="R2Boot.step('Preparing offline file support')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/export/sop.js?v=0.4.33" onload="R2Boot.step('Preparing offline file support')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="data/missy-native-sops.js?v=0.4.33" onload="R2Boot.step('Loading assay and training data')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/export/missy-sop.js?v=0.4.33" onload="R2Boot.step('Preparing offline file support')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/export/mara-evidence.js?v=0.4.33" onload="R2Boot.step('Preparing offline file support')"></script>
+<script src="js/export/rdmlt_import.js?v=0.4.33" onload="R2Boot.step('Preparing offline file support')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="data/presets.js?v=0.4.33" onload="R2Boot.step('Loading assay and training data')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="data/gmo_methods.js?v=0.4.33" onload="R2Boot.step('Loading assay and training data')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="data/mara_methods.js?v=0.4.33" onload="R2Boot.step('Loading assay and training data')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/analysis/mara.js?v=0.4.33" onload="R2Boot.step('Preparing analysis tools')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="data/examples.js?v=0.4.33" onload="R2Boot.step('Loading assay and training data')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="data/lab_sops.js?v=0.4.33" onload="R2Boot.step('Loading assay and training data')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/core/gmoplan.js?v=0.4.33" onload="R2Boot.step('Preparing the virtual instrument')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/core/qpcr_faults.js?v=0.4.33" onload="R2Boot.step('Preparing the virtual instrument')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/core/materials.js?v=0.4.33" onload="R2Boot.step('Preparing the virtual instrument')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/core/mixcalc.js?v=0.4.33" onload="R2Boot.step('Preparing the virtual instrument')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/core/templates.js?v=0.4.33" onload="R2Boot.step('Preparing the virtual instrument')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/ui/chart.js?v=0.4.33" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/ui/plate_selection.js?v=0.4.33" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/ui/tech/core.js?v=0.4.33" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/ui/tech/t01_sample.js?v=0.4.33" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/ui/tech/t02_step.js?v=0.4.33" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/ui/tech/t03_plate.js?v=0.4.33" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/ui/tech/t04_method.js?v=0.4.33" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/ui/tech/t05_mix.js?v=0.4.33" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/ui/tech/t06_reagents.js?v=0.4.33" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/ui/tech/t07_storage.js?v=0.4.33" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/ui/tech/t08_programme.js?v=0.4.33" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/ui/tech/t09_run.js?v=0.4.33" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/ui/tech/t10_temperature.js?v=0.4.33" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/ui/tech/t11_tube.js?v=0.4.33" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/ui/tech/t12_record.js?v=0.4.33" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/ui/quality.js?v=0.4.33" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/ui/quality_import.js?v=0.4.33" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/ui/levels.js?v=0.4.33" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/ui/quiz_visuals.js?v=0.4.33" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/ui/tech/guided.js?v=0.4.33" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/ui/tech/fault_scenarios.js?v=0.4.33" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/ui/quality_cases.js?v=0.4.33" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/ui/transfer-loading.js?v=0.4.33" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script><script src="js/ui/workspace.js?v=0.4.33" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/ui/levels_install.js?v=0.4.33" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="data/technician-assessment.js?v=0.4.33" onload="R2Boot.step('Loading assay and training data')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/ui/technician_access.js?v=0.4.33" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
+<script src="js/ui/batch_runs.js?v=0.4.33" onload="R2Boot.step('Preparing batch profiles')"></script>
+<script src="js/ui/batch_builder.js?v=0.4.33" onload="R2Boot.step('Preparing batch builder')"></script>
+<script src="js/ui/voice_interview.js?v=0.4.33" onload="R2Boot.step('Preparing profile and voice tools')"></script>
+<script src="js/ui/voice_console.js?v=0.4.33" onload="R2Boot.step('Preparing profile and voice tools')"></script>
+<script src="data/alert-catalogue.js?v=0.4.33" onload="R2Boot.step('Preparing alert catalogue')"></script>
+<script src="js/ui/annunciator.js?v=0.4.33" onload="R2Boot.step('Preparing alert panel')"></script>
+<script src="js/ui/profile_studio.js?v=0.4.33" onload="R2Boot.step('Preparing profile and voice tools')"></script>
+<script src="js/ui/voice_builder.js?v=0.4.33" onload="R2Boot.step('Preparing profile and voice tools')"></script>
+<script src="js/ui/app.js?v=0.4.33" onload="R2Boot.step('Preparing your workspaces')" onerror="R2Boot.fail('A required workbench file could not be loaded. Reload the page or extract the complete download.')"></script>
 </body>
 </html>

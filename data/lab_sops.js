@@ -19,7 +19,7 @@
     crm: { maize: { name: "ERM-BF415 (NK603 maize), 0.1 % m/m", event: "NK603", pct: 0.1 }, soybean: { name: "ERM-BF410 (40-3-2 soybean), 0.1 % m/m", event: "40-3-2", pct: 0.1 } },
     // second positive control: an earlier routine sample in which both elements were detected (GM share assumed by this bench)
     positiveSample: { maize: { name: "positive sample (earlier routine sample, P-35S and T-nos detected)", event: "NK603", pct: 1 }, soybean: { name: "positive sample (earlier routine sample, P-35S and T-nos detected)", event: "40-3-2", pct: 1 } },
-    rules: { lod: [29, 36], taxon: [20, 27], negativeCq: 40, cqMethod: "sdm" },
+    rules: { lod: [29, 36], taxon: [20, 27], negativeCq: 40, cqMethod: "sdm", minControls: { LOD: 2, POS: 1, NTC: 1, BLK: 1 } },
     mix: { masterMixX: 2, primerStockUM: 10, probeStockUM: 10, rxnUl: 25 },
     dna: { concNgPerUl: 40, volUl: 5 }, dnaRangeNgPerUl: [10, 40],
     replicates: "Workbench sample layout: three extracts with three PCR replicates each. LOD control in duplicate. Positive sample, NTC and extraction blank once per run and assay.",

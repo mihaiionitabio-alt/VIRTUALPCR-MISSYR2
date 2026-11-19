@@ -40,10 +40,11 @@
       X.plan.mara && !R2.MARA.protocolMatches(X.protocol(), X.plan.mara.mode) ?
         "Restore the cycling programme for the selected MARA method." :
         R2.Firmware.validateFor(X.protocol(), R2.Firmware.CAMERA_MS));
-    $("run-sum").innerHTML = `<dt>Samples</dt><dd>${X.plan.samples.length} (${X.plan.samples.map(x => R2.esc(x.label)).join("; ")}), each 3 extractions × 3 PCR replicates; ${X.dna.volUl} µL at ${X.dna.concNgPerUl} ng/µL = ${X.ng} ng per well</dd><dt>Plate</dt><dd>${X.plate.filter(W => W.role !== "empty").length} of 384 wells</dd><dt>Step</dt><dd>${{ screen: "screening", ident: "identification", quant: "quantification" }[X.stage]}${X.plan.mara?.mode === "screen" ? " · MARA 1012-17" : method ? " · MARA 1012-" + method.std + (X.plan.mara.mode === "ddct" ? " with Standard 16" : "") : X.plan.lab ? " · " + R2.esc(R2.LAB[X.plan.lab].title) : ""}</dd><dt>Reaction mixes</dt><dd>${X.plan.tubes.map(t => t.map(id => R2.esc(X.GP().name(id))).join(" + ")).join("; ")}</dd>
+    $("run-sum").innerHTML = `<dt>Samples</dt><dd>${X.plan.samples.length} (${X.plan.samples.map(x => R2.esc(x.label)).join("; ")}), each ${X.plan.capacity.extractions} extractions × ${X.plan.capacity.replicates} PCR replicates; ${X.dna.volUl} µL at ${X.dna.concNgPerUl} ng/µL = ${X.ng} ng per well</dd><dt>Plate</dt><dd>${X.plate.filter(W => W.role !== "empty").length} of 384 wells</dd><dt>Step</dt><dd>${{ screen: "screening", ident: "identification", quant: "quantification" }[X.stage]}${X.plan.mara?.mode === "screen" ? " · MARA 1012-17" : method ? " · MARA 1012-" + method.std + (X.plan.mara.mode === "ddct" ? " with Standard 16" : "") : X.plan.lab ? " · " + R2.esc(R2.LAB[X.plan.lab].title) : ""}</dd><dt>Reaction mixes</dt><dd>${X.plan.tubes.map(t => t.map(id => R2.esc(X.GP().name(id))).join(" + ")).join("; ")}</dd>
       <dt>Programme</dt><dd>${X.f.ung ? "UNG " + X.f.ung + " s; " : ""}95 °C ${X.f.act} s; ${X.f.cycles} × (95 °C ${X.f.denS} s, ${X.f.annT} °C ${X.f.annS} s${X.f.extS ? ", 72 °C " + X.f.extS + " s" : ""})${X.f.melt ? "; melt" : ""} · ${R2.hms(X.prof.total)} instrument time</dd>
       <dt>Reagents and handling</dt><dd>${ch.length ? ch.length + " setting" + (ch.length > 1 ? "s" : "") + " changed from the method" : "as the method records state"}</dd><dt>Template</dt><dd>${X.templateUsed ? R2.esc(X.templateUsed.name) : "none (set up by hand)"}</dd><dt>SOP</dt><dd>${R2.templates.sopId(X)}</dd><dt>Runs so far</dt><dd>${(R2.session.runs || []).length}</dd>` + (err ? `<dt>Problem</dt><dd style="color:var(--bad)">${R2.esc(err)}</dd>` : "");
     $("run-name-mode").textContent = "Sample names are assigned at start: a random six-digit prefix unique to this run, the sample number and the DNA extraction date (" + X.meta.map((m, i) => "######-" + (i + 1) + "-" + R2.materials.dateCode(m.extractionDate)).slice(0, 4).join(", ") + (X.meta.length > 4 ? ", …" : "") + ").";
+    X.startProblem = err || ""; // read by the guided levels; never parse the displayed (possibly translated) text
     $("t-start").disabled = X.running() || !!err;
   }
   function ask() {
@@ -57,35 +58,56 @@
     const el = $("t-log"); el.textContent += `[${R2.hms(e.t_ms / 1000).padStart(7)}] ${txt || (e.code === "READ_END" ? "plate read " + e.a + " done" : e.code + (e.severity >= 2 ? "  ← FAULT: drives switched off" : ""))}\n`; el.scrollTop = el.scrollHeight;
   }
   X.beginPreparedRun = start;
-  let fxScenario = null, fxContext = null;
-  function start(name) {
-    if (X.running() || R2.techAccess && !R2.techAccess.allowed(R2.levels.get("technician"))) return;
+  /* The run as the bench defines it: identity, plan, programme, simulated wells, instrument, run record header.
+   * Shared by the live run below and by JSON batch runs (js/ui/batch_runs.js), so both produce the same run object.
+   * opts.scenario: a qpcr_faults scenario, null for none; left undefined = the scenario armed on the Administrator panel.
+   * opts.onEvent: instrument event callback, attached before the firmware starts. opts.operator, opts.live: record fields. */
+  let live = null;
+  X.prepareRun = function (name, opts = {}) {
     X.build(false);
-    const setupError = R2.qpcrFaults?.validateSetup(R2.qpcrFaults.active, X);
-    if (setupError) { $("run-name-mode").textContent = setupError; return; }
+    const FX = R2.qpcrFaults, armed = opts.scenario === undefined, scenario = armed ? (FX && FX.active || null) : opts.scenario;
+    const setupError = FX && scenario ? FX.validateSetup(scenario, X) : null;
+    if (setupError) return { error: setupError };
     const identity = R2.materials.next();
-    runNo = R2.session.runNo = (R2.session.runNo || 0) + 1; runName = String(runNo).padStart(3, "0") + "_" + identity.prefix + "_" + slug(name);
-    // qPCR error scenario armed by an administrator (js/core/qpcr_faults.js): one run only, labelled in the run and its RDMLt
-    const FX = R2.qpcrFaults; fxScenario = FX && FX.active || null; 
-    const fxc = FX ? FX.prepare(fxScenario, { settings: X.settings, f: X.f, plan: X.plan, prog: null }) : { settings: X.settings, f: X.f, plan: X.plan, prog: null };
-    fxContext = { plan: fxc.plan, seed: (X.seed ^ Math.imul(runNo, 2654435761)) >>> 0 };
+    const runNo = R2.session.runNo = (R2.session.runNo || 0) + 1, runName = String(runNo).padStart(3, "0") + "_" + identity.prefix + "_" + slug(name);
+    // qPCR error scenario (js/core/qpcr_faults.js): one run only, labelled in the run and its RDMLt
+    const fxc = FX ? FX.prepare(scenario, { settings: X.settings, f: X.f, plan: X.plan, prog: null }) : { settings: X.settings, f: X.f, plan: X.plan, prog: null };
+    const fxContext = { plan: fxc.plan, seed: (X.seed ^ Math.imul(runNo, 2654435761)) >>> 0 };
     const keepF = X.f; X.f = fxc.f; const prog = X.protocol(); X.f = keepF; if (fxc.prog && fxc.prog.lid_c) prog.lid_c = fxc.prog.lid_c;
-    const sw = X.GP().simWells(fxc.plan, fxc.settings, fxc.f, X.seed, { runIndex: runNo, natural: X.natural }); X.simInfo = sw.info; if (FX) FX.afterSimWells(fxScenario, sw, fxContext);
+    const sw = X.GP().simWells(fxc.plan, fxc.settings, fxc.f, X.seed, { runIndex: runNo, natural: X.natural }); if (FX) FX.afterSimWells(scenario, sw, fxContext);
     const opticsOptions = X.natural ? { opticsSeed: X.seed ^ 0x47514f50 ^ Math.imul(runNo, 7919) } : {};
-    const ins = X.ins = new R2.Instrument(X.seed, { ...X.GP().INSTRUMENT, ...opticsOptions }), p = ins.plant, ta = R2.clamp(X.settings.ambientC, 10, 38); p.Tamb = ta; p.Tb = [ta, ta]; p.Ts = [ta, ta]; p.Ths = ta; p.Tlid = ta; ins.setPlate(sw.wells); if (FX) FX.afterSetPlate(fxScenario, ins, fxContext);
-    $("t-log").textContent = ""; ins.onEvent = logLine; lidOpen = false; $("t-lid").textContent = "Open lid";
-    const st = ins.fw.start(prog, runName); if (st !== "ok") { $("t-log").textContent = "Start refused: " + st + "\n"; X.ins = null; R2.session.runNo--; return; }
-    if (FX) FX.active = null;
-    X.runInfo = null; runProfile = X.prof;
+    const ins = new R2.Instrument(X.seed, { ...X.GP().INSTRUMENT, ...opticsOptions }), p = ins.plant, ta = R2.clamp(X.settings.ambientC, 10, 38); p.Tamb = ta; p.Tb = [ta, ta]; p.Ts = [ta, ta]; p.Ths = ta; p.Tlid = ta; ins.setPlate(sw.wells); if (FX) FX.afterSetPlate(scenario, ins, fxContext);
+    if (opts.onEvent) ins.onEvent = opts.onEvent;
+    const st = ins.fw.start(prog, runName); if (st !== "ok") { R2.session.runNo--; return { error: "Start refused: " + st, refused: true }; }
+    if (FX && armed) FX.active = null;
     const sample = X.sample, assigned = R2.materials.assign(fxc.plan, identity, X.meta, X.extractions, sample.crop);
-    pending = { runId: runName, no: runNo, name: runName, startedAt: identity.createdAt, prefix: identity.prefix,
+    const pending = { runId: runName, no: runNo, name: runName, startedAt: identity.createdAt, prefix: identity.prefix,
       samples: assigned.samples, sampleIdentity: { id: "RUN-" + identity.uid, name: assigned.samples.map(x => x.name).join(", "), prefix: identity.prefix, createdAt: identity.createdAt, mode: "prefix-number-date", samples: assigned.samples },
-      serial: "SIM-0384", seed: ins.seed, operator: "technician", firmwareConfiguration: { ...ins.fw.cfg, wells: 384, optics: "camera, whole plate per exposure", opticsSeed: p.opticsSeed, cameraReporter: R2.Plant.CAMERA_REPORTER_MODEL },
-      simulationSetup: sw, protocol: prog, live: true, plate: assigned.wells,
-      gmo: { stage: X.stage, crop: sample.crop, sample: assigned.samples.map(x => x.name).join(", "), samplePreset: assigned.samples.map(x => x.preset).join("; "), ng: X.ng, pcNg: X.plan.pcNg, dna: { ...X.dna }, mix: X.mixSettings ? structuredClone(X.mixSettings) : null, template: X.templateUsed || null,
+      serial: "SIM-0384", seed: ins.seed, operator: opts.operator || "technician", firmwareConfiguration: { ...ins.fw.cfg, wells: 384, optics: "camera, whole plate per exposure", opticsSeed: p.opticsSeed, cameraReporter: R2.Plant.CAMERA_REPORTER_MODEL },
+      simulationSetup: sw, protocol: prog, live: opts.live !== false, plate: assigned.wells,
+      gmo: { design:structuredClone(X.design||null), stage: X.stage, crop: sample.crop, sample: assigned.samples.map(x => x.name).join(", "), samplePreset: assigned.samples.map(x => x.preset).join("; "), ng: X.ng, pcNg: X.plan.pcNg, dna: { ...X.dna }, mix: X.mixSettings ? structuredClone(X.mixSettings) : null, template: X.templateUsed || null,
         settings: { ...fxc.settings }, fields: { ...fxc.f }, calPct: X.plan.calPct, mara: X.plan.mara || null, lab: X.plan.lab || null, notes: X.plan.notes.slice(), layout: X.plan.capacity,
         truth: { samples: X.sampleList().map(x => ({ preset: x.label, events: { ...x.events }, frag: x.frag, inhibitor: x.inhibitor, blind: !!x.blind })), events: { ...sample.events }, frag: sample.frag, inhibitor: sample.inhibitor, blind: !!sample.blind } } };
     if (fxc.plan !== X.plan) pending.sopPlate = R2.materials.assign(X.plan, identity, X.meta, X.extractions, sample.crop).wells;
+    if (opts.batch) pending.batch = opts.batch;
+    return { ins, pending, scenario, fxContext, runNo, runName, prof: X.prof };
+  };
+  // the run record once the firmware has stopped: outcome, record, scenario transforms; filed for the quality bench
+  X.completeRun = function (c) {
+    const ins = c.ins; ins.advance(300); const ev = ins.rec.events, outcome = ev.some(e => e.code === "RUN_COMPLETE") ? "completed" : ev.some(e => e.severity >= 2) ? "fault: " + ev.find(e => e.severity >= 2).code : "aborted";
+    const runInfo = { ...c.pending, time: new Date().toISOString(), outcome, record: ins.rec, chemLog: ins.chemLog };
+    if (c.scenario) R2.qpcrFaults.afterRun(c.scenario, runInfo, c.fxContext);
+    (R2.session.runs = R2.session.runs || []).push(runInfo); R2.session.run = runInfo;
+    return runInfo;
+  };
+  function start(name) {
+    if (X.running() || R2.techAccess && !R2.techAccess.allowed(R2.levels.get("technician"))) return;
+    if (R2.batchRuns && R2.batchRuns.busy()) { $("run-name-mode").textContent = "A JSON batch is generating runs; start this run when it has finished."; return; }
+    lidOpen = false; $("t-lid").textContent = "Open lid"; $("t-log").textContent = "";
+    const c = X.prepareRun(name, { onEvent: logLine });
+    if (c.error) { if (c.refused) $("t-log").textContent = c.error + "\n"; else $("run-name-mode").textContent = c.error; return; }
+    live = c; X.ins = c.ins; X.simInfo = c.pending.simulationSetup.info; runNo = c.runNo; runName = c.runName; pending = c.pending;
+    X.runInfo = null; runProfile = c.prof;
     selectedWell = null;
     selected = null;
     readsByScan = new Map();
@@ -108,11 +130,8 @@
     draw(); if (fw.running()) timer = setTimeout(loop, 40); else finish();
   }
   function finish() {
-    const ins = X.ins; ins.advance(300); const ev = ins.rec.events, outcome = ev.some(e => e.code === "RUN_COMPLETE") ? "completed" : ev.some(e => e.severity >= 2) ? "fault: " + ev.find(e => e.severity >= 2).code : "aborted";
-    X.runInfo = { ...pending, time: new Date().toISOString(), outcome, record: ins.rec, chemLog: ins.chemLog };
-    if (fxScenario) { R2.qpcrFaults.afterRun(fxScenario, X.runInfo, fxContext); fxScenario = null; }
+    X.runInfo = X.completeRun(live); live = null;
     pending = null;
-    (R2.session.runs = R2.session.runs || []).push(X.runInfo); R2.session.run = X.runInfo;
     lastSlow = 0; lastOpt = -1; draw(); $("t-abort").disabled = true; $("t-lid").disabled = true; $("run-after").hidden = false; $("run-after-text").textContent = `Run ${runName} ${X.runInfo.outcome}. Ready for quality review.` + (X.runInfo.injectedFault ? ` Error scenario: ${X.runInfo.injectedFault.title} (${X.runInfo.injectedFault.kind}).` : ""); X.marks();
   }
   function leave() { $("run-stage").classList.remove("fs"); document.body.classList.remove("noscroll"); if (!X.running()) { lastSlow = 0; lastOpt = -1; if (X.ins) draw(); } document.dispatchEvent(new Event("r2-run-view-left")); }
