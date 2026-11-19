@@ -515,3 +515,5 @@ Object.assign(window.R2_WORKBENCH_ZH,{
   "▶ Start microphone · speak English":"▶ 启动麦克风 · 请说英语","Microphone settings":"麦克风设置","Microphone level":"麦克风电平","Opening microphone…":"正在打开麦克风…","Read prompt":"朗读提示","Level unavailable":"电平不可用",
   "Finish or stop the current batch before leaving.":"请先完成或停止当前批次，再离开。","Command not recognised. Use the buttons.":"未识别命令，请使用按钮。"
 });
+
+Object.assign(window.R2_WORKBENCH_ZH,{"Component loading only — not diagnostic tests. Times: elapsed startup (+ since previous component).":"此处仅显示组件加载情况，并非诊断测试。时间为启动已用时（+ 距上一个组件的间隔）。"});

@@ -1,8 +1,8 @@
 # VIRTUALPCR/MISSYR2
 
-[Open the live website](https://mihaiionitabio-alt.github.io/VIRTUALPCR-MISSYR2/) · [Download offline 0.4.34](https://mihaiionitabio-alt.github.io/VIRTUALPCR-MISSYR2/downloads/MISSY_R2_workbench_site_0.4.34.zip)
+[Open the live website](https://mihaiionitabio-alt.github.io/VIRTUALPCR-MISSYR2/) · [Download offline 0.4.35](https://mihaiionitabio-alt.github.io/VIRTUALPCR-MISSYR2/downloads/MISSY_R2_workbench_site_0.4.35.zip)
 
-Version **0.4.34**, under active development. A browser-based virtual real-time PCR workbench for research and training, with Technician learning levels and bundled MISSY analysis. It is not validated for laboratory use.
+Version **0.4.35**, under active development. A browser-based virtual real-time PCR workbench for research and training, with Technician learning levels and bundled MISSY analysis. It is not validated for laboratory use.
 
 ## Features
 
@@ -19,14 +19,13 @@ Download and extract the whole ZIP, then open `pcr-workbench/index.html` in a co
 
 The JSON Create and Run shortcuts are on the welcome page. The profile format is `missy-r2-batch/1`; use the builders or examples in `data/` to create independent run groups. Download profiles to reuse settings. Generation runs sequentially; completed runs remain available in the current browser tab and Quality manager. Download output files before closing the tab. Large batches and telemetry use browser memory.
 
-## 0.4.34 fixes and checks
+## 0.4.35 startup-log clarification
 
-- Add a shared MISSY-style bottom bar with Back, role/level navigation, live session/computer status and configurable animal shortcuts.
-- Keep the bar in the active modal, including when Sounds or Alerts is reopened over another editor. Add a visible upper-left Back control to Alerts and a return path from roles to the loading screen.
-- Add sound settings with 505 synthesized MISSY effect patterns, per-effect previews, group switches, volume and optional background sound. No recorded voice samples are copied into the new sound service.
-- Put microphone Start/Stop, pack installation and microphone settings beside the Audio profile title and in the shared bar. The input meter measures audio amplitude and stays at zero for silence.
-- Close microphone streams and reset the meter on Stop, screen exit, recognition error/end and late permission responses. No microphone opens during startup. Local recognition remains required; captions, typing and buttons remain available.
-- Checked all Technician levels/menus and 40 Chinese quiz questions; generated three complete virtual runs and opened two in MISSY. JSON-only history still passes. Audio-meter tests used a controlled generated signal, and recognition callbacks were simulated; real microphone recognition accuracy is not established.
+- Give each of the 72 loaded components a distinct English and Chinese name.
+- Mark events as LOADED, with elapsed startup time and the interval since the previous component, instead of showing repeated generic OK labels.
+- State that the log reports component loading, not diagnostic test results.
+- Validate unique labels, paths and the declared module count during the build; prevent duplicate onload notifications from inflating the counter.
+- Preserve 0.4.34 navigation, animal shortcuts, sound settings and visible microphone controls.
 
 ## Sources and development
 

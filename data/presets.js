@@ -1,8 +1,8 @@
 /* Plates and protocols offered on the technician bench. Assay properties are inputs of the teaching model (firmware/sim/MODEL.md). */
 (function (R2) {
   "use strict";
-  R2.VERSION = "0.4.34";
-  R2.BUILD = "0.4.34";
+  R2.VERSION = "0.4.35";
+  R2.BUILD = "0.4.35";
   R2.ASSAYS = {
     good: { label: "Good assay (120 bp, primers 62 °C)", sim: {} },
     lowtm: { label: "Primers melt at 54 °C", sim: { primer_tm: 54 } },

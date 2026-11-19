@@ -29,6 +29,29 @@ class Dependencies(HTMLParser):
 
 for entry in (ROOT / "index.html", ROOT / "credits.html", ROOT / "missy/index.html"):
     parser = Dependencies(entry); parser.feed(entry.read_text(encoding="utf-8"))
+
+class BootComponents(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.components = []
+        self.expected = None
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if tag != "script":
+            return
+        if "data-module-count" in attrs:
+            self.expected = int(attrs["data-module-count"])
+        if "R2Boot.step" in attrs.get("onload", ""):
+            self.components.append(attrs)
+
+boot = BootComponents()
+boot.feed((ROOT / "index.html").read_text(encoding="utf-8"))
+assert boot.expected == len(boot.components), "Startup component count is stale"
+for key in ("src", "data-boot-label", "data-boot-label-zh"):
+    values = [item.get(key, "").strip() for item in boot.components]
+    assert all(values), "Missing startup component metadata: " + key
+    assert len(values) == len(set(values)), "Repeated startup component metadata: " + key
 # Do not remove any path outside the generated output folder.
 if OUT.exists():
     assert OUT.resolve() == ROOT.resolve() / "_site"
