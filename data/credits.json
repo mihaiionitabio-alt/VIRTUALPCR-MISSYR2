@@ -1,5 +1,5 @@
 {
-  "reviewed": "2026-11-18",
+  "reviewed": "2026-11-19",
   "scope": "Recorded project sources, supplied development reading, implementation credits and bundled notices. A citation does not imply copied code or endorsement.",
   "entries": [
     {
@@ -568,6 +568,29 @@
       "use": "No named book citation is documented in the available construction notes or distributed source. Supplied Fritzing parts were development references; no copied Fritzing asset is identified in this runtime package. This list does not assign an invented author, book or repository.",
       "links": [],
       "credit": ""
+    },
+    {
+      "group": "Code, examples and independent reimplementations",
+      "title": "Supplied MISSY voice-interview prototype",
+      "use": "User-supplied prototype 0.1.0 adapted to the live batch schema, shared drafts, local-only speech adapter and MISSY-style panels. Its original code notice identifies the workbench licence; no Scratch GUI/editor code is included.",
+      "links": [],
+      "credit": "Source attachment: voice_interview_prototype.zip, supplied 19 November 2026."
+    },
+    {
+      "group": "Code, examples and independent reimplementations",
+      "title": "On-device Web Speech API",
+      "use": "Browser-managed English pack availability/installation and mandatory local recognition. Recognition support depends on the browser. Typed and tap input work without speech.",
+      "links": [
+        {
+          "label": "SpeechRecognition.install()",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognition/install_static"
+        },
+        {
+          "label": "On-device speech recognition explainer",
+          "url": "https://github.com/WebAudio/web-speech-api/blob/main/explainers/on-device-speech-recognition.md"
+        }
+      ],
+      "credit": "API documentation only; no remote recognition service or third-party recognition library bundled."
     }
   ]
 }

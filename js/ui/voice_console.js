@@ -1,0 +1,105 @@
+/* Local-only speech, language-pack installation and the common computer status strip. */
+(function (R2) {
+  "use strict";
+  let recognition=null, listening=false, speechOn=false, generation=0, status="Ready", replay=null, stopAction=null;
+  let bar, voiceActive=false, lag=0, lastTick=performance.now(), packState="unknown";
+  const SR=()=>window.SpeechRecognition || window.webkitSpeechRecognition;
+  const lang=()=>document.getElementById("voice-pack-language")?.value || "en-US";
+  const tr=s=>R2.i18n?.text(s)||s;
+  const store=(key,value)=>{try{localStorage.setItem(key,value);}catch{}};
+  function setStatus(text){status=text;paint();}
+  function packMessage(text){const n=document.getElementById("voice-pack-status");if(n)n.textContent=text;R2.i18n?.refresh();}
+  async function pack(install=false) {
+    const C=SR(),button=document.getElementById("voice-pack-install"), selected=lang();
+    if(!C || typeof C.available!=="function" || typeof C.install!=="function") {
+      packState="unsupported";packMessage("Local speech packs are unavailable in this browser. Use typed answers, or open the site in a browser with on-device speech recognition.");return false;
+    }
+    button.disabled=true;
+    try {
+      packMessage(install?"Checking the English offline recognition pack…":"Checking local recognition…");
+      packState=await C.available({langs:[selected],processLocally:true});
+      if(install && (packState==="downloadable"||packState==="downloading")) {
+        packMessage("Downloading / installing the English pack. Keep this page open…");
+        const ok=await C.install({langs:[selected],processLocally:true});
+        packState=ok?await C.available({langs:[selected],processLocally:true}):"unavailable";
+      }
+      packMessage(packState==="available"?"English offline recognition pack is ready. Microphone permission is still required.":
+        packState==="downloadable"?"English offline pack is available. Click Download / install English pack.":
+        packState==="downloading"?"English pack is downloading. Check again after it completes.":
+        "No local English pack is available for this browser. You can type or tap every answer.");
+      return packState==="available";
+    } catch(err){packState="error";packMessage("Language-pack request failed: "+err.message);return false;}
+    finally{button.disabled=false;}
+  }
+  function stopRecognition(){generation++;const rec=recognition;recognition=null;listening=false;try{rec?.abort();}catch{}paint();}
+  function stop(){stopRecognition();try{window.speechSynthesis?.cancel();}catch{}if(R2.batchRuns?.busy())R2.batchRuns.cancel();stopAction?.();setStatus("Paused");}
+  function speak(text){
+    try {
+      const synth=window.speechSynthesis;if(!speechOn||!synth||!text)return;
+      const want=R2.i18n?.language==="zh"?"zh":"en";
+      const voice=synth.getVoices().find(v=>v.localService && v.lang.toLowerCase().startsWith(want));
+      if(!voice){setStatus("No local speech voice. Captions remain available.");return;}
+      synth.cancel();const msg=new SpeechSynthesisUtterance(text);msg.voice=voice;msg.lang=voice.lang;msg.rate=.95;synth.speak(msg);
+    }catch{setStatus("Speech output unavailable. Captions remain available.");}
+  }
+  async function listen(onFinal,onInterim) {
+    stopRecognition();const token=generation;const C=SR();
+    if(!C || !('processLocally' in new C())){setStatus("Local recognition unavailable. Type or tap an answer.");return false;}
+    try {
+      if(await C.available({langs:[lang()],processLocally:true})!=="available") {setStatus("Install the English offline pack on the first page, or type an answer.");return false;}
+      if(token!==generation||!voiceActive)return false;
+      window.speechSynthesis?.cancel();const rec=recognition=new C();rec.lang=lang();rec.processLocally=true;
+      rec.continuous=false;rec.interimResults=true;rec.maxAlternatives=1;let received=false;
+      rec.onstart=()=>{if(token!==generation)return;listening=true;setStatus("Listening locally…");};
+      rec.onresult=e=>{
+        if(token!==generation)return;
+        const r=e.results[e.results.length-1];onInterim?.(tr("Recognising locally…"));
+        if(r.isFinal&&!received){received=true;const confidence=r[0].confidence;
+          stopRecognition();if(Number.isFinite(confidence)&&confidence>0&&confidence<.55){setStatus("Uncertain recognition. Please repeat or use the buttons.");return;}
+          onFinal(r[0].transcript,{via:"voice",engine:"native-on-device",confidence:Number.isFinite(confidence)?confidence:null});
+        }
+      };
+      rec.onend=()=>{if(token===generation){listening=false;recognition=null;setStatus("Ready");}};
+      rec.onerror=e=>{if(token===generation){listening=false;setStatus("Microphone: "+e.error+". Type or tap an answer.");}};
+      rec.start();return true;
+    }catch(err){if(token===generation)setStatus("Local microphone could not start: "+err.message);return false;}
+  }
+  function paint(){
+    if(!bar)return;
+    const memory=performance.memory;
+    bar.querySelector(".r2-machine").textContent=(memory?Math.round(memory.usedJSHeapSize/1048576)+" MB · ":"")+
+      (navigator.hardwareConcurrency?navigator.hardwareConcurrency+(R2.i18n?.language==="zh"?" 个逻辑处理器 · ":" logical cores · "):"")+Math.round(lag)+(R2.i18n?.language==="zh"?" ms 界面延迟":" ms UI delay");
+    bar.querySelector(".r2-console-state").textContent=tr(R2.batchRuns?.busy()?"Generating virtual runs…":status);
+    bar.querySelector(".r2-voice-play").hidden=!voiceActive;
+    bar.querySelector(".r2-voice-stop").hidden=!voiceActive;
+    bar.querySelector(".r2-voice-stop").textContent="■ "+tr("Stop");
+    bar.querySelector(".r2-voice-play").setAttribute("aria-pressed",String(speechOn));
+    bar.querySelector(".r2-voice-play").textContent=tr(speechOn?"Play prompt":"Enable voice / Play");
+    bar.querySelector(".r2-listening").hidden=!listening;
+  }
+  function attach(){
+    if(!bar)return;
+    const dialogs=[...document.querySelectorAll('dialog[open]')];
+    const host=dialogs.at(-1)||document.body;
+    if(bar.parentNode!==host)host.append(bar);
+  }
+  function init(){
+    bar=document.createElement("footer");bar.id="r2-console-bar";bar.dataset.i18nSkip="";
+    bar.innerHTML='<span class="r2-console-brand">MISSY R2</span><span class="r2-console-state"></span><span class="r2-listening" hidden>● MIC</span><span class="r2-machine" title="Browser heap, logical processors and timer scheduling delay; not CPU utilisation"></span><button type="button" class="r2-voice-play" hidden></button><button type="button" class="r2-voice-stop" hidden>■ Stop</button>';
+    bar.querySelector(".r2-voice-play").onclick=()=>{speechOn=true;replay?.();paint();};
+    bar.querySelector(".r2-voice-stop").onclick=stop;document.body.append(bar);
+    document.getElementById("voice-pack-install").onclick=()=>pack(true);
+    document.getElementById("voice-pack-check").onclick=()=>pack(false);
+    document.getElementById("voice-pack-language").onchange=e=>{stopRecognition();packState="unknown";store("missy-r2-recognition-language",e.target.value);packMessage("Check or download the selected English pack.");};
+    try{const previous=localStorage.getItem("missy-r2-recognition-language");if(["en-US","en-GB"].includes(previous))document.getElementById("voice-pack-language").value=previous;}catch{}
+    new MutationObserver(attach).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:["open"]});
+    setInterval(()=>{const now=performance.now();lag=Math.max(0,now-lastTick-1000);lastTick=now;paint();},1000);
+    document.addEventListener("r2-language",paint);paint();
+    document.addEventListener("visibilitychange",()=>{if(document.hidden){stopRecognition();window.speechSynthesis?.cancel();}});
+    window.addEventListener("pagehide",stopRecognition);
+  }
+  R2.voiceConsole={pack,listen,stopRecognition,speak,stop,setStatus,
+    activate(handlers){voiceActive=!!handlers;replay=handlers?.play||null;stopAction=handlers?.stop||null;if(!handlers){stopRecognition();window.speechSynthesis?.cancel();}paint();},
+    get listening(){return listening;},get language(){return lang();},get packState(){return packState;}};
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
+})(window.R2);

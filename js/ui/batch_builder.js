@@ -40,6 +40,7 @@
   }
 
   /* ============================== Builder ============================== */
+  let builderMode = "assisted";
   let prof = null,
     gi = 0;
   const openSecs = new Map(); // sections the user opened or closed stay so across redraws
@@ -66,6 +67,8 @@
       format: B.FORMAT,
       name: p.name || "My run profile",
       description: p.description || "",
+      created: p.created || new Date().toISOString(),
+      createdWith: p.createdWith || "VIRTUALPCR/MISSYR2 " + R2.VERSION,
       output: Object.assign(
         { openQuality: true, selectForMissy: true, downloadRdmltZip: false },
         p.output || {},
@@ -79,8 +82,8 @@
     format: B.FORMAT,
     name: prof.name,
     description: prof.description || undefined,
-    created: new Date().toISOString(),
-    createdWith: "VIRTUALPCR/MISSYR2 " + R2.VERSION,
+    created: prof.created,
+    createdWith: prof.createdWith,
     runs: prof.runs.map(compact),
     output: prof.output,
   });
@@ -366,6 +369,7 @@
     const g = prof.runs[gi],
       pv = B.preview(g, 0);
     const d = dialog();
+    d.classList.toggle("visual-builder", builderMode === "visual");
     d.innerHTML = shell(
       "Build a JSON run profile",
       "TECHNICIAN ADMINISTRATOR OPTIONS · JSON",
@@ -382,6 +386,7 @@
     );
     if (!d.open) d.showModal();
     wireBuilder();
+    R2.profileStudio?.decorate(d, builderMode);
   }
   function setPath(g, path, value) {
     const [head, ...rest] = path.split(".");
@@ -689,8 +694,9 @@
     };
     $q("#bf-run").onclick = () => openRunner(out());
   }
-  function openBuilder(p) {
+  function openBuilder(p, mode = "assisted") {
     if (B.busy() || R2.tech.running()) return;
+    builderMode = mode;
     prof = fromProfile(
       p || (prof ? out() : { name: "My run profile", runs: [blank()] }),
     );
@@ -703,6 +709,7 @@
   function openRunner(p) {
     if (B.busy() || R2.tech.running()) return;
     const d = dialog();
+    d.classList.remove("visual-builder");
     d.innerHTML = shell(
       "Run a JSON profile",
       "JSON · VIRTUAL RUNS FOR THE QUALITY MANAGER",
@@ -878,7 +885,7 @@
   /* ============================== Home page buttons ============================== */
   function install() {
     // The JSON shortcuts belong only to the initial welcome screen.
-    document.querySelectorAll("[data-batch-create]").forEach((b) => (b.onclick = () => openBuilder(null)));
+    document.querySelectorAll("[data-batch-create]").forEach((b) => (b.onclick = () => R2.profileStudio ? R2.profileStudio.open() : openBuilder(null)));
     document.querySelectorAll("[data-batch-run]").forEach((b) => (b.onclick = () => openRunner(null)));
     const corner = document.getElementById("json-corner");
     if (corner) {
@@ -894,7 +901,15 @@
       sync();
     }
   }
-  R2.batchUi = { openRunner, openBuilder, install };
+  R2.batchUi = { openRunner, openBuilder, install,
+    getProfile: () => prof ? clone(out()) : null,
+    setProfile: p => { prof = fromProfile(p); gi = 0; },
+    close,
+    moveGroup(from, to) {
+      if (!prof || to < 0 || to >= prof.runs.length || from === to) return;
+      const [group] = prof.runs.splice(from, 1); prof.runs.splice(to, 0, group); gi = to; drawBuilder();
+    }
+  };
   if (document.readyState === "loading")
     document.addEventListener("DOMContentLoaded", install);
   else install();

@@ -396,3 +396,111 @@ Reduce the number of samples or assays to fit the plate.|请减少样品或检�
 The selected MARA method requires its stated DNA mass per well.|所选 MARA 方法要求每孔使用其规定的 DNA 量。
 Restore the cycling programme for the selected MARA method.|请恢复所选 MARA 方法的循环程序。
 `.trim().split("\n").map(row => { const i = row.indexOf("|"); return [row.slice(0, i), row.slice(i + 1)]; })));
+
+Object.assign(window.R2_WORKBENCH_ZH, Object.fromEntries(`
+Assisted|辅助式
+Visual blocks|可视积木
+Audio interview|语音访谈
+Choose how to build your profile. All three options share your settings.|选择创建方式。三种方式共享同一配置。
+Checklists, radio buttons and fields. The current profile builder.|使用清单、单选按钮和字段，保留现有配置编辑方式。
+Arrange setting bricks, choose values and repeat each run group.|排列设置积木，选择参数并设置各组运行次数。
+Answer by voice, typing or numbered buttons. Review and save your decisions.|通过语音、文字或编号按钮回答问题，并复核、保存决策。
+Tap a block category to edit it. Drag blocks to arrange your workspace. Settings inside a run group are applied together, not as a programme.|点击积木类别编辑，拖动积木调整工作区布局。同一运行组内的设置会一起应用，并非执行顺序。
+Move block earlier|前移积木
+Move block later|后移积木
+Move group earlier|前移运行组
+Move group later|后移运行组
+Offline voice commands|离线语音指令
+Recognition language|识别语言
+English (US)|英语（美国）
+English (UK)|英语（英国）
+Download / install English pack|下载 / 安装英语包
+Check pack|检查语言包
+Optional. Install once for local English recognition. No microphone opens during startup.|可选。安装一次即可在本机识别英语。启动时不会打开麦克风。
+Local speech packs are unavailable in this browser. Use typed answers, or open the site in a browser with on-device speech recognition.|此浏览器不支持本机语音包。请使用文字回答，或在支持本机语音识别的浏览器中打开网站。
+Checking the English offline recognition pack…|正在检查英语离线识别包…
+Checking local recognition…|正在检查本机识别功能…
+Downloading / installing the English pack. Keep this page open…|正在下载 / 安装英语包，请保持页面打开…
+English offline recognition pack is ready. Microphone permission is still required.|英语离线识别包已就绪，仍需授予麦克风权限。
+English offline pack is available. Click Download / install English pack.|可下载英语离线包。请点击“下载 / 安装英语包”。
+English pack is downloading. Check again after it completes.|正在下载英语包，请完成后再次检查。
+No local English pack is available for this browser. You can type or tap every answer.|此浏览器没有可用的英语本机包。所有问题都可通过文字或点击回答。
+Check or download the selected English pack.|请检查或下载所选英语包。
+Local recognition unavailable. Type or tap an answer.|无法使用本机语音识别，请输入或点击答案。
+Install the English offline pack on the first page, or type an answer.|请在首页安装英语离线包，或输入答案。
+Listening locally…|正在本机收听…
+Uncertain recognition. Please repeat or use the buttons.|识别结果不确定，请重说或使用按钮。
+No local speech voice. Captions remain available.|没有本机朗读声音，仍可查看字幕。
+Speech output unavailable. Captions remain available.|语音输出不可用，仍可查看字幕。
+Play prompt|播放提示
+Enable voice / Play|启用语音 / 播放
+Build a profile by voice|通过语音创建配置
+Local English recognition. English / Chinese captions and local speech output. Every answer can also be typed or tapped.|在本机识别英语，提供中英文字幕和本机语音朗读。所有答案也可输入或点击。
+Resume saved interview|恢复已保存的访谈
+Answer or command|答案或指令
+Send|发送
+Microphone · speak English|麦克风 · 请说英语
+Back|返回
+Undo|撤销
+Say again|再说一遍
+Read back|复述
+Review|复核
+Use default / method|使用默认值 / 方法
+Conversation and remembered decisions|对话与已记录的决策
+Voice command guide|语音指令指南
+Profile read-back|配置复述
+Profile JSON · exact settings|配置 JSON · 精确设置
+Download decisions|下载决策记录
+Load interview|加载访谈
+Confirm build|确认生成
+Launch virtual runs|启动虚拟运行
+Forget saved interview memory|清除已保存的访谈记忆
+Forget saved interview memory? Your run files are kept.|清除已保存的访谈记忆？运行文件将保留。
+ARTIFICIAL DATA — NOT A LABORATORY RESULT|模拟数据 — 非实验室结果
+Interview|访谈
+Read-back|复述
+Ready to launch|准备启动
+Complete|完成
+Paused|已暂停
+Review your profile before generating virtual runs.|生成虚拟运行前请先复核配置。
+Read and acknowledge every caution before confirming the build.|请在确认生成前阅读并确认每条注意事项。
+Acknowledge the cautions before launch.|启动前请确认注意事项。
+Acknowledge|确认知悉
+You|您
+Launch window expired. Confirm the build again.|启动有效期已过，请重新确认。
+Generating virtual runs…|正在生成虚拟运行…
+Stopping after this run…|本次运行完成后停止…
+Ready — click the MISSY logo to enter.|已就绪 — 点击 MISSY 标志进入。
+BOOT LOG / EMBEDDED COMPONENTS|启动日志 / 内嵌组件
+Say: back, undo, say again, where am I, change replicates in group one to two, same as group one, same as last time, rest as method, confirm build, launch, stop.|英语指令示例：back（返回）、undo（撤销）、say again（重说）、where am I（进度）、change replicates in group one to two（第一组重复数改为二）、same as group one（同第一组）、same as last time（同上次）、rest as method（其余按方法）、confirm build（确认）、launch（启动）、stop（停止）。
+Recognition is push-to-talk. Click Microphone for each answer. Play reads the current prompt; Stop closes the microphone, cancels speech and disarms launch. During generation, Stop finishes and files the current run.|识别采用按键通话。每次回答前点击麦克风。播放按钮朗读当前提示；停止按钮关闭麦克风、停止朗读并取消启动就绪状态。生成过程中，停止按钮会在本次运行完成并归档后结束。
+`.trim().split("\n").map(row => { const i = row.indexOf("|"); return [row.slice(0, i), row.slice(i + 1)]; })));
+
+Object.assign(window.R2_WORKBENCH_ZH, {
+"Internet is needed only to install the recognition pack. Downloads are managed by the browser; no separate pack file or percentage is provided.": "仅安装识别包时需要网络。下载由浏览器管理，不提供独立安装包文件或百分比进度。",
+"Stop": "停止",
+"MISSY / SYSTEM INITIALIZATION": "MISSY / 系统初始化",
+"Toggle interface sound": "切换界面声音"
+});
+
+Object.assign(window.R2_WORKBENCH_ZH, {"MISSY / PROFILE BUILDER":"MISSY / 配置编辑器","Choose an editor to continue.":"请选择编辑器以继续。","MISSY / ROLE ACCESS":"MISSY / 角色入口"});
+
+Object.assign(window.R2_WORKBENCH_ZH, {
+"Rapid soybean screening (P-35S and T-nos)":"大豆快速筛查（P-35S 和 T-nos）",
+"ND207 identification":"ND207 鉴定",
+"ND207 quantification":"ND207 定量",
+"ND207 relative comparison (ΔΔCt)":"ND207 相对比较（ΔΔCt）",
+"Soybean screening: P-35S + T-nos duplex, pat, CTP2–CP4 EPSPS":"大豆筛查：P-35S + T-nos 双重、pat、CTP2–CP4 EPSPS",
+"Maize screening: P-35S + T-nos duplex, pat, CTP2–CP4 EPSPS":"玉米筛查：P-35S + T-nos 双重、pat、CTP2–CP4 EPSPS",
+"Soybean 40-3-2 quantification (QT-EVE-GM-005 with lectin)":"大豆 40-3-2 定量（QT-EVE-GM-005，Lectin 内参）",
+"Maize MON810 quantification (QT-EVE-ZM-020 with HMG)":"玉米 MON810 定量（QT-EVE-ZM-020，HMG 内参）",
+"Soybean screening: P-35S, T-nos and Le1, simplex":"大豆筛查：P-35S、T-nos 和 Le1 单重",
+"Maize screening: P-35S, T-nos and hmgA, simplex":"玉米筛查：P-35S、T-nos 和 hmgA 单重"
+});
+
+Object.assign(window.R2_WORKBENCH_ZH, {
+"Profile history · JSON only":"配置历史 · 仅 JSON",
+"Only accepted profile settings are kept. Speech and conversation text are not saved.":"仅保留已接受的配置参数，不保存语音或对话文字。"
+});
+
+Object.assign(window.R2_WORKBENCH_ZH, {"Recognising locally…":"正在本机识别…"});
