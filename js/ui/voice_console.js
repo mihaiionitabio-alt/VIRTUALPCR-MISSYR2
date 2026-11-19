@@ -7,8 +7,12 @@
   const lang=()=>document.getElementById("voice-pack-language")?.value || "en-US";
   const tr=s=>R2.i18n?.text(s)||s;
   const store=(key,value)=>{try{localStorage.setItem(key,value);}catch{}};
-  function setStatus(text){status=text;paint();}
-  function packMessage(text){const n=document.getElementById("voice-pack-status");if(n)n.textContent=text;R2.i18n?.refresh();}
+  function setStatus(text){status=text;paint();
+    // recognition, speech and storage problems also go to the alert panel (identifier only)
+    const A=R2.annunciator;if(!A)return;const c=A.classify(text,"info");
+    if(c.entry&&["VOI","MEM"].includes(c.entry.area))A.sync("console",[{text,kind:"info"}]);else if(/^(Ready|Listening)/.test(text))A.clearSource("console");}
+  function packMessage(text){const n=document.getElementById("voice-pack-status");if(n)n.textContent=text;R2.i18n?.refresh();
+    const A=R2.annunciator,c=A?.classify(text,"info");if(c&&c.entry.area==="VOI")A.sync("pack",[{text,kind:"info"}]);else A?.clearSource("pack");}
   async function pack(install=false) {
     const C=SR(),button=document.getElementById("voice-pack-install"), selected=lang();
     if(!C || typeof C.available!=="function" || typeof C.install!=="function") {
@@ -32,7 +36,7 @@
     finally{button.disabled=false;}
   }
   function stopRecognition(){generation++;const rec=recognition;recognition=null;listening=false;try{rec?.abort();}catch{}paint();}
-  function stop(){stopRecognition();try{window.speechSynthesis?.cancel();}catch{}if(R2.batchRuns?.busy())R2.batchRuns.cancel();stopAction?.();setStatus("Paused");}
+  function stop(){R2.annunciator?.silence();stopRecognition();try{window.speechSynthesis?.cancel();}catch{}if(R2.batchRuns?.busy())R2.batchRuns.cancel();stopAction?.();setStatus("Paused");}
   function speak(text){
     try {
       const synth=window.speechSynthesis;if(!speechOn||!synth||!text)return;
@@ -92,7 +96,9 @@
     document.getElementById("voice-pack-check").onclick=()=>pack(false);
     document.getElementById("voice-pack-language").onchange=e=>{stopRecognition();packState="unknown";store("missy-r2-recognition-language",e.target.value);packMessage("Check or download the selected English pack.");};
     try{const previous=localStorage.getItem("missy-r2-recognition-language");if(["en-US","en-GB"].includes(previous))document.getElementById("voice-pack-language").value=previous;}catch{}
-    new MutationObserver(attach).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:["open"]});
+    new MutationObserver(records=>{
+      if(records.some(r=>r.type==="attributes"||[...r.addedNodes,...r.removedNodes].some(n=>n===bar||n.nodeType===1&&(n.matches("dialog")||n.contains(bar)))))attach();
+    }).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:["open"]});
     setInterval(()=>{const now=performance.now();lag=Math.max(0,now-lastTick-1000);lastTick=now;paint();},1000);
     document.addEventListener("r2-language",paint);paint();
     document.addEventListener("visibilitychange",()=>{if(document.hidden){stopRecognition();window.speechSynthesis?.cancel();}});

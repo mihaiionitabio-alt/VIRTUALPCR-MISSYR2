@@ -19,6 +19,7 @@
       dlg.className = "batch-dialog";
       dlg.setAttribute("aria-labelledby", "batch-title");
       document.body.append(dlg);
+      dlg.addEventListener("close",()=>{for(const key of ["builder","builder-reset","runner"])R2.annunciator?.clearSource(key);});
       dlg.addEventListener("cancel", (e) => {
         if (B.busy()) e.preventDefault();
       });
@@ -29,6 +30,11 @@
     `<div class="batch-shell"><div class="batch-top"><button type="button" class="picker-back batch-close">← Go back</button><span class="task-kicker">${esc(kicker)}</span></div><h1 id="batch-title">${esc(title)}</h1>${body}</div>`;
   const close = () => {
     if (!B.busy() && dlg && dlg.open) dlg.close();
+    // alerts belong to the editor that raised them
+    R2.annunciator?.clearSource("builder");
+    R2.annunciator?.clearSource("builder-reset");
+    R2.annunciator?.clearSource("runner");
+    R2.annunciator?.clearSource("voice-import");
   };
   function readFile(input) {
     return new Promise((res, rej) => {
@@ -48,7 +54,8 @@
     name: "",
     repeat: 1,
     template: "TPL-BUILTIN-SIMPLEX-SC-SOY",
-    samples: [{ material: "soyA", extractionDate: today() }],
+    // sample 1 follows the template; a seeded material would override another species' template
+    samples: [{ extractionDate: today() }],
   });
   function fromProfile(p) {
     // defaults are folded into each group for editing; the saved profile states each group in full
@@ -387,6 +394,9 @@
     if (!d.open) d.showModal();
     wireBuilder();
     R2.profileStudio?.decorate(d, builderMode);
+    // the same checks as the audio interview feed the alert panel (SOP correlation included)
+    const vr = R2.profileStudio?.validate(out());
+    if (vr) R2.annunciator?.sync("builder", vr.alerts);
   }
   function setPath(g, path, value) {
     const [head, ...rest] = path.split(".");
@@ -573,8 +583,13 @@
         if (el.value === "") delete G.naturalVariation;
         else G.naturalVariation = el.value === "true";
       } else if (n === "template") {
+        const before = G.template;
         if (el.value) G.template = el.value;
         else delete G.template;
+        if (G.template !== before) {
+          const removed = R2.batchRuns.resetForTemplate(G, before);
+          if (removed.length) R2.annunciator?.raise("R2-SOP-057", { group: gi + 1, list: removed.join(", ") }, "builder-reset");
+        }
         if (
           !G.template &&
           !G.material &&
@@ -710,6 +725,7 @@
     if (B.busy() || R2.tech.running()) return;
     const d = dialog();
     d.classList.remove("visual-builder");
+    R2.annunciator?.clearSource("builder");
     d.innerHTML = shell(
       "Run a JSON profile",
       "JSON · VIRTUAL RUNS FOR THE QUALITY MANAGER",
@@ -770,11 +786,18 @@
       pv: B.preview(g.spec, 0),
     }));
     const benchErrors = rows.filter((r) => r.pv.errors.length);
-    pending = !parsed.errors.length && !benchErrors.length ? parsed : null;
+    // SOP correlation for imported files too: a run whose species differs from its template is blocked.
+    const corr = !parsed.errors.length && R2.profileStudio ? R2.profileStudio.validate(parsed.profile) : null;
+    const sopAlerts = corr ? corr.alerts.filter((a) => /^R2-SOP-/.test(a.id || "")) : [];
+    R2.annunciator?.sync("runner", corr ? corr.alerts : parsed.errors.map((text) => ({ kind: "error", text })));
+    pending = !parsed.errors.length && !benchErrors.length && !sopAlerts.some((a) => a.kind === "error") ? parsed : null;
     $q("#br-go").disabled = !pending || B.busy();
     $q("#br-report").innerHTML =
       (parsed.errors.length
         ? `<div class="panel"><h3>Profile problems</h3>${parsed.errors.map((e) => `<div class="flag"><span class="pill bad">fix</span><span>${esc(e)}</span></div>`).join("")}</div>`
+        : "") +
+      (sopAlerts.length
+        ? `<div class="panel"><h3>SOP correlation</h3>${sopAlerts.map((a) => { const e = R2.annunciator?.entry(a.id); return `<div class="flag"><span class="r2-cls r2-${(e?.cls || "CAUTION").toLowerCase()}">${esc(e?.cls || "")}</span> <code>${esc(a.id)}</code> <span>${esc(a.text)}</span></div>`; }).join("")}</div>`
         : "") +
       (parsed.warnings.length
         ? parsed.warnings

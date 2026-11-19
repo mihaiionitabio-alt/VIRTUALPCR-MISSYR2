@@ -591,6 +591,13 @@
         }
       ],
       "credit": "API documentation only; no remote recognition service or third-party recognition library bundled."
+    },
+    {
+      "group": "Code, examples and independent reimplementations",
+      "title": "Supplied round 4 review and alert catalogue",
+      "use": "User-supplied Claude round 4 fixes and bilingual 79-entry alert catalogue adapted and tested for the shared profile builders. Alert tones are optional and disabled by default; this interface makes no alarm-standard compliance claim.",
+      "links": [],
+      "credit": "Source attachments: claude_round4_proposal.diff and review_round4.zip, supplied 19 November 2026."
     }
   ]
 }

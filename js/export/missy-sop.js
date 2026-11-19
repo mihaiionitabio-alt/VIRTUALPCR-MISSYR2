@@ -356,9 +356,17 @@
       p.notes +=
         " Custom experimental design: extraction, replicate and control counts are recorded in the source SOP layout. Original method acceptance minima remain applicable.";
       const d = document.experimentalDesign;
+      // Same rule as the workbench evaluation (gmo.js): GM content is withheld for a
+      // quantification that does not have exactly three extractions with at least three PCR
+      // replicates, so MISSY must not issue an unconditional sample decision either.
+      const quantShort =
+        !mara &&
+        document.definition &&
+        document.definition.stage === "quant" &&
+        ((d.extractions ?? 3) !== 3 || (d.replicates ?? 3) < 3);
       if (
-        mara &&
-        ((d.extractions ?? 3) !== 3 || (d.replicates ?? 3) !== 3)
+        quantShort ||
+        (mara && ((d.extractions ?? 3) !== 3 || (d.replicates ?? 3) !== 3))
       ) {
         p.evaluationMode = "unconfigured";
         p.notes +=

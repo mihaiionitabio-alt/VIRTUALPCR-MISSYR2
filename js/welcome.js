@@ -27,11 +27,11 @@
   total=document.querySelectorAll('script[onload*="R2Boot.step"]').length;
   paint();
   $("welcome-sound").onclick=()=>{document.getElementById("workbench-sound")?.click();$("welcome-sound").textContent=document.getElementById("workbench-sound")?.getAttribute("aria-pressed")==="true"?"🔊":"🔇";};
-  if(!failed&&(loaded!==total||!window.R2?.techAccess||!R2.gmoeval||!R2.templates||!R2.ui?.quality||!R2.batchRuns||!R2.batchUi||!R2.maraEvidenceFrom||!R2.profileStudio||!R2.voiceConsole||!R2.voiceBuilder||!window.MissyVoiceInterview))fail('The workbench is missing a required component. Reload the page or extract the complete download.');
+  if(!failed&&(loaded!==total||!window.R2?.techAccess||!R2.gmoeval||!R2.templates||!R2.ui?.quality||!R2.batchRuns||!R2.batchUi||!R2.maraEvidenceFrom||!R2.profileStudio||!R2.voiceConsole||!R2.voiceBuilder||!window.MissyVoiceInterview||!R2.annunciator||!R2.ALERTS))fail('The workbench is missing a required component. Reload the page or extract the complete download.');
   if(!failed){finishedAt=performance.now();ready=true;clearInterval(timer);paint();$("welcome-status").textContent='Ready — click the MISSY logo to enter.';$("welcome-enter").disabled=false;$("welcome-enter").setAttribute("aria-label","Enter MISSY R2");log.push("[READY] Initialization complete. No experiment files read during startup.");paint();}
   $("welcome-enter").onclick=enter;
-  document.querySelectorAll('[data-app-version]').forEach(node=>node.textContent=window.R2?.VERSION||'0.4.32');
-  const online=/^https?:$/.test(location.protocol),version=window.R2?.VERSION||'0.4.32';
+  document.querySelectorAll('[data-app-version]').forEach(node=>node.textContent=window.R2?.VERSION||'0.4.33');
+  const online=/^https?:$/.test(location.protocol),version=window.R2?.VERSION||'0.4.33';
   document.querySelectorAll('[data-download-website]').forEach(button=>{
    button.disabled=!online;
    button.title=online?'Download the complete offline website':'You are already using the downloaded offline website';

@@ -84,10 +84,33 @@
   }
   function validate(profile) {
     const parsed=B.parse(profile), errors=[...parsed.errors],warnings=[...parsed.warnings],seen=new Set(), groups=[];
+    const alerts=[...parsed.errors.map(text=>({kind:"error",text})),...parsed.warnings.map(text=>({kind:"warning",text}))];
+    const sops=new Set();
     for(const item of parsed.runs) { if(seen.has(item.group))continue;seen.add(item.group);const pv=B.preview(item.spec,item.k);
-      pv.errors.forEach(e=>errors.push(`Group ${item.group+1}: ${e}`));pv.warnings.forEach(e=>warnings.push(`Group ${item.group+1}: ${e}`));groups.push({group:item.group,info:pv.info,errors:pv.errors,warnings:pv.warnings});
+      pv.errors.forEach(e=>{errors.push(`Group ${item.group+1}: ${e}`);alerts.push({kind:"error",text:`Group ${item.group+1}: ${e}`});});
+      pv.warnings.forEach(e=>{warnings.push(`Group ${item.group+1}: ${e}`);alerts.push({kind:"warning",text:`Group ${item.group+1}: ${e}`});});
+      groups.push({group:item.group,info:pv.info,errors:pv.errors,warnings:pv.warnings});
+      if(pv.info&&!pv.errors.length)for(const f of correlation(item.group,item.spec,pv.info)){(f.kind==="error"?errors:warnings).push(f.text);alerts.push(f);}
+      if(pv.info?.sop)sops.add(pv.info.sop);
     }
-    return {errors,warnings,runs:parsed.runs.length,groups};
+    if(sops.size>1)alerts.push({kind:"info",id:"R2-SOP-054",params:{n:sops.size,list:[...sops].join(", ")},text:`The batch uses ${sops.size} different SOPs`});
+    return {errors,warnings,runs:parsed.runs.length,groups,alerts};
+  }
+  // SOP correlation: what the operator chose (template, design, controls, scenario) against what the
+  // bench will run (preview). Same rules for Assisted, Visual blocks and Audio interview.
+  function correlation(group,spec,info){
+    const out=[],g=group+1,tpl=typeof spec.template==="string"?R2.templates.get(spec.template):null,d=spec.design||{};
+    const push=(kind,id,params,text)=>out.push({kind,id,params:Object.assign({group:g},params),text:`Group ${g}: ${text}`});
+    if(tpl&&tpl.crop&&info.crop&&tpl.crop!==info.crop)
+      push("error","R2-SOP-050",{template:tpl.name,tcrop:tpl.crop,crop:info.crop,sop:info.sop},`template "${tpl.name}" is ${tpl.crop}, but the run will be ${info.crop} (${info.sop})`);
+    if(tpl&&tpl.stage&&info.stage&&tpl.stage!==info.stage)
+      push("warning","R2-SOP-051",{tstage:tpl.stage,stage:info.stage,sop:info.sop},`template step is ${tpl.stage}; the run will be ${info.stage} (${info.sop})`);
+    const ext=d.extractions??3,rep=d.replicates??3;
+    if(ext!==3||rep!==3)push("warning","R2-SOP-052",{ext,rep},`${ext} extraction(s) × ${rep} PCR replicate(s) differs from the default 3 × 3`);
+    const zero=Object.entries(d.controlCounts||{}).filter(([,n])=>n===0).map(([c])=>c);
+    if(zero.length)push("warning","R2-SOP-053",{list:zero.join(", ")},`${zero.join(", ")} set to 0 wells`);
+    if(spec.errorScenario)push("warning","R2-SOP-055",{value:spec.errorScenario},`scenario "${spec.errorScenario}" will be simulated`);
+    return out;
   }
   function snapshot() {
     const saved=B.snapshot(), templates=[], scenarioApplicability={};
@@ -98,11 +121,17 @@
         if(applied.errors?.length)continue;
         const controls={};for(const w of R2.tech.plate||[])if(w.ctl)controls[w.ctl]=(controls[w.ctl]||0)+1;
         templates.push({id:tpl.id,name:tpl.name,crop:preview.info.crop,stage:preview.info.stage,controls,samplesMax:preview.info.maxSamples});
-        // Template applicability is still checked again at confirm/launch by preview().
-        scenarioApplicability[tpl.id]=R2.qpcrFaults.LIST.filter(s=>R2.qpcrFaults.runnable(s)).map(s=>s.id);
+        // Offer only scenarios the bench accepts for this template. Computed when first asked
+        // (about 0.1 s per template) and cached; confirm/launch still re-check with preview().
+        let cached=null;
+        Object.defineProperty(scenarioApplicability,tpl.id,{enumerable:true,get(){
+          if(cached)return cached;const keep=B.snapshot();
+          try{cached=R2.qpcrFaults.LIST.filter(s=>R2.qpcrFaults.runnable(s)&&!B.preview({template:tpl.id,errorScenario:s.id}).errors.length).map(s=>s.id);}
+          finally{B.restore(keep);}
+          return cached;}});
       }
     } finally { B.restore(saved); }
-    return {fields:B.FIELDS,templates,scenarioApplicability,
+    return {fields:B.FIELDS,templates,scenarioApplicability,templateInfo:template=>B.preview({template}).info,scenarioFor:template=>R2.qpcrFaults.LIST.filter(s=>R2.qpcrFaults.runnable(s)&&!B.preview({template,errorScenario:s.id}).errors.length).map(s=>s.id),
       materials:R2.GMO.samples,scenarios:R2.qpcrFaults.LIST.filter(s=>R2.qpcrFaults.runnable(s)).map(s=>({id:s.id,title:s.title,category:s.cat})),categories:R2.qpcrFaults.CATEGORIES};
   }
   R2.profileStudio={open,decorate,validate,snapshot};

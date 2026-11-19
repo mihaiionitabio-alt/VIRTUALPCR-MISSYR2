@@ -24,3 +24,6 @@ Additional bundled-library notices remain in source and the embedded MISSY page.
 - Voice interview engine adapted from the user-supplied voice_interview_prototype 0.1.0 (19 November 2026), whose source identifies the MISSY R2 workbench licence.
 - Visual bricks are original DOM controls using the existing workbench form. No Scratch editor/GUI/VM/library code or assets are included.
 - Speech uses the browser on-device Web Speech API and locally installed speech voices only; no third-party ASR library/model is bundled.
+
+0.4.33 review additions:
+- User-supplied Claude round 4 proposal and review bundle: shared-builder corrections and bilingual 79-entry alert catalogue/annunciator, adapted and tested. Optional tones are disabled by default. No alarm-standard certification is claimed.

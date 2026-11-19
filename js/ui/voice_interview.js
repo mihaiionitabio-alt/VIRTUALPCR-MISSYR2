@@ -205,7 +205,7 @@
         if (spoken && !fieldAlias[spoken]) fieldAlias[spoken] = `${block}.${row.k}`;
       }
     }
-    return { templates, scenarios, categories, applicability, materials, fields, fieldAlias };
+    return { templates, scenarios, categories, applicability, materials, fields, fieldAlias, templateInfo:S.templateInfo, scenarioFor:S.scenarioFor };
   }
 
   /* Question definitions. Group questions use "g{n}." prefixes. Each question:
@@ -272,7 +272,7 @@
         text: () => label("Natural variation between runs? Yes or no.", "运行之间是否有自然变异？请回答是或否。"), def: () => true,
         readback: (v) => label(v ? "Natural variation on." : "Natural variation off.", v ? "自然变异：开。" : "自然变异：关。") };
       case "samples.count": return { id, kind: "number", min: 1, integer: true, section: "samples",
-        max: 28, applies: (ctx) => (ctx.fact(`g${gi}.advanced.sections`) || []).includes("samples"),
+        max: 28, limit: ctx => tplOf(ctx)?.maxSamples || 28, applies: (ctx) => (ctx.fact(`g${gi}.advanced.sections`) || []).includes("samples"),
         text: (ctx) => { const t = tplOf(ctx); return label(`How many samples? Up to ${t ? t.maxSamples : "the plate limit"}.`, `几个样品？最多 ${t ? t.maxSamples : "板容量"} 个。`); },
         def: () => 1, readback: (v) => label(`${v} sample${v === 1 ? "" : "s"}.`, `${v} 个样品。`) };
       case "out.openQuality": return { id, kind: "bool", section: "output",
@@ -280,7 +280,7 @@
         readback: (v) => pair(v ? "Open Quality manager." : "Do not open Quality manager.", v ? "打开质量管理。" : "不打开质量管理。") };
       case "out.selectForMissy": return { id, kind: "bool", section: "output",
         text: () => pair("Select the new runs for MISSY at the end? Yes or no.", "最后是否为 MISSY 勾选新运行？请回答是或否。"), def: () => true,
-        readback: (v) => pair(v ? "Select the new runs for MISSY." : "Do not load in MISSY.", v ? "为 MISSY 勾选新运行。" : "不在 MISSY 中加载。") };
+        readback: (v) => pair(v ? "Select the new runs for MISSY." : "Do not select for MISSY.", v ? "为 MISSY 勾选新运行。" : "不为 MISSY 勾选。") };
       case "out.downloadRdmltZip": return { id, kind: "bool", section: "output",
         text: () => pair("Download one ZIP with all RDMLt files? Yes or no.", "是否下载包含全部 RDMLt 文件的 ZIP？请回答是或否。"), def: () => false,
         readback: (v) => pair(v ? "Download the RDMLt ZIP." : "No RDMLt ZIP.", v ? "下载 RDMLt ZIP。" : "不下载 RDMLt ZIP。") };
@@ -342,7 +342,8 @@
 
   /* ------------------------------------------------------------------ the engine */
   function create(options) {
-    const opt = Object.assign({ snapshot: null, lang: "en", now: () => Date.now(), longTerm: null, validate: null }, options || {});
+    const opt = Object.assign({ snapshot: null, lang: "en", now: () => Date.now(), longTerm: null, validate: null,
+      resetForTemplate: root.R2?.batchRuns?.resetForTemplate }, options || {});
     const schema = buildSchema(opt.snapshot);
     let st = freshState();
 
@@ -420,10 +421,10 @@
       if (q.allowMethod && /^(method|as the method|same as (the )?method|unchanged)$/.test(s)) return { value: "method", how: "method" };
       const optIdx = s.match(/^(option|number) (.+)$/);
       if (q.kind === "number") {
-        const n = parseNumber(s);
-        if (!isNum(n)) return { error: pair(`Not understood. Say a number from ${q.min} to ${q.max}.`, `未听懂。请说 ${q.min} 至 ${q.max} 之间的数字。`) };
+        const n = parseNumber(s), max = q.limit ? q.limit(ctx) : q.max;
+        if (!isNum(n)) return { error: pair(`Not understood. Say a number from ${q.min} to ${max}.`, `未听懂。请说 ${q.min} 至 ${max} 之间的数字。`) };
         if (q.integer && !Number.isInteger(n)) return { error: pair("Whole numbers only.", "只能是整数。") };
-        if ((q.min !== undefined && n < q.min) || (q.max !== undefined && n > q.max)) return { error: pair(`${n} is out of range. The range is ${q.min} to ${q.max}.`, `${n} 超出范围，范围为 ${q.min} 至 ${q.max}。`) };
+        if ((q.min !== undefined && n < q.min) || (max !== undefined && n > max)) return { error: pair(`${n} is out of range. The range is ${q.min} to ${max}.`, `${n} 超出范围，范围为 ${q.min} 至 ${max}。`) };
         return { value: n };
       }
       if (q.kind === "bool") {
@@ -812,35 +813,39 @@
       for (let g = 1; g <= groups; g++) {
         const f = (k) => ctx.fact(`g${g}.${k}`);
         const r = Object.assign(clone(st.baseProfile?.runs?.[g - 1] || {}), { repeat: f("repeat") || 1 });
-        if (f("template")) r.template = f("template");
+        const baseTemplate = st.baseProfile?.runs?.[g - 1]?.template;
+        if (f("template")) { const selected=schema.templates.find(t=>t.id===f("template"));r.template=selected?.inlineTemplate?clone(selected.inlineTemplate):f("template"); }
+        // same rule as the Assisted and Visual editors: a new template drops the previous analysis
+        if (st.baseProfile?.runs?.[g - 1] && JSON.stringify(r.template) !== JSON.stringify(baseTemplate) && typeof opt.resetForTemplate === "function") opt.resetForTemplate(r, baseTemplate);
         const ex = f("design.extractions"), rp = f("design.replicates");
         const design = clone(r.design || {});
-        delete design.extractions; delete design.replicates; delete design.controlCounts;
+        if (ex !== undefined) delete design.extractions;
+        if (rp !== undefined) delete design.replicates;
         if (isNum(ex) && ex !== 3) design.extractions = ex;
         if (isNum(rp) && rp !== 3) design.replicates = rp;
         if (f("keepControls") === false) {
-          const cc = {};
-          for (const c of CONTROL_CODES) { const v = f("ctl." + c); if (isNum(v)) cc[c] = v; }
-          if (Object.keys(cc).length) design.controlCounts = cc;
-        }
+          const cc = clone(design.controlCounts || {});
+          for (const c of CONTROL_CODES) { const v = f("ctl." + c); if (isNum(v)) cc[c] = v; else if (v !== undefined) delete cc[c]; }
+          if (Object.keys(cc).length) design.controlCounts = cc; else delete design.controlCounts;
+        } else if (f("keepControls") === true) delete design.controlCounts;
         if (Object.keys(design).length) r.design = design; else delete r.design;
-        if (f("scenario.arm") === true && f("scenario.id")) r.errorScenario = f("scenario.id"); else delete r.errorScenario;
+        if (f("scenario.arm") === true && f("scenario.id")) r.errorScenario = f("scenario.id"); else if (f("scenario.arm") === false) delete r.errorScenario;
         const secs = f("advanced.sections") || [];
         if (f("advanced") === true) {
-          if (secs.includes("seed")) { if (isNum(f("seed"))) r.seed = f("seed"); if (typeof f("naturalVariation") === "boolean") r.naturalVariation = f("naturalVariation"); }
+          if (secs.includes("seed")) { if (isNum(f("seed"))) r.seed = f("seed"); else if (f("seed") !== undefined) delete r.seed; if (typeof f("naturalVariation") === "boolean") r.naturalVariation = f("naturalVariation"); }
           for (const block of ["dna", "reagents", "mix"]) if (secs.includes(block)) {
-            const o = clone(r[block] || {}); for (const row of schema.fields[block] || []) { const v = f(`${block}.${row.k}`); if (v !== undefined && v !== null && v !== "method") o[row.k] = v; else delete o[row.k]; }
+            const o = clone(r[block] || {}); for (const row of schema.fields[block] || []) { const v = f(`${block}.${row.k}`); if (v === undefined) continue; if (v !== null && v !== "method") o[row.k] = v; else delete o[row.k]; }
             if (Object.keys(o).length) r[block] = o; else delete r[block];
           }
           if (secs.includes("programme")) {
             const mode = f("programme.mode");
             if (mode === "method") r.programme = "method";
-            else if (mode === "custom") { const o = {}; for (const row of schema.fields.programme || []) { const v = f(`programme.${row.k}`); if (v !== undefined && v !== null && v !== "method") o[row.k] = v; } if (Object.keys(o).length) r.programme = o; else delete r.programme; }
-            else delete r.programme;
+            else if (mode === "custom") { const o = typeof r.programme === "object" ? clone(r.programme) : {}; for (const row of schema.fields.programme || []) { const v = f(`programme.${row.k}`); if (v === undefined) continue; if (v !== null && v !== "method") o[row.k] = v; else delete o[row.k]; } if (Object.keys(o).length) r.programme = o; else delete r.programme; }
+            else if (mode === "template") delete r.programme;
           }
           if (secs.includes("samples")) {
-            const n = f("samples.count") || 1;
-            if (n >= 1) { const tpl = schema.templates.find((t) => t.id === r.template); r.sampleCount = n; const previous = clone(r.samples || []); r.samples = [previous[0] || {}];
+            const n = f("samples.count");
+            if (Number.isInteger(n) && n >= 1) { const tpl = schema.templates.find((t) => t.id === r.template); r.sampleCount = n; const previous = clone(r.samples || []); r.samples = [previous[0] || {}];
               for (let k = 2; k <= n; k++) { const s = previous[k - 1] || {}; if (f(`sample.${k}.material`)) s.material = f(`sample.${k}.material`); if (f(`sample.${k}.date`)) s.extractionDate = f(`sample.${k}.date`); r.samples.push(s); }
               if (tpl && !r.samples[0].material) delete r.samples[0].material; }
           }
@@ -871,7 +876,15 @@
     }
     function profile() {
       const current = generatedProfile();
-      return st.baseProfile && st.importBaseline ? applyChanges(st.baseProfile, st.importBaseline, current) : current;
+      const p = st.baseProfile && st.importBaseline ? applyChanges(st.baseProfile, st.importBaseline, current) : current;
+      // Reset after reconstruction too: stale sample facts must not reintroduce a
+      // material of the previous species after a voice template change.
+      if (typeof opt.resetForTemplate === "function") p.runs.forEach((group,i)=>{
+        const old=st.baseProfile?.runs?.[i];
+        if(old&&JSON.stringify(group.template)!==JSON.stringify(old.template))opt.resetForTemplate(group,old.template);
+      });
+      p.format = "missy-r2-batch/1"; // never inherited from an imported draft that lacked it
+      return p;
     }
 
     /* ---- deterministic read-back clauses with JSON paths */
@@ -886,7 +899,7 @@
         cl.push({ path: `runs[${g - 1}]`, en: `Group ${g}: ` + parts.map((p) => plain(p.en).replace(/ \(group \d+\)/, "").replace(/\.$/, "")).join("; ") + ".", zh: `第 ${g} 组：` + parts.map((p) => p.zh.replace(/（第 \d+ 组）/, "")).join("") });
       }
       const o = profile().output;
-      cl.push({ path: "output", en: `Output: ${o.openQuality ? "open Quality manager" : "do not open Quality"}; ${o.selectForMissy ? "select for MISSY" : "do not load in MISSY"}${o.downloadRdmltZip ? "; RDMLt ZIP" : ""}.`, zh: `输出：${o.openQuality ? "打开质量管理" : "不打开质量管理"}；${o.selectForMissy ? "为 MISSY 勾选" : "不在 MISSY 中加载"}${o.downloadRdmltZip ? "；RDMLt ZIP" : ""}。` });
+      cl.push({ path: "output", en: `Output: ${o.openQuality ? "open Quality manager" : "do not open Quality"}; ${o.selectForMissy ? "select for MISSY" : "do not select for MISSY"}${o.downloadRdmltZip ? "; RDMLt ZIP" : ""}.`, zh: `输出：${o.openQuality ? "打开质量管理" : "不打开质量管理"}；${o.selectForMissy ? "为 MISSY 勾选" : "不为 MISSY 勾选"}${o.downloadRdmltZip ? "；RDMLt ZIP" : ""}。` });
       cl.push({ path: "", en: `Total ${totalRuns()} run${totalRuns() === 1 ? "" : "s"}. Artificial data, not a laboratory result.`, zh: `共 ${totalRuns()} 次运行。模拟数据，非实验室结果。` });
       return cl;
     }
@@ -906,14 +919,30 @@
 
     // Import the shared builder draft. Facts drive supported interview fields;
     // the base retains all other Administrator settings without inventing answers.
+    function registerInlineTemplates(profile) {
+      (profile?.runs||[]).forEach((run,i)=>{
+        if(!run.template||typeof run.template!=="object")return;
+        const info=typeof schema.templateInfo==="function"?schema.templateInfo(run.template):{};
+        const entry={id:"INLINE-GROUP-"+(i+1),name:run.template.name||"Embedded template "+(i+1),
+          crop:info?.crop||run.template.crop,stage:info?.stage||run.template.stage,
+          controls:info?.controls||Object.keys(run.design?.controlCounts||{}),maxSamples:info?.maxSamples||28,
+          aliases:["embedded group "+(i+1)],inlineTemplate:clone(run.template)};
+        const index=schema.templates.findIndex(t=>t.id===entry.id);if(index>=0)schema.templates[index]=entry;else schema.templates.push(entry);
+        if(schema.scenarioFor){let cache;Object.defineProperty(schema.applicability,entry.id,{enumerable:true,configurable:true,get:()=>cache||=(schema.scenarioFor(entry.inlineTemplate))});}
+      });
+    }
     function importProfile(p) {
       if (!p || !Array.isArray(p.runs) || p.runs.length < 1 || p.runs.length > MAX_GROUPS) return false;
+      registerInlineTemplates(p);
       const previous = st;
       const previousProfile = JSON.stringify(profile());
       st = freshState(); st.baseProfile = clone(p);
       st.turns = clone(previous.turns); st.facts = clone(previous.facts); st.jsonChanges = clone(previous.jsonChanges || []);
       st.startedAt = previous.startedAt;
+      st.importSkipped = [];
       const put = (id, value) => { if (value !== undefined) {
+        const q = questionFor(id, schema);
+        if (q && !validValue(q, value, ctx)) { delete st.facts[id]; st.importSkipped.push(id); return; } // kept in the shared draft, asked again if needed
         const old = previous.facts[id];
         if (old && JSON.stringify(old.value) === JSON.stringify(value)) { st.facts[id] = clone(old); return; }
         st.facts[id] = {
@@ -925,13 +954,14 @@
       put("@name", p.name); put("@groups", p.runs.length);
       p.runs.forEach((r, i) => {
         const key = "g" + (i + 1) + ".", set = (id, v) => put(key + id, v);
-        set("template", typeof r.template === "string" ? r.template : undefined);
+        set("template", typeof r.template === "string" ? r.template : r.template?"INLINE-GROUP-"+(i+1):undefined);
         set("repeat", r.repeat ?? 1); set("design.extractions", r.design?.extractions ?? 3);
         set("design.replicates", r.design?.replicates ?? 3);
         set("keepControls", !Object.keys(r.design?.controlCounts || {}).length);
         for (const c of CONTROL_CODES) set("ctl." + c, r.design?.controlCounts?.[c] ?? "method");
         const scenario = schema.scenarios.find(x => x.id === r.errorScenario);
-        set("scenario.arm", !!scenario); set("scenario.category", scenario?.category); set("scenario.id", scenario?.id);
+        if(r.errorScenario&&!scenario){for(const k of ["scenario.arm","scenario.category","scenario.id"])delete st.facts[key+k];st.importSkipped.push(key+"scenario.id");}
+        else{set("scenario.arm", !!scenario); set("scenario.category", scenario?.category); set("scenario.id", scenario?.id);}
         const secs = ["dna", "reagents", "mix", "programme"].filter(k => r[k] !== undefined);
         if (r.seed !== undefined || r.naturalVariation !== undefined) secs.push("seed");
         if (r.samples || r.sampleCount) secs.push("samples");
@@ -951,10 +981,23 @@
         if (st.jsonChanges.length > 200) st.jsonChanges.shift();
       }
       if (previous.turns.length) say(pair("Shared builder settings imported. Earlier conversation and changed decisions are retained.", "已导入共享编辑器设置。先前对话及已更改的决策均已保留。"), {kind:"import"});
+      if (st.importSkipped.length) say(pair(`${st.importSkipped.length} imported setting${st.importSkipped.length === 1 ? " is" : "s are"} outside the voice question range and stay as set in the shared draft: ${st.importSkipped.map(shortName).join(", ")}.`, `${st.importSkipped.length} 项导入设置超出语音问题范围，保持共享草稿中的设置：${st.importSkipped.map(shortName).join("、")}。`), {kind:"dormant", ids: st.importSkipped.slice()});
       st.cursor = nextQuestion(); return true;
     }
 
     /* ---- persistence */
+    function validValue(q, v, candidate) {
+      try {
+        if (v === null || (v === "method" && q.allowMethod)) return true;
+        if (q.kind === "number") return isNum(v) && v >= q.min && v <= (q.limit ? q.limit(candidate) : q.max) && (!q.integer || Number.isInteger(v));
+        if (q.kind === "bool") return typeof v === "boolean";
+        if (q.kind === "text") return typeof v === "string" && v.length <= 100;
+        if (q.kind === "date") return typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) && !!parseDate(v, opt.now());
+        if (q.kind === "choice") return q.options(candidate).some(o => o.value === v);
+        if (q.kind === "multi") return Array.isArray(v) && v.length <= 10 && v.every(value => q.options(candidate).some(o => o.value === value));
+        return false;
+      } catch (e) { return false; }
+    }
     function cleanState(state) {
       const s = clone(state); s.turns=[];s.lastInput=null;s.pending=null;s.undo=[];
       s.jsonChanges=(s.jsonChanges||[]).filter(x=>x?.profile?.format==="missy-r2-batch/1"&&Array.isArray(x.profile.runs))
@@ -971,18 +1014,16 @@
         const s = typeof json === "string" ? JSON.parse(json) : clone(json);
         if (!s || s.schema !== MEMORY_SCHEMA || typeof s.facts !== "object" || !Array.isArray(s.turns)) return false;
         if (!s.facts || Array.isArray(s.facts) || Object.keys(s.facts).length > 5000 || s.turns.length > MAX_TURNS) return false;
+        registerInlineTemplates(s.baseProfile);
         const candidate = { fact: id => s.facts[id] && !s.facts[id].dormant ? s.facts[id].value : undefined,
           today: ctx.today };
+        // An out-of-range value drops only that answer (it is asked again); the rest of the
+        // saved interview is kept instead of losing the whole draft.
+        if (s.facts["@groups"] && !validValue(questionFor("@groups",schema),s.facts["@groups"].value,candidate)) return false;
+        s.droppedOnLoad = [];
         for (const [id, fact] of Object.entries(s.facts)) {
           const q = questionFor(id, schema); if (!q || !fact || !("value" in fact)) continue;
-          const v = fact.value;
-          if (v === null || (v === "method" && q.allowMethod)) continue;
-          if (q.kind === "number" && (!isNum(v) || v < q.min || v > q.max || q.integer && !Number.isInteger(v))) return false;
-          if (q.kind === "bool" && typeof v !== "boolean") return false;
-          if (q.kind === "text" && (typeof v !== "string" || v.length > 100)) return false;
-          if (q.kind === "date" && (typeof v !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(v) || !parseDate(v, opt.now()))) return false;
-          if (q.kind === "choice" && !q.options(candidate).some(o => o.value === v)) return false;
-          if (q.kind === "multi" && (!Array.isArray(v) || v.length > 10 || !v.every(value => q.options(candidate).some(o => o.value === value)))) return false;
+          if (!validValue(q, fact.value, candidate)) { delete s.facts[id]; s.droppedOnLoad.push(id); }
         }
         if (!s.turns.every(t => t && typeof t.text === "string" && t.text.length < 100000 && ["missy", "operator"].includes(t.role))) return false;
         if (s.baseProfile && (!Array.isArray(s.baseProfile.runs) || s.baseProfile.runs.length > MAX_GROUPS)) return false;
@@ -990,6 +1031,7 @@
         st = Object.assign(freshState(), cleanState(s));
         if (!["interview", "review"].includes(st.phase)) st.phase = "review"; // an arm never survives a reload
         st.armedUntil = 0; st.pending = null; st.lastInput = null;
+        if (s.droppedOnLoad.length && nextQuestion()) st.phase = "interview";
         return true;
       } catch (e) { return false; }
     }

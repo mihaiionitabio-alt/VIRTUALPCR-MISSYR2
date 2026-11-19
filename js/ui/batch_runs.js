@@ -696,6 +696,27 @@
       profile: p,
     };
   };
+  // When the template of a group changes, settings that belonged to the previous analysis are
+  // removed so that every editor (Assisted, Visual, Audio) produces the same run and SOP.
+  // Kept: names, labels, dates, design, reagents, programme, mix, DNA, seed, scenario.
+  B.resetForTemplate = function (g, previousTemplate) {
+    const T = R2.templates, D = R2.GMO;
+    const next = typeof g.template === "string" ? T.get(g.template) : g.template;
+    const prev = typeof previousTemplate === "string" ? T.get(previousTemplate) : previousTemplate;
+    const removed = [];
+    for (const k of ["stage", "procedure", "assays", "duplex"])
+      if (g[k] !== undefined) { delete g[k]; removed.push(k); }
+    const cropOf = (key) => { const m = D.samples.find((x) => x.key === key); return m && !m.blind ? m.crop : null; };
+    if (next && next.crop) {
+      if (g.material && cropOf(g.material) && cropOf(g.material) !== next.crop) { delete g.material; removed.push("material"); }
+      (g.samples || []).forEach((s, i) => {
+        if (s && s.material && cropOf(s.material) && cropOf(s.material) !== next.crop) { delete s.material; removed.push(`samples[${i}].material`); }
+      });
+      if (g.samples && g.samples[0] && g.samples[0].gm && prev && prev.crop !== next.crop) { delete g.samples[0].gm; removed.push("samples[0].gm"); }
+      if (g.referenceExtractions && (!prev || prev.crop !== next.crop)) { delete g.referenceExtractions; removed.push("referenceExtractions"); }
+    }
+    return removed;
+  };
   // static checks of one run's settings (types, ranges, known identifiers); the bench checks the rest when it is applied
   B.validateSpec = function (s, path, errors, warnings) {
     const D = R2.GMO,
@@ -745,6 +766,12 @@
         ? (tpl && tpl.crop) || "soybean"
         : preset.crop
       : tpl && tpl.crop;
+    // A material of another species silently turns the template into a different analysis
+    // (for example a maize template run as soybean) and changes the SOP. Refuse it.
+    if (preset && !preset.blind && tpl && tpl.crop && preset.crop !== tpl.crop)
+      errors.push(
+        `${path}.material: ${mat} is ${preset.crop}; template "${tpl.name || tpl.id}" is ${tpl.crop}. Choose a ${tpl.crop} material, or leave sample 1 as the template`,
+      );
     if (s.stage !== undefined && !B.STAGES[s.stage])
       errors.push(
         `${path}.stage: one of ${Object.keys(B.STAGES).join(", ")} expected`,
@@ -1389,8 +1416,9 @@
       B.restore(snap);
       busy = false;
     }
-    if (parsed.output.selectForMissy)
-      R2.session.missyPreselect = done.map((r) => r.no);
+    // An explicit empty selection also prevents the Quality page from selecting
+    // the newest run as its legacy default when the profile requested no selection.
+    R2.session.missyPreselect = parsed.output.selectForMissy ? done.map((r) => r.no) : [];
     return {
       runs: done,
       failures,

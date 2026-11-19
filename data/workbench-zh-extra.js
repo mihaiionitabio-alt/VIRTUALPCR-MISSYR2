@@ -504,3 +504,8 @@ Object.assign(window.R2_WORKBENCH_ZH, {
 });
 
 Object.assign(window.R2_WORKBENCH_ZH, {"Recognising locally…":"正在本机识别…"});
+
+Object.assign(window.R2_WORKBENCH_ZH, {
+"SOP correlation":"SOP 一致性检查",
+"Invalid interview memory. Your current profile is unchanged.":"访谈记忆无效，当前配置保持不变。"
+});
