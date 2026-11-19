@@ -245,7 +245,7 @@
         + `<p class="note r2-refs">${Object.values(C().REFS).map(esc).join(" · ")}</p>`;
     }
     panel.innerHTML = `<div class="r2-annun-shell" data-i18n-skip>
-      <div class="r2-annun-head"><div><div class="entry-eyebrow">MISSY / ${zh() ? "警报与报警" : "ALERTS AND ANNUNCIATION"}</div><h2 id="r2-annun-title">${zh() ? "警报面板" : "Alert panel"}</h2></div>
+      <div class="r2-annun-head"><button type="button" class="r2-alert-back" data-act="close">${zh() ? "返回" : "Go back"}</button><div><div class="entry-eyebrow">MISSY / ${zh() ? "警报与报警" : "ALERTS AND ANNUNCIATION"}</div><h2 id="r2-annun-title">${zh() ? "警报面板" : "Alert panel"}</h2></div>
         <span class="r2-mode">${zh() ? "模拟 · 人工数据" : "SIMULATION · ARTIFICIAL DATA"}</span>
         <div class="r2-counts">${["WARNING", "CAUTION", "ADVISORY", "STATUS"].map((k) => `${badge(k)} ${c[k]}`).join(" ")}</div></div>
       <div class="r2-annun-tools"><button type="button" data-act="tones">${zh() ? (tonesEnabled?"提示音：开":"提示音：关") : (tonesEnabled?"Alert tones on":"Alert tones off")}</button><button type="button" data-act="silence">🔇 ${zh() ? "静音" : "Silence"}</button><button type="button" data-act="ack-adv">${zh() ? "确认全部提示" : "Acknowledge all advisories"}</button><button type="button" data-act="test">${zh() ? "测试报警器" : "Test annunciators"}</button><button type="button" data-act="close">${zh() ? "关闭" : "Close"}</button></div>

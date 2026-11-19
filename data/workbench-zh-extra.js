@@ -509,3 +509,9 @@ Object.assign(window.R2_WORKBENCH_ZH, {
 "SOP correlation":"SOP 一致性检查",
 "Invalid interview memory. Your current profile is unchanged.":"访谈记忆无效，当前配置保持不变。"
 });
+
+Object.assign(window.R2_WORKBENCH_ZH,{
+  "Back to loading screen":"返回加载画面","Start microphone":"启动麦克风","Stop microphone":"停止麦克风","▶ Start microphone":"▶ 启动麦克风","■ Stop microphone":"■ 停止麦克风",
+  "▶ Start microphone · speak English":"▶ 启动麦克风 · 请说英语","Microphone settings":"麦克风设置","Microphone level":"麦克风电平","Opening microphone…":"正在打开麦克风…","Read prompt":"朗读提示","Level unavailable":"电平不可用",
+  "Finish or stop the current batch before leaving.":"请先完成或停止当前批次，再离开。","Command not recognised. Use the buttons.":"未识别命令，请使用按钮。"
+});

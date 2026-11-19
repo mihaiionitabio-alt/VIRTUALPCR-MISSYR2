@@ -55,5 +55,6 @@
     window.scrollTo(0, 0);
   }
   window.addEventListener("hashchange", show);
+  window.addEventListener("r2-entered",show);
   if (window.R2Boot) R2Boot.whenEntered(show); else show();
 })(window.R2);

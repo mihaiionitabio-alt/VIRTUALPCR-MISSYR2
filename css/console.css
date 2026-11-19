@@ -1,0 +1,23 @@
+/* One footer/navigation convention for MISSY R2 and the bundled MISSY application. */
+:root{--r2-footer-height:100px}
+body{padding-bottom:calc(var(--r2-footer-height) + 16px)}
+dialog[open]{scroll-padding-bottom:calc(var(--r2-footer-height) + 24px)}
+.batch-dialog,.level-dialog{padding-bottom:calc(var(--r2-footer-height) + 28px)}
+#r2-console-bar.r2-missy-console{padding:7px 12px;gap:7px;font:12px/1.35 Arial,sans-serif;box-shadow:0 -4px 16px #0008}
+#r2-console-bar.r2-missy-console button{min-height:32px;padding:5px 12px;font:12px/1.3 Arial,sans-serif;white-space:nowrap;border:1px solid #cc99cc}
+#r2-console-bar.r2-missy-console .r2-language{position:static;float:none;bottom:auto;left:auto;margin:0;order:0;min-height:32px;font-size:12px}
+.r2-console-nav,.r2-console-tools{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.r2-console-nav{order:1}.r2-session-summary{order:2;background:transparent!important;color:#e5d4ee!important}.r2-console-brand{display:none}.r2-console-state{order:3}.r2-master{order:4}.r2-machine{order:5;margin-left:auto;font:11px monospace}.r2-voice-play{order:6}.r2-voice-stop{display:none!important}.r2-console-tools{order:7;margin-left:auto}.r2-listening{order:8}.r2-animals{order:9;flex-basis:100%;display:flex;justify-content:flex-end;gap:8px}.r2-animals[hidden]{display:none}
+#r2-console-bar .r2-animals button{background:transparent;color:#f3e7ff;min-width:42px;padding:3px 6px;font-size:24px;border-color:transparent}
+.r2-animals .is-playing{animation:r2-animal-pop .35s ease-out}@keyframes r2-animal-pop{50%{transform:translateY(-8px) rotate(-8deg)}}
+.r2-mic-meter{display:inline-block;position:relative;width:70px;min-width:70px;height:7px;overflow:hidden;border-radius:8px;background:#273543;border:1px solid #425367;vertical-align:middle}
+.r2-mic-meter i{display:block;width:0;height:100%;background:linear-gradient(90deg,#8be3ba,#ffc267);transition:width .06s linear}
+.r2-utility-dialog{background:#000;color:#efe2f9;border:0;border-top:14px solid #b28dc3;border-left:14px solid #cb9acd;border-bottom:8px solid #cb9acd;border-radius:42px 0 0 36px;box-sizing:border-box;width:min(1040px,94vw);max-width:96vw;max-height:95vh;padding:0 0 calc(var(--r2-footer-height) + 18px);overflow:auto}
+.r2-utility-dialog::backdrop{background:#000c}
+.r2-utility-dialog header{display:flex;justify-content:space-between;align-items:center;gap:20px;position:sticky;top:0;background:#000;z-index:4;padding:22px 28px;border-bottom:2px solid #6e4b81}
+.r2-utility-dialog h2{color:#ffb463;font-size:24px;margin:0}.r2-utility-dialog button{border:1px solid #bf96d1;background:#281832;color:#f6e9ff;border-radius:24px;min-height:38px;padding:8px 18px;cursor:pointer}.r2-utility-dialog button:hover{background:#493055}.r2-utility-body{padding:24px 28px;display:flex;flex-direction:column;gap:18px}.r2-utility-body select{background:#160d20;color:#f2e4ff;min-height:42px;border:1px solid #b48acb;border-radius:22px;padding:7px 14px;max-width:100%}.r2-utility-body table{width:100%;border-collapse:collapse}.r2-utility-body td,.r2-utility-body th{padding:10px;border:1px solid #62436e;text-align:left}.r2-shortcut-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.r2-shortcut-grid label{display:flex;align-items:center;gap:14px;font-size:28px}.r2-shortcut-grid select{flex:1;font-size:16px;min-width:0}.r2-sound-list{max-height:48vh;overflow:auto;border-top:1px solid #684776}.r2-sound-row{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #4b3556;padding:12px 2px}.r2-sound-row label{display:flex;align-items:center;gap:14px;flex:1}.r2-sound-row button{flex:0 0 auto}.r2-utility-body input[type=range]{background:transparent;padding:0}
+.r2-modal-back{position:sticky;top:6px;z-index:8;min-height:40px;border-radius:24px;padding:8px 18px;background:#cb9acd;color:#120b1a}.r2-alert-back{align-self:start;min-height:42px;border-radius:24px}.r2-annun-head{position:sticky;top:0;z-index:4;background:#08030d}
+.workspace-footer{display:flex;flex-wrap:wrap;gap:18px;align-items:center}.startup-microphone button{border-radius:24px;min-height:38px;padding:8px 18px;background:#cb9acd;color:#160b1b;border:0}.startup-microphone{margin:12px 0}
+#vi-mic{background:#cb9acd;color:#160b1b;border:2px solid #e8b6dc;font-size:17px;min-height:48px}.voice-shell #vi-mic-stop{min-height:44px}.voice-shell .batch-top{position:sticky;top:0;z-index:5;background:#000;padding-top:10px;padding-bottom:10px}
+@media(max-width:1200px){.r2-console-tools{margin-left:0}.r2-machine{margin-left:auto}.r2-console-nav button{padding-inline:9px!important}}
+@media(prefers-reduced-motion:reduce){.r2-animals .is-playing{animation:none}.r2-mic-meter i{transition:none}}

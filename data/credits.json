@@ -598,6 +598,13 @@
       "use": "User-supplied Claude round 4 fixes and bilingual 79-entry alert catalogue adapted and tested for the shared profile builders. Alert tones are optional and disabled by default; this interface makes no alarm-standard compliance claim.",
       "links": [],
       "credit": "Source attachments: claude_round4_proposal.diff and review_round4.zip, supplied 19 November 2026."
+    },
+    {
+      "group": "Code, examples and independent reimplementations",
+      "title": "MISSY interface sounds and console controls",
+      "use": "505 synthesized oscillator/noise effect patterns and bilingual labels adapted from the bundled MISSY catalogue, together with animal-shortcut and microphone-meter presentation. No sampled recordings or embedded voice assets were copied into the new R2 sound service.",
+      "links": [],
+      "credit": "Retain the bundled MISSY source and dependency notices."
     }
   ]
 }

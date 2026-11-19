@@ -1,44 +1,5 @@
 (function (R2) {
   "use strict";
-  const sound = R2.$("workbench-sound");
-  let enabled = true, audio;
-  try { enabled = localStorage.getItem("missy-r2-sound") !== "off"; } catch {}
-  function paintSound() {
-    sound.textContent = enabled ? "Sound on" : "Sound off";
-    sound.setAttribute("aria-pressed", String(enabled));
-  }
-  function cue(notes) {
-    if (!enabled) return;
-    try {
-      audio ||= new (window.AudioContext || window.webkitAudioContext)();
-      void audio.resume().catch(() => {});
-      notes.forEach((frequency, i) => {
-        const now = audio.currentTime + i * 0.09;
-        const oscillator = audio.createOscillator(), gain = audio.createGain();
-        oscillator.frequency.value = frequency;
-        gain.gain.setValueAtTime(0, now);
-        gain.gain.linearRampToValueAtTime(0.045, now + 0.012);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
-        oscillator.connect(gain).connect(audio.destination);
-        oscillator.start(now);
-        oscillator.stop(now + 0.18);
-      });
-    } catch {}
-  }
-  paintSound();
-  sound.addEventListener("click", () => {
-    enabled = !enabled;
-    try { localStorage.setItem("missy-r2-sound", enabled ? "on" : "off"); } catch {}
-    paintSound();
-    cue([392, 523.25]);
-  });
-  document.addEventListener("click", event => {
-    const control = event.target.closest("button, .workspace-choice");
-    if (!control || control.disabled || control === sound) return;
-    cue(control.id === "missy-open" ? [440, 659.25] :
-      control.classList.contains("workspace-choice") ? [523.25, 659.25, 783.99] : [392, 523.25]);
-  }, true);
-
   const checklist = R2.$("missy-run"), launch = R2.$("missy-open"), status = R2.$("missy-handoff-status");
   const administrator = () => /^#quality(?:\/|$)/.test(location.hash);
   let handoff, initialized = false;

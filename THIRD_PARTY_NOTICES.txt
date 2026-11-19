@@ -27,3 +27,7 @@ Additional bundled-library notices remain in source and the embedded MISSY page.
 
 0.4.33 review additions:
 - User-supplied Claude round 4 proposal and review bundle: shared-builder corrections and bilingual 79-entry alert catalogue/annunciator, adapted and tested. Optional tones are disabled by default. No alarm-standard certification is claimed.
+
+0.4.34 interface additions:
+- 505 synthesized oscillator/noise effect patterns and their EN/ZH catalogue labels adapted from the bundled MISSY interface sound catalogue. No recorded voice/audio samples were extracted or duplicated. Preserve MISSY source and dependency notices.
+- Animal-shortcut presentation and microphone meter behavior adapted from bundled MISSY; R2 destinations and navigation handlers are specific to this workbench.
