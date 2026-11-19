@@ -1,16 +1,16 @@
 /* Controller behaviour: JavaScript port of the R2 firmware core (firmware/src/app.c, safety.c, optics.c, util.c).
  * 10 ms tick: read, check, state machine, PID, plate read, outputs, records, watchdog. */
-(function (R2) {
+(/* @r2fn R2-C0025-F00001 */function (R2) {
   "use strict";
   const TICK = 10, NW = 16, SETTLE = 20, INTEG = 100, PLATE_MS = NW * (SETTLE + INTEG), CAMERA_MS = SETTLE + INTEG, MELT_SCAN_MS = 2000;   // camera: one exposure every 2 s in the melt = 5 per °C at 0.1 °C/s, as the OpticalCyclerA templates (AcqPerDegree 5)
-  R2.CFG = () => ({ kp: 0.55, ki: 0.25, kd: 0.06, dTau: 0.08, ffHeat: 0.0045, ffCool: 0.0065, band: 0.5, dwellMs: 500, rampTimeoutMs: 120000,
+  R2.CFG = /* @r2fn R2-C0025-F00002 */() => ({ kp: 0.55, ki: 0.25, kd: 0.06, dTau: 0.08, ffHeat: 0.0045, ffCool: 0.0065, band: 0.5, dwellMs: 500, rampTimeoutMs: 120000,
     lidKp: 0.25, lidKi: 0.02, lidBand: 2, lidTimeoutMs: 600000, fanMin: 0.3, fanLo: 35, fanHi: 55,
     blockMax: 103, blockMin: -5, lidMax: 120, hsMax: 80, limitN: 2, zoneMis: 6, zoneMisMs: 5000, refMis: 4, refMisMs: 8000,
     iMin: 300, iMax: 9000, iMs: 1000, rpmMin: 600, stallMs: 3000, maxRamp: 5, telemetryMs: 100, ledCode: 128 });
 
-  function Pid() { this.reset(); }
-  Pid.prototype.reset = function () { this.integ = 0; this.dF = 0; this.prev = 0; this.init = false; };
-  Pid.prototype.step = function (c, sp, meas, dt, ff) {
+  /* @r2fn R2-C0025-F00003 */function Pid() { this.reset(); }
+  Pid.prototype.reset = /* @r2fn R2-C0025-F00004 */function () { this.integ = 0; this.dF = 0; this.prev = 0; this.init = false; };
+  Pid.prototype.step = /* @r2fn R2-C0025-F00005 */function (c, sp, meas, dt, ff) {
     if (!this.init) { this.prev = meas; this.init = true; }
     const e = sp - meas, dRaw = (meas - this.prev) / dt; this.prev = meas;
     this.dF += (dRaw - this.dF) * dt / (c.dTau + dt);
@@ -20,7 +20,7 @@
   };
   R2.Pid = Pid;
 
-  R2.Firmware = function (plant, log) {
+  R2.Firmware = /* @r2fn R2-C0025-F00006 */function (plant, log) {
     this.p = plant; this.NW = plant.NW || NW; this.camera = !!plant.camera; this.plateMs = this.camera ? CAMERA_MS : this.NW * (SETTLE + INTEG); this.cfg = R2.CFG(); this.log = log; this.st = "IDLE"; this.seq = 0; this.fault = null;
     this.pid = [new Pid(), new Pid()]; this.out = { enable: false, tec: [0, 0], lid: 0, fan: 0 };
     this.m = { t: [25, 25, 25, 25, 25], iTec: [0, 0], rpm: 0, lid: true, rails: true, trip: false, enRb: false };
@@ -30,16 +30,16 @@
     this.event("BOOT", 0, 2, 0);
   };
   const F = R2.Firmware.prototype;
-  F.now = function () { return this.p.t; };
-  F.event = function (code, sev, a, b) { this.log.event({ seq: this.seq++, t_ms: this.now(), code, severity: sev, a: a || 0, b: b || 0 }); };
-  F.enter = function (s) { this.st = s; this.tState = this.now(); };
-  F.outputsOff = function () { this.out.enable = false; this.out.tec = [0, 0]; this.out.lid = 0; this.lidOn = false; this.opt.busy = false; this.p.select(-1, 0); };
-  F.doFault = function (code, a, b) { this.outputsOff(); this.fault = code; this.event(code, 2, a, b); this.event("RUN_ABORTED", 1, 0, 0); this.enter("FAULT"); };
+  F.now = /* @r2fn R2-C0025-F00007 */function () { return this.p.t; };
+  F.event = /* @r2fn R2-C0025-F00008 */function (code, sev, a, b) { this.log.event({ seq: this.seq++, t_ms: this.now(), code, severity: sev, a: a || 0, b: b || 0 }); };
+  F.enter = /* @r2fn R2-C0025-F00009 */function (s) { this.st = s; this.tState = this.now(); };
+  F.outputsOff = /* @r2fn R2-C0025-F00010 */function () { this.out.enable = false; this.out.tec = [0, 0]; this.out.lid = 0; this.lidOn = false; this.opt.busy = false; this.p.select(-1, 0); };
+  F.doFault = /* @r2fn R2-C0025-F00011 */function (code, a, b) { this.outputsOff(); this.fault = code; this.event(code, 2, a, b); this.event("RUN_ABORTED", 1, 0, 0); this.enter("FAULT"); };
 
   // ---- protocol: same JSON as the instrument software (stages of steps, melt), with the options of the source software
-  F.stepTemp = (s, k, cy) => { let t = s.steps[k].temp_c; const d0 = s.auto_delta_start_cycle === undefined ? 1 : s.auto_delta_start_cycle; if (cy > d0) t += (s.steps[k].delta_temp_c || 0) * (cy - d0); return R2.clamp(t, 4, 100); };
-  F.stepHold = (s, k, cy) => { let h = s.steps[k].hold_s; const d0 = s.auto_delta_start_cycle === undefined ? 1 : s.auto_delta_start_cycle; if (cy > d0) h += (s.steps[k].delta_hold_s || 0) * (cy - d0); return Math.max(0, h); };
-  F.validate = function (p) {
+  F.stepTemp = /* @r2fn R2-C0025-F00012 */(s, k, cy) => { let t = s.steps[k].temp_c; const d0 = s.auto_delta_start_cycle === undefined ? 1 : s.auto_delta_start_cycle; if (cy > d0) t += (s.steps[k].delta_temp_c || 0) * (cy - d0); return R2.clamp(t, 4, 100); };
+  F.stepHold = /* @r2fn R2-C0025-F00013 */(s, k, cy) => { let h = s.steps[k].hold_s; const d0 = s.auto_delta_start_cycle === undefined ? 1 : s.auto_delta_start_cycle; if (cy > d0) h += (s.steps[k].delta_hold_s || 0) * (cy - d0); return Math.max(0, h); };
+  F.validate = /* @r2fn R2-C0025-F00014 */function (p) {
     if (!p || !p.stages || !p.stages.length) return "protocol has no stages";
     if (p.lid_c < 0 || p.lid_c > 110) return "lid temperature outside 0–110 °C";
     for (let i = 0; i < p.stages.length; i++) {
@@ -58,24 +58,24 @@
     }
     return null;
   };
-  F.start = function (prog, runId) {
+  F.start = /* @r2fn R2-C0025-F00015 */function (prog, runId) {
     if (this.st !== "IDLE") return "busy";
     const err = this.validate(prog); if (err) return "invalid: " + err;
     this.read(); if (!this.m.lid) return "lid open";
     if (this.fault) return "fault not cleared";
     this.prog = prog; this.runId = runId; this.iStage = 0; this.acq = 0; this.lidSp = prog.lid_c || 0; this.lidOn = this.lidSp > 0; this.lidInteg = 0;
-    this.pid.forEach(x => x.reset()); this.safety = {};
+    this.pid.forEach(/* @r2fn R2-C0025-F00016 */x => x.reset()); this.safety = {};
     this.out.enable = true; this.event("RUN_START", 0, 0, 0);
     this.selftest = 0; this.p.otTest = true; this.enter("SELFTEST");      // proof test of the hardware chain before any heat
     return "ok";
   };
-  F.abort = function () { if (["IDLE", "DONE", "ABORTED", "FAULT"].includes(this.st)) return "idle"; this.outputsOff(); this.event("RUN_ABORTED", 1, 0, 0); this.enter("ABORTED"); return "ok"; };
-  F.clear = function () { if (this.st !== "FAULT") return "nofault"; this.p.clearTrip(); this.read(); if (this.p.hwTrip) return "trip persists"; this.fault = null; this.event("FAULT_CLEARED", 0, 0, 0); this.enter("IDLE"); return "ok"; };
-  F.resume = function () { if (this.st !== "PAUSED") return "not paused"; if (!this.m.lid) return "lid open"; this.event("RESUMED", 0, 0, 0); this.nextStep(); return "ok"; };
-  F.stop = function () { if (this.st !== "HOLD_FOREVER") return "not holding"; this.finish(); return "ok"; };
+  F.abort = /* @r2fn R2-C0025-F00017 */function () { if (["IDLE", "DONE", "ABORTED", "FAULT"].includes(this.st)) return "idle"; this.outputsOff(); this.event("RUN_ABORTED", 1, 0, 0); this.enter("ABORTED"); return "ok"; };
+  F.clear = /* @r2fn R2-C0025-F00018 */function () { if (this.st !== "FAULT") return "nofault"; this.p.clearTrip(); this.read(); if (this.p.hwTrip) return "trip persists"; this.fault = null; this.event("FAULT_CLEARED", 0, 0, 0); this.enter("IDLE"); return "ok"; };
+  F.resume = /* @r2fn R2-C0025-F00019 */function () { if (this.st !== "PAUSED") return "not paused"; if (!this.m.lid) return "lid open"; this.event("RESUMED", 0, 0, 0); this.nextStep(); return "ok"; };
+  F.stop = /* @r2fn R2-C0025-F00020 */function () { if (this.st !== "HOLD_FOREVER") return "not holding"; this.finish(); return "ok"; };
 
-  F.stage = function () { return this.prog.stages[this.iStage]; };
-  F.startStep = function () {
+  F.stage = /* @r2fn R2-C0025-F00021 */function () { return this.prog.stages[this.iStage]; };
+  F.startStep = /* @r2fn R2-C0025-F00022 */function () {
     const s = this.stage(), q = s.steps[this.iStep];
     this.target = this.stepTemp(s, this.iStep, this.iCycle); this.holdMs = this.stepHold(s, this.iStep, this.iCycle) * 1000; this.stepRead = !!q.read;
     this.ramp = Math.min(q.ramp_c_per_s || 0, this.cfg.maxRamp); if (this.ramp <= 0) { this.ramp = 0; this.sp = this.target; }
@@ -83,14 +83,14 @@
     this.atTarget = false; this.tAt = 0; this.readStarted = this.readDone = false; this.peakErr = 0;
     this.event("STEP_START", 0, this.iStage * 100 + this.iStep, this.iCycle); this.enter("RAMP");
   };
-  F.startStage = function () {
+  F.startStage = /* @r2fn R2-C0025-F00023 */function () {
     const s = this.stage(); this.event("STAGE_START", 0, this.iStage, s.type === "melt" ? 77 : 67); this.iStep = 0; this.iCycle = 1;
     if (s.type === "melt") { this.target = s.from_c; this.sp = this.target; this.ramp = 0; this.atTarget = false; this.tAt = 0; this.meltIdx = 0; this.readStarted = false; this.enter("MELT_GOTO"); }
     else this.startStep();
   };
-  F.finish = function () { this.outputsOff(); this.event("RUN_COMPLETE", 0, this.acq, 0); this.enter("DONE"); };
-  F.nextStage = function () { if (++this.iStage >= this.prog.stages.length) this.finish(); else this.startStage(); };
-  F.nextStep = function () {
+  F.finish = /* @r2fn R2-C0025-F00024 */function () { this.outputsOff(); this.event("RUN_COMPLETE", 0, this.acq, 0); this.enter("DONE"); };
+  F.nextStage = /* @r2fn R2-C0025-F00025 */function () { if (++this.iStage >= this.prog.stages.length) this.finish(); else this.startStage(); };
+  F.nextStep = /* @r2fn R2-C0025-F00026 */function () {
     const s = this.stage(); this.event("STEP_END", 0, this.iStage * 100 + this.iStep, this.iCycle);
     if (++this.iStep < s.steps.length) return this.startStep();
     this.iStep = 0; if (++this.iCycle <= (s.repeats || 1)) return this.startStep();
@@ -98,13 +98,13 @@
   };
 
   // ---- inputs and checks
-  F.read = function () {
+  F.read = /* @r2fn R2-C0025-F00027 */function () {
     const p = this.p, m = this.m; m.t = p.readSensors();
     for (let z = 0; z < 2; z++) m.iTec[z] = p.iTec[z] * (1 + 0.01 * p.rng.gauss());
     m.rpm = p.fanRpm; m.lid = p.lidClosed; m.rails = p.railsOk; m.trip = p.hwTrip; m.enRb = p.hwEnable();
   };
-  F.held = function (key, cond, ms) { const s = this.safety, now = this.now(); if (!cond) { s[key] = 0; return false; } if (!s[key]) s[key] = now || 1; return now - s[key] >= ms; };
-  F.check = function () {
+  F.held = /* @r2fn R2-C0025-F00028 */function (key, cond, ms) { const s = this.safety, now = this.now(); if (!cond) { s[key] = 0; return false; } if (!s[key]) s[key] = now || 1; return now - s[key] >= ms; };
+  F.check = /* @r2fn R2-C0025-F00029 */function () {
     const m = this.m, c = this.cfg, o = this.out, s = this.safety;
     for (let i = 0; i < 5; i++) { if (Number.isNaN(m.t[i])) return "F_SENSOR_OPEN"; if (m.t[i] === -Infinity) return "F_SENSOR_SHORT"; }
     if (!m.rails) return "F_RAILS";
@@ -124,28 +124,28 @@
   };
 
   // ---- plate read (optics.c): per well 20 settle + 100 integration periods, integer sums
-  F.beginWell = function (w) { const o = this.opt; o.well = w; o.phase = 0; o.on = [0, 0]; o.off = [0, 0]; o.sq = [0, 0]; o.min = [1e9, 1e9]; o.max = [-1e9, -1e9]; o.sat = [0, 0]; o.rOn = 0; o.rOff = 0; this.p.select(w, this.cfg.ledCode); };
-  F.startRead = function (kind) { this.opt = { busy: true, kind, acq: ++this.acq, stage: this.iStage, step: this.iStep, cycle: kind === "M" ? this.meltIdx : this.iCycle }; this.event("READ_START", 0, this.acq, this.opt.cycle); this.readStarted = true; this.lastRead = this.now();
+  F.beginWell = /* @r2fn R2-C0025-F00030 */function (w) { const o = this.opt; o.well = w; o.phase = 0; o.on = [0, 0]; o.off = [0, 0]; o.sq = [0, 0]; o.min = [1e9, 1e9]; o.max = [-1e9, -1e9]; o.sat = [0, 0]; o.rOn = 0; o.rOff = 0; this.p.select(w, this.cfg.ledCode); };
+  F.startRead = /* @r2fn R2-C0025-F00031 */function (kind) { this.opt = { busy: true, kind, acq: ++this.acq, stage: this.iStage, step: this.iStep, cycle: kind === "M" ? this.meltIdx : this.iCycle }; this.event("READ_START", 0, this.acq, this.opt.cycle); this.readStarted = true; this.lastRead = this.now();
     if (this.camera) { const o = this.opt, wells = []; for (let w = 0; w < this.NW; w++) if (this.p.wells[w].a.kind !== "empty") wells.push(w);
-      o.wells = wells; o.phase = 0; o.acc = wells.map(() => ({ on: [0, 0], off: [0, 0], sq: [0, 0], min: [1e9, 1e9], max: [-1e9, -1e9], sat: [0, 0] })); o.rOn = 0; o.rOff = 0; o.well = -1; this.p.illuminate(this.cfg.ledCode, wells); return; }
+      o.wells = wells; o.phase = 0; o.acc = wells.map(/* @r2fn R2-C0025-F00032 */() => ({ on: [0, 0], off: [0, 0], sq: [0, 0], min: [1e9, 1e9], max: [-1e9, -1e9], sat: [0, 0] })); o.rOn = 0; o.rOff = 0; o.well = -1; this.p.illuminate(this.cfg.ledCode, wells); return; }
     this.beginWell(0); };
   // camera exposure: settle, then integrate every occupied well over the same chop periods; one record per well and channel
-  F.cameraTick = function () {
+  F.cameraTick = /* @r2fn R2-C0025-F00033 */function () {
     const o = this.opt;
     for (let k = 0; k < TICK && o.busy; k++) {
       if (o.phase === SETTLE) { o.t0 = this.now() + k; o.tz0 = [this.m.t[0], this.m.t[1]]; }
-      if (o.phase >= SETTLE) { o.wells.forEach((w, i) => { const p = this.p.opticsPeriodWell(w), a = o.acc[i];
+      if (o.phase >= SETTLE) { o.wells.forEach(/* @r2fn R2-C0025-F00034 */(w, i) => { const p = this.p.opticsPeriodWell(w), a = o.acc[i];
           for (let c = 0; c < 2; c++) { const net = p.on[c] - p.off[c]; a.on[c] += p.on[c]; a.off[c] += p.off[c]; a.sq[c] += net * net; if (net < a.min[c]) a.min[c] = net; if (net > a.max[c]) a.max[c] = net; a.sat[c] += p.sat[c]; } });
         const r = this.p.opticsReference(); o.rOn += r.on; o.rOff += r.off; }
       if (++o.phase === SETTLE + INTEG) {
-        o.wells.forEach((w, i) => { const a = o.acc[i], z = this.p.zoneOf(w); for (let c = 0; c < 2; c++) this.log.optical({ seq: this.seq++, t_start_ms: o.t0, t_end_ms: this.now() + k + 1, kind: o.kind, acq: o.acq, stage: o.stage, step: o.step, cycle: o.cycle,
+        o.wells.forEach(/* @r2fn R2-C0025-F00035 */(w, i) => { const a = o.acc[i], z = this.p.zoneOf(w); for (let c = 0; c < 2; c++) this.log.optical({ seq: this.seq++, t_start_ms: o.t0, t_end_ms: this.now() + k + 1, kind: o.kind, acq: o.acq, stage: o.stage, step: o.step, cycle: o.cycle,
           well: w, channel: c, periods: INTEG, sum_on: a.on[c], sum_off: a.off[c], sumsq_net: a.sq[c], min_net: a.min[c], max_net: a.max[c], sat_samples: a.sat[c],
           ref_sum_on: o.rOn, ref_sum_off: o.rOff, tzone_start_mC: Math.round(o.tz0[z] * 1000), tzone_end_mC: Math.round(this.m.t[z] * 1000) }); });
         o.busy = false; this.p.darken();
       }
     }
   };
-  F.opticsTick = function () {
+  F.opticsTick = /* @r2fn R2-C0025-F00036 */function () {
     const o = this.opt; if (!o.busy) return; if (this.camera) return this.cameraTick();
     for (let k = 0; k < TICK && o.busy; k++) {
       const p = this.p.opticsPeriod(), zone = this.p.zoneOf(o.well);
@@ -164,8 +164,8 @@
   };
 
   // ---- state machine, control, outputs
-  F.within = function (b) { return Math.abs(this.m.t[0] - this.target) < b && Math.abs(this.m.t[1] - this.target) < b; };
-  F.executor = function () {
+  F.within = /* @r2fn R2-C0025-F00037 */function (b) { return Math.abs(this.m.t[0] - this.target) < b && Math.abs(this.m.t[1] - this.target) < b; };
+  F.executor = /* @r2fn R2-C0025-F00038 */function () {
     const c = this.cfg, now = this.now(), m = this.m;
     switch (this.st) {
       case "SELFTEST":
@@ -209,27 +209,27 @@
       case "DONE": case "ABORTED": if (now - this.tState > 200) this.enter("IDLE"); break;
     }
   };
-  F.control = function () {
+  F.control = /* @r2fn R2-C0025-F00039 */function () {
     const c = this.cfg, m = this.m, o = this.out, dt = TICK / 1000, st = this.st;
     if (st === "SELFTEST") { o.tec = [0, 0]; o.lid = 0; o.fan = c.fanMin; return; }
     const active = ["RAMP", "HOLD", "MELT_GOTO", "MELT", "PAUSED", "HOLD_FOREVER"].includes(st) && m.lid;
     if (active) {
       if (this.ramp > 0) { const d = this.target - this.sp, lim = this.ramp * dt; this.sp += R2.clamp(d, -lim, lim); } else if (st !== "MELT") this.sp = this.target;
       for (let z = 0; z < 2; z++) { const dth = this.sp - m.t[3]; o.tec[z] = this.pid[z].step(c, this.sp, m.t[z], dt, dth * (dth > 0 ? c.ffHeat : c.ffCool)); }
-    } else { o.tec = [0, 0]; this.pid.forEach(x => x.reset()); }
+    } else { o.tec = [0, 0]; this.pid.forEach(/* @r2fn R2-C0025-F00040 */x => x.reset()); }
     if (this.lidOn && m.lid) { const e = this.lidSp - m.t[2]; let u = c.lidKp * e + this.lidInteg; if (u > 1) u = 1; else if (u < 0) u = 0; else this.lidInteg += c.lidKi * e * dt; if (this.lidInteg < 0) this.lidInteg = 0; o.lid = u; } else o.lid = 0;
     const f = (m.t[3] - c.fanLo) / (c.fanHi - c.fanLo); o.fan = st === "FAULT" ? 1 : R2.clamp(f, c.fanMin, 1);
     if (["IDLE", "DONE", "ABORTED"].includes(st)) o.fan = m.t[3] > c.fanLo ? o.fan : 0;
   };
-  F.apply = function () { const p = this.p, o = this.out; p.fwEnable = o.enable; p.duty = o.enable ? o.tec.slice() : [0, 0]; p.lidDuty = o.enable ? o.lid : 0; p.fan = o.fan; };
-  F.telemetry = function () {
+  F.apply = /* @r2fn R2-C0025-F00041 */function () { const p = this.p, o = this.out; p.fwEnable = o.enable; p.duty = o.enable ? o.tec.slice() : [0, 0]; p.lidDuty = o.enable ? o.lid : 0; p.fan = o.fan; };
+  F.telemetry = /* @r2fn R2-C0025-F00042 */function () {
     const now = this.now(); if (now - this.tLastTm < this.cfg.telemetryMs) return; this.tLastTm = now; const m = this.m, o = this.out;
     this.log.telemetry({ seq: this.seq++, t_ms: now, state: this.st, stage: this.iStage, step: this.iStep, cycle: this.iCycle, setpoint_c: this.sp, zone1_c: m.t[0], zone2_c: m.t[1], lid_c: m.t[2],
       heatsink_c: m.t[3], ref_c: m.t[4], duty1: o.tec[0], duty2: o.tec[1], lid_duty: o.lid, fan_duty: o.fan, i_tec1_mA: m.iTec[0], i_tec2_mA: m.iTec[1], fan_rpm: m.rpm,
       enable: m.enRb ? 1 : 0, lid_closed: m.lid ? 1 : 0, hw_trip: m.trip ? 1 : 0, rails_ok: m.rails ? 1 : 0, optics_busy: this.opt.busy ? 1 : 0 });
   };
-  F.running = function () { return !["IDLE", "DONE", "ABORTED", "FAULT"].includes(this.st); };
-  F.tick = function () {
+  F.running = /* @r2fn R2-C0025-F00043 */function () { return !["IDLE", "DONE", "ABORTED", "FAULT"].includes(this.st); };
+  F.tick = /* @r2fn R2-C0025-F00044 */function () {
     this.read();
     if (this.st !== "FAULT" && this.st !== "SELFTEST") {
       const e = this.check();
@@ -244,5 +244,5 @@
     this.control(); this.opticsTick(); this.apply(); this.telemetry(); this.p.kick();
   };
   R2.Firmware.PLATE_MS = PLATE_MS; R2.Firmware.CAMERA_MS = CAMERA_MS;
-  R2.Firmware.validateFor = (prog, plateMs) => F.validate.call({ plateMs }, prog); R2.Firmware.TICK = TICK;
+  R2.Firmware.validateFor = /* @r2fn R2-C0025-F00045 */(prog, plateMs) => F.validate.call({ plateMs }, prog); R2.Firmware.TICK = TICK;
 })(window.R2);

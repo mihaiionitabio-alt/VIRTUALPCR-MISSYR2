@@ -1,0 +1,15 @@
+{
+  "name": "virtualpcr-missyr2",
+  "private": true,
+  "version": "0.4.40",
+  "scripts": {
+    "architecture:generate": "node scripts/function_catalogue.cjs --write",
+    "architecture:check": "node scripts/function_catalogue.cjs --check",
+    "test:architecture": "node tests/system_architecture.cjs",
+    "test:browser": "node tests/browser_full_interview.cjs"
+  },
+  "devDependencies": {
+    "acorn": "8.15.0",
+    "playwright-core": "1.62.1"
+  }
+}

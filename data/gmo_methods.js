@@ -10,10 +10,10 @@
  * control material where the record names only the material, and amplicon lengths the record does not list.
  * Fields: F/R/P oligos; nM = final concentrations [forward, reverse, probe] in nmol/L; cyc = [UNG s at 50 °C, activation s
  * at 95 °C, cycles, denaturation s, anneal °C, anneal s, extension °C or 0, extension s]; eff = reported PCR efficiency %. */
-(function (R2) {
+(/* @r2fn R2-C0006-F00001 */function (R2) {
   "use strict";
   const M = {};
-  const add = (id, o) => { o.id = id; M[id] = o; };
+  const add = /* @r2fn R2-C0006-F00002 */(id, o) => { o.id = id; M[id] = o; };
   // ---------- taxon-specific (endogenous reference) systems ----------
   add("QT-TAX-GM-002", { kind: "taxon", crop: "soybean", target: "LE1 (lectin)", title: "Soybean lectin gene (LE1), ISO 21570:2005", bp: 74, bpSrc: "JRC136933",
     F: ["lecF", "CCAGCTTCGCCGCTTCCTTC"], R: ["lecR", "GAAGGCAAGCCCATCTGCAAGCC"], P: ["GM1", "FAM", "CTTCACCTTCTATGCCCCTGACAC", "TAMRA"], nM: [150, 150, 50], vol: 50, cyc: [120, 600, 45, 15, 60, 60, 0, 0], eff: 95 });
@@ -57,7 +57,7 @@
     F: ["Cry1Ab_Bt_Cott_Fwd", "ACCGGTTACACTCCCATCGA"], R: ["Cry1Ab_Bt_Cott_Rev", "CAGCACCTGGCACGAACTC"], P: null, nM: [250, 250, 0], vol: 25, cyc: [0, 600, 40, 15, 60, 60, 0, 0], melt: true,
     lod: "LOD 23 cry1A(b) copies in 25 ng", crm: "Plasmids \"Sybricons\" mix DNA solution (BCCM/LMBP, Gent)", pc: { material: "Sybricons plasmid mix", copies: 2000 }, doi: "10.1007/s12161-014-9837-3" });
   // ---------- event-specific, quantitative ----------
-  const ev = (id, crop, event, uid, taxon, o) => add(id, Object.assign({ kind: "event", crop, event, uid, taxon, target: event + " insert/genome junction", title: "Event " + event + " (" + uid + ")" }, o));
+  const ev = /* @r2fn R2-C0006-F00003 */(id, crop, event, uid, taxon, o) => add(id, Object.assign({ kind: "event", crop, event, uid, taxon, target: event + " insert/genome junction", title: "Event " + event + " (" + uid + ")" }, o));
   ev("QT-EVE-GM-005", "soybean", "40-3-2", "MON-04032-6", "QT-TAX-GM-002", { amp: "TTCATTCAAAATAAGATCATACATACAGGTTNNNNNNNNNNNNNNNNNCCCAAATGGAAAAGGAAGGTGGCTCCTACAAATGCC",
     F: ["40-3-2 AF", "TTCATTCAAAATAAGATCATACATACAGGTT"], R: ["40-3-2 AR", "GGCATTTGTAGGAGCCACCTT"], P: ["40-3-2 AP", "FAM", "CCTTTTCCATTTGGG", "MGBNFQ"], nM: [150, 150, 50], vol: 50, cyc: [120, 600, 45, 15, 55, 60, 0, 0], eff: 92,
     lod: "relative LOD ≤ 0.045 %, LOQ ≤ 0.09 %", crm: "Genomic DNA from non-GM and GM soybean event GTS 40-3-2 seeds", crmPct: 100, doi: "10.2760/720444" });
@@ -101,7 +101,7 @@
 
   // element presence per event (JRC GMO-Matrix export): p35s, tnos, pat, te9, ctp2cp4, pfmv, cry1ab
   const EL = ["p35s", "tnos", "pat", "te9", "ctp2cp4", "pfmv", "cry1ab"];
-  const E = (crop, name, uid, method, row) => ({ crop, name, uid, method, el: Object.fromEntries(EL.map((k, i) => [k, row[i]])) });
+  const E = /* @r2fn R2-C0006-F00004 */(crop, name, uid, method, row) => ({ crop, name, uid, method, el: Object.fromEntries(EL.map(/* @r2fn R2-C0006-F00005 */(k, i) => [k, row[i]])) });
   const EVENTS = [
     E("soybean", "40-3-2", "MON-04032-6", "QT-EVE-GM-005", [2, 2, 0, 0, 0, 0, 0]),
     E("soybean", "MON89788", "MON-89788-1", "QT-EVE-GM-006", [0, 0, 0, 2, 2, 2, 0]),

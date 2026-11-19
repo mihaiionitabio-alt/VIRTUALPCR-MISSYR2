@@ -1,0 +1,102 @@
+{
+  "columns" : [
+    [
+      {
+        "instanceName" : "indexBundledAnalysis",
+        "inputPorts" : [],
+        "outputPorts" : [
+          {
+            "name" : "members",
+            "portNumbers" : [
+              0,
+              1,
+              2
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "instanceName" : "c0085",
+        "inputPorts" : [
+          {
+            "name" : "inventory",
+            "portNumbers" : [
+              0
+            ]
+          }
+        ],
+        "outputPorts" : []
+      },
+      {
+        "instanceName" : "c0086",
+        "inputPorts" : [
+          {
+            "name" : "inventory",
+            "portNumbers" : [
+              0
+            ]
+          }
+        ],
+        "outputPorts" : []
+      },
+      {
+        "instanceName" : "c0087",
+        "inputPorts" : [
+          {
+            "name" : "inventory",
+            "portNumbers" : [
+              0
+            ]
+          }
+        ],
+        "outputPorts" : []
+      }
+    ]
+  ],
+  "connections" : [
+    [
+      [
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0,
+        0
+      ]
+    ],
+    [
+      [
+        0,
+        0,
+        0,
+        1
+      ],
+      [
+        1,
+        1,
+        0,
+        0
+      ]
+    ],
+    [
+      [
+        0,
+        0,
+        0,
+        2
+      ],
+      [
+        1,
+        2,
+        0,
+        0
+      ]
+    ]
+  ]
+}

@@ -15,19 +15,19 @@
  *     "runs": [ { …run settings…, "repeat": 3 } ],   each group, repeated `repeat` times
  *     "output": { "openQuality": true, "selectForMissy": true, "downloadRdmltZip": false } }
  * Run settings: see R2.batchRuns.FIELDS and the README in docs/JSON_RUN_PROFILES.md. */
-(function (R2) {
+(/* @r2fn R2-C0050-F00001 */function (R2) {
   "use strict";
   const B = (R2.batchRuns = {}),
-    X = () => R2.tech,
+    X = /* @r2fn R2-C0050-F00002 */() => R2.tech,
     FORMAT = "missy-r2-batch/1",
     MAX_RUNS = 200,
     WARN_RUNS = 40;
   B.FORMAT = FORMAT;
   B.MAX_RUNS = MAX_RUNS;
   B.WARN_RUNS = WARN_RUNS;
-  const today = () => new Date().toISOString().slice(0, 10);
-  const isObj = (v) => v && typeof v === "object" && !Array.isArray(v);
-  const clone = (v) =>
+  const today = /* @r2fn R2-C0050-F00003 */() => new Date().toISOString().slice(0, 10);
+  const isObj = /* @r2fn R2-C0050-F00004 */(v) => v && typeof v === "object" && !Array.isArray(v);
+  const clone = /* @r2fn R2-C0050-F00005 */(v) =>
     v === undefined ? undefined : JSON.parse(JSON.stringify(v));
   // ---------------------------------------------------------------- option tables (shared with the builder)
   const temps = [-80, -20, 4, 22, 37];
@@ -396,7 +396,7 @@
     mara: "Event identification or quantification (MARA)",
     mara16: "Relative ΔΔCt comparison",
   };
-  B.procedureName = (proc, stage) =>
+  B.procedureName = /* @r2fn R2-C0050-F00006 */(proc, stage) =>
     proc === "eurl"
       ? stage === "screen"
         ? "Duplex marker screening"
@@ -406,7 +406,7 @@
           ? "Event quantification by standard curves"
           : "Event identification"
         : B.PROCEDURES[proc] || proc;
-  B.proceduresFor = (stage, crop) =>
+  B.proceduresFor = /* @r2fn R2-C0050-F00007 */(stage, crop) =>
     stage === "screen"
       ? crop === "cotton"
         ? []
@@ -414,7 +414,7 @@
       : stage === "ident"
         ? ["mara", "mara16", ...(crop !== "cotton" ? ["eurl"] : [])]
         : ["mara", ...(crop !== "cotton" ? ["eurl"] : [])];
-  B.normalize = function (p) {
+  B.normalize = /* @r2fn R2-C0050-F00008 */function (p) {
     if (!p || typeof p !== "object") return p;
     if (
       p.format !== "missy-r2-batch-plan/1" &&
@@ -453,7 +453,7 @@
               preset: c.template.samplePreset,
             },
           ]
-        ).map((x) => ({
+        ).map(/* @r2fn R2-C0050-F00009 */(x) => ({
           material: x.preset || c.template.samplePreset,
           extractionDate: x.extractionDate || today(),
           label: x.label || "",
@@ -487,7 +487,7 @@
     };
   };
   // ---------------------------------------------------------------- checking one value against its table row
-  function check(row, v, path, errors) {
+  /* @r2fn R2-C0050-F00010 */function check(row, v, path, errors) {
     if (v === null && row.nullable) return null;
     if (row.type === "bool") {
       if (typeof v !== "boolean")
@@ -495,7 +495,7 @@
       return !!v;
     }
     if (row.type === "select") {
-      const hit = row.options.find((o) => String(o) === String(v));
+      const hit = row.options.find(/* @r2fn R2-C0050-F00011 */(o) => String(o) === String(v));
       if (hit === undefined)
         errors.push(
           `${path}: one of ${row.options.join(", ")} expected, got ${JSON.stringify(v)}`,
@@ -512,7 +512,7 @@
     return R2.clamp(n, row.min, row.max);
   }
 
-  function checkBlock(table, obj, path, errors) {
+  /* @r2fn R2-C0050-F00012 */function checkBlock(table, obj, path, errors) {
     if (obj === undefined) return undefined;
     if (!isObj(obj)) {
       errors.push(path + ": object expected");
@@ -520,10 +520,10 @@
     }
     const out = {};
     for (const [k, v] of Object.entries(obj)) {
-      const row = table.find((r) => r.k === k);
+      const row = table.find(/* @r2fn R2-C0050-F00013 */(r) => r.k === k);
       if (!row) {
         errors.push(
-          `${path}.${k}: unknown setting (known: ${table.map((r) => r.k).join(", ")})`,
+          `${path}.${k}: unknown setting (known: ${table.map(/* @r2fn R2-C0050-F00014 */(r) => r.k).join(", ")})`,
         );
         continue;
       }
@@ -556,7 +556,7 @@
     "note",
   ];
 
-  function merge(a, b) {
+  /* @r2fn R2-C0050-F00015 */function merge(a, b) {
     const out = clone(a) || {};
     for (const [k, v] of Object.entries(b || {}))
       out[k] =
@@ -566,7 +566,7 @@
     return out;
   }
   // checks the whole profile without touching the bench; returns { runs:[{spec, group, k, label}], errors, warnings, output }
-  B.parse = function (input) {
+  B.parse = /* @r2fn R2-C0050-F00016 */function (input) {
     let p = input,
       errors = [],
       warnings = [];
@@ -593,10 +593,10 @@
       };
     }
 
-    function unsafe(v) {
+    /* @r2fn R2-C0050-F00017 */function unsafe(v) {
       if (!v || typeof v !== "object") return false;
       return Object.entries(v).some(
-        ([k, x]) =>
+        /* @r2fn R2-C0050-F00018 */([k, x]) =>
           ["__proto__", "constructor", "prototype"].includes(k) || unsafe(x),
       );
     }
@@ -637,7 +637,7 @@
     if (p.defaults !== undefined && !isObj(p.defaults))
       errors.push("defaults: object expected");
     const runs = [];
-    (Array.isArray(p.runs) ? p.runs : []).forEach((g, gi) => {
+    (Array.isArray(p.runs) ? p.runs : []).forEach(/* @r2fn R2-C0050-F00019 */(g, gi) => {
       if (!isObj(g)) {
         errors.push(`runs[${gi}]: object expected`);
         return;
@@ -699,17 +699,17 @@
   // When the template of a group changes, settings that belonged to the previous analysis are
   // removed so that every editor (Assisted, Visual, Audio) produces the same run and SOP.
   // Kept: names, labels, dates, design, reagents, programme, mix, DNA, seed, scenario.
-  B.resetForTemplate = function (g, previousTemplate) {
+  B.resetForTemplate = /* @r2fn R2-C0050-F00020 */function (g, previousTemplate) {
     const T = R2.templates, D = R2.GMO;
     const next = typeof g.template === "string" ? T.get(g.template) : g.template;
     const prev = typeof previousTemplate === "string" ? T.get(previousTemplate) : previousTemplate;
     const removed = [];
     for (const k of ["stage", "procedure", "assays", "duplex"])
       if (g[k] !== undefined) { delete g[k]; removed.push(k); }
-    const cropOf = (key) => { const m = D.samples.find((x) => x.key === key); return m && !m.blind ? m.crop : null; };
+    const cropOf = /* @r2fn R2-C0050-F00021 */(key) => { const m = D.samples.find(/* @r2fn R2-C0050-F00022 */(x) => x.key === key); return m && !m.blind ? m.crop : null; };
     if (next && next.crop) {
       if (g.material && cropOf(g.material) && cropOf(g.material) !== next.crop) { delete g.material; removed.push("material"); }
-      (g.samples || []).forEach((s, i) => {
+      (g.samples || []).forEach(/* @r2fn R2-C0050-F00023 */(s, i) => {
         if (s && s.material && cropOf(s.material) && cropOf(s.material) !== next.crop) { delete s.material; removed.push(`samples[${i}].material`); }
       });
       if (g.samples && g.samples[0] && g.samples[0].gm && prev && prev.crop !== next.crop) { delete g.samples[0].gm; removed.push("samples[0].gm"); }
@@ -718,7 +718,7 @@
     return removed;
   };
   // static checks of one run's settings (types, ranges, known identifiers); the bench checks the rest when it is applied
-  B.validateSpec = function (s, path, errors, warnings) {
+  B.validateSpec = /* @r2fn R2-C0050-F00024 */function (s, path, errors, warnings) {
     const D = R2.GMO,
       T = R2.templates;
     let tpl = null;
@@ -756,10 +756,10 @@
       (tpl && tpl.samplePreset);
     if (!mat && !tpl)
       errors.push(`${path}: give a template or a material for sample 1`);
-    const preset = mat && D.samples.find((x) => x.key === mat);
+    const preset = mat && D.samples.find(/* @r2fn R2-C0050-F00025 */(x) => x.key === mat);
     if (mat && !preset)
       errors.push(
-        `${path}.material: unknown material "${mat}" (known: ${D.samples.map((x) => x.key).join(", ")})`,
+        `${path}.material: unknown material "${mat}" (known: ${D.samples.map(/* @r2fn R2-C0050-F00026 */(x) => x.key).join(", ")})`,
       );
     const crop = preset
       ? preset.blind
@@ -794,7 +794,7 @@
       if (!Array.isArray(s.samples) || !s.samples.length)
         errors.push(`${path}.samples: list of samples expected`);
       else
-        s.samples.forEach((x, i) => {
+        s.samples.forEach(/* @r2fn R2-C0050-F00027 */(x, i) => {
           const q = `${path}.samples[${i}]`;
           if (!isObj(x)) {
             errors.push(q + ": object expected");
@@ -813,7 +813,7 @@
             )
               errors.push(`${q}.${k}: unknown sample field`);
           if (x.material !== undefined) {
-            const m = D.samples.find((y) => y.key === x.material);
+            const m = D.samples.find(/* @r2fn R2-C0050-F00028 */(y) => y.key === x.material);
             if (!m)
               errors.push(`${q}.material: unknown material "${x.material}"`);
             else if (crop && !m.blind && m.crop !== crop)
@@ -847,7 +847,7 @@
               for (const [ev, v] of Object.entries(x.gm)) {
                 if (
                   !D.events.some(
-                    (e) => e.name === ev && (!crop || e.crop === crop),
+                    /* @r2fn R2-C0050-F00029 */(e) => e.name === ev && (!crop || e.crop === crop),
                   )
                 )
                   errors.push(`${q}.gm: no ${crop || ""} event "${ev}"`);
@@ -983,7 +983,7 @@
     "design",
   ];
 
-  function ensureBench() {
+  /* @r2fn R2-C0050-F00030 */function ensureBench() {
     const x = X();
     if (!x.settings || !x.sample) {
       x.settings = {
@@ -993,13 +993,13 @@
     }
     return x;
   }
-  B.snapshot = () => {
+  B.snapshot = /* @r2fn R2-C0050-F00031 */() => {
     const x = ensureBench(),
       o = {};
     for (const k of KEYS) o[k] = clone(x[k]);
     return o;
   };
-  B.restore = function (o) {
+  B.restore = /* @r2fn R2-C0050-F00032 */function (o) {
     const x = X();
     for (const k of KEYS) x[k] = clone(o[k]);
     x.extractions = Object.assign(Object.create(null), o.extractions || {});
@@ -1008,7 +1008,7 @@
     x.prof = R2.planProfile(x.protocol());
   };
   // apply the settings of one run to the bench; returns { errors, warnings, info }
-  B.apply = function (s, k = 0) {
+  B.apply = /* @r2fn R2-C0050-F00033 */function (s, k = 0) {
     const x = ensureBench(),
       T = R2.templates,
       D = R2.GMO,
@@ -1110,7 +1110,7 @@
         );
       if (s.assays && x.layout !== "simplex") {
         const got = x.chosen[x.stage] || [],
-          lost = s.assays.filter((id) => !got.includes(id));
+          lost = s.assays.filter(/* @r2fn R2-C0050-F00034 */(id) => !got.includes(id));
         if (lost.length)
           errors.push(
             `assays ${lost.join(", ")} are not available here (available: ${(x.stageIds || []).join(", ")}${R2.MARA.isLayout(x.layout) || x.stage === "quant" ? "; one assay per run" : ""})`,
@@ -1135,16 +1135,16 @@
     else {
       if (s1.gm)
         x.sample.events = Object.fromEntries(
-          Object.entries(s1.gm).filter(([, v]) => v > 0),
+          Object.entries(s1.gm).filter(/* @r2fn R2-C0050-F00035 */([, v]) => v > 0),
         );
       if (s1.fragmentBp !== undefined) x.sample.frag = s1.fragmentBp;
       if (s1.inhibitor !== undefined) x.sample.inhibitor = s1.inhibitor;
     }
     // samples 2…n, extraction dates and names
     let list = s.samples
-      ? s.samples.map((o) => Object.assign({}, o))
+      ? s.samples.map(/* @r2fn R2-C0050-F00036 */(o) => Object.assign({}, o))
       : tpl?.batch?.length
-        ? tpl.batch.map((o) => ({
+        ? tpl.batch.map(/* @r2fn R2-C0050-F00037 */(o) => ({
             material: o.preset,
             extractionDate: o.extractionDate,
             label: o.label,
@@ -1162,13 +1162,13 @@
     x.extra = list
       .slice(1)
       .map(
-        (o) =>
+        /* @r2fn R2-C0050-F00038 */(o) =>
           o.material ||
           (x.sampleKey === "blind"
-            ? D.samples.find((y) => y.crop === x.sample.crop && !y.blind).key
+            ? D.samples.find(/* @r2fn R2-C0050-F00039 */(y) => y.crop === x.sample.crop && !y.blind).key
             : x.sampleKey),
       );
-    x.meta = list.map((o) => ({
+    x.meta = list.map(/* @r2fn R2-C0050-F00040 */(o) => ({
       extractionDate: o.extractionDate || firstDate,
       label: o.label || "",
     }));
@@ -1206,7 +1206,7 @@
       );
     const stocks = [
       ...new Set(
-        x.plate.flatMap((w) => R2.materials.stocks(w, x.plan, x.sample.crop)),
+        x.plate.flatMap(/* @r2fn R2-C0050-F00041 */(w) => R2.materials.stocks(w, x.plan, x.sample.crop)),
       ),
     ];
     if (s.referenceExtractions)
@@ -1241,13 +1241,13 @@
         controls: [
           ...new Set(
             x.plate
-              .filter((w) => w.ctl && w.role !== "unknown")
-              .map((w) => w.ctl),
+              .filter(/* @r2fn R2-C0050-F00042 */(w) => w.ctl && w.role !== "unknown")
+              .map(/* @r2fn R2-C0050-F00043 */(w) => w.ctl),
           ),
         ],
         samples: x.plan.samples.length,
         maxSamples: cap,
-        wells: x.plate.filter((w) => w.role !== "empty").length,
+        wells: x.plate.filter(/* @r2fn R2-C0050-F00044 */(w) => w.role !== "empty").length,
         ng: x.ng,
         seed: x.seed,
         natural: x.natural,
@@ -1271,7 +1271,7 @@
     };
   };
   // the bench as one run of this profile would set it, without running anything (the builder's live check)
-  B.preview = function (spec, k = 0) {
+  B.preview = /* @r2fn R2-C0050-F00045 */function (spec, k = 0) {
     const snap = B.snapshot();
     try {
       return B.apply(spec, k);
@@ -1285,7 +1285,7 @@
       B.restore(snap);
     }
   };
-  const runName = (s, ctx) =>
+  const runName = /* @r2fn R2-C0050-F00046 */(s, ctx) =>
     (s.name || ctx.defaultName)
       .replace(/\{i\}/g, ctx.i)
       .replace(/\{n\}/g, ctx.n)
@@ -1296,12 +1296,12 @@
   // ---------------------------------------------------------------- running a profile
   let busy = false,
     cancel = false;
-  B.busy = () => busy;
-  B.cancel = () => {
+  B.busy = /* @r2fn R2-C0050-F00047 */() => busy;
+  B.cancel = /* @r2fn R2-C0050-F00048 */() => {
     cancel = true;
   };
   // onProgress({ index, total, name, fraction, done:[runs], current }) ; resolves { runs, failures, cancelled }
-  B.run = async function (input, onProgress = () => {}) {
+  B.run = /* @r2fn R2-C0050-F00049 */async function (input, onProgress = /* @r2fn R2-C0050-F00050 */() => {}) {
     const parsed =
       typeof input === "object" && input.runs && input.errors
         ? input
@@ -1318,7 +1318,7 @@
       const a = B.preview(item.spec, item.k);
       preflight.push(
         ...a.errors.map(
-          (e) => `Group ${item.group + 1}, repeat ${item.k + 1}: ${e}`,
+          /* @r2fn R2-C0050-F00051 */(e) => `Group ${item.group + 1}, repeat ${item.k + 1}: ${e}`,
         ),
       );
     }
@@ -1399,7 +1399,7 @@
             done,
             failures,
           });
-          await new Promise((r) => setTimeout(r, 0));
+          await new Promise(/* @r2fn R2-C0050-F00052 */(r) => setTimeout(r, 0));
         }
 
         done.push(x.completeRun(c));
@@ -1418,7 +1418,7 @@
     }
     // An explicit empty selection also prevents the Quality page from selecting
     // the newest run as its legacy default when the profile requested no selection.
-    R2.session.missyPreselect = parsed.output.selectForMissy ? done.map((r) => r.no) : [];
+    R2.session.missyPreselect = parsed.output.selectForMissy ? done.map(/* @r2fn R2-C0050-F00053 */(r) => r.no) : [];
     return {
       runs: done,
       failures,
@@ -1428,7 +1428,7 @@
     };
   };
   // ---------------------------------------------------------------- a starting profile
-  B.example = () => ({
+  B.example = /* @r2fn R2-C0050-F00054 */() => ({
     format: FORMAT,
     name: "Example: soybean screening and quantification",
     description:

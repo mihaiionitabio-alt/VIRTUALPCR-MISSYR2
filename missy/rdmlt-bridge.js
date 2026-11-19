@@ -1,5 +1,5 @@
 /* RDMLt adapter for the bundled MISSY. The native reader still owns RDML analysis. */
-(() => {
+(/* @r2fn R2-C0087-F00001 */() => {
   "use strict";
   // Display additions to MISSY's existing Chinese catalogue; no reader or
   // numerical analysis changes are made for language selection.
@@ -34,9 +34,9 @@
   const token = new URLSearchParams(location.hash.slice(1)).get("workbench");
   const parentWindow = window.opener;
   const allowed = !!parentWindow && /^[0-9a-f-]{36}$/i.test(token || "");
-  const tell = (type, fields = {}) => parentWindow.postMessage({ type, token, ...fields }, "*");
+  const tell = /* @r2fn R2-C0087-F00002 */(type, fields = {}) => parentWindow.postMessage({ type, token, ...fields }, "*");
   if (!allowed) {
-    document.addEventListener("missy-initialized", () => {
+    document.addEventListener("missy-initialized", /* @r2fn R2-C0087-F00003 */() => {
       document.documentElement.classList.remove("missy-starting", "missy-configuring");
       const message = document.createElement("main");
       message.textContent = "Open MISSY from the workbench’s Quality manager workspace.";
@@ -46,13 +46,13 @@
   }
 
   window.R2TransferLoading.open("Starting MISSY’s analysis tools…");
-  const text = bytes => new TextDecoder().decode(bytes);
+  const text = /* @r2fn R2-C0087-F00004 */bytes => new TextDecoder().decode(bytes);
   // Native history charts can consume verified virtual telemetry and evaluated controls.
   const originalStatic = ccStatic;
-  ccStatic = function(run) { return { ...originalStatic(run), ...run.r2Metrics }; };
+  ccStatic = /* @r2fn R2-C0087-F00005 */function(run) { return { ...originalStatic(run), ...run.r2Metrics }; };
   const originalDynamic = ccDynamic;
-  ccDynamic = function(run, ...args) { return { ...originalDynamic(run, ...args), ...run.r2ControlMetrics }; };
-  for (const chart of CC_CHARTS.filter(chart => ["bg_median", "plateau_median", "efficiency"].includes(chart.id))) {
+  ccDynamic = /* @r2fn R2-C0087-F00006 */function(run, ...args) { return { ...originalDynamic(run, ...args), ...run.r2ControlMetrics }; };
+  for (const chart of CC_CHARTS.filter(/* @r2fn R2-C0087-F00007 */chart => ["bg_median", "plateau_median", "efficiency"].includes(chart.id))) {
     if (!chart.inst.includes("BR")) chart.inst.push("BR");
   }
   for (const [id, title, unit, group] of [
@@ -83,29 +83,29 @@
       reading: "Compare the same virtual instrument and programme across runs." };
     CC_CHARTS.push(def); CC_BY_ID[id] = def;
   }
-  const average = values => values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : NaN;
-  function telemetryGap(rows) {
-    const intervals = rows.slice(1).map((row,i)=>(row.t_ms-rows[i].t_ms)/1000).filter(value=>Number.isFinite(value)&&value>0);
+  const average = /* @r2fn R2-C0087-F00008 */values => values.length ? values.reduce(/* @r2fn R2-C0087-F00009 */(sum, value) => sum + value, 0) / values.length : NaN;
+  /* @r2fn R2-C0087-F00010 */function telemetryGap(rows) {
+    const intervals = rows.slice(1).map(/* @r2fn R2-C0087-F00011 */(row,i)=>(row.t_ms-rows[i].t_ms)/1000).filter(/* @r2fn R2-C0087-F00012 */value=>Number.isFinite(value)&&value>0);
     const cadence = ccMedian(intervals);
-    return intervals.filter(value=>value>3*cadence).reduce((sum,value)=>sum+value-cadence,0);
+    return intervals.filter(/* @r2fn R2-C0087-F00013 */value=>value>3*cadence).reduce(/* @r2fn R2-C0087-F00014 */(sum,value)=>sum+value-cadence,0);
   }
-  const yieldFrame = () => new Promise(resolve => setTimeout(resolve, 0));
-  const loadingText = (en, zh) => document.documentElement.lang.startsWith("zh") ? zh : en;
-  function loadingProgress(value, status) {
+  const yieldFrame = /* @r2fn R2-C0087-F00015 */() => new Promise(/* @r2fn R2-C0087-F00016 */resolve => setTimeout(resolve, 0));
+  const loadingText = /* @r2fn R2-C0087-F00017 */(en, zh) => document.documentElement.lang.startsWith("zh") ? zh : en;
+  /* @r2fn R2-C0087-F00018 */function loadingProgress(value, status) {
     window.R2TransferLoading.update(value, status);
     tell("r2-missy-progress", { progress: value, status });
   }
   let decodedFiles = 0;
-  async function connectTelemetry(selected = bundles, decoded = RUNS) {
+  /* @r2fn R2-C0087-F00019 */async function connectTelemetry(selected = bundles, decoded = RUNS) {
     for (const bundle of selected) {
-      const target = decoded.find(run => run.file === bundle.file.name);
+      const target = decoded.find(/* @r2fn R2-C0087-F00020 */run => run.file === bundle.file.name);
       if (!target) continue;
       let sourceRecord = null;
       if (bundle.files.has("source/simulator-record.json")) {
         const record = sourceRecord = bundle.record || JSON.parse(text(await extract(bundle, "source/simulator-record.json")));
         const rows = record.telemetry || [], optical = record.optical || [];
         if (rows.length > 1) {
-          const time = rows.map(row => row.t_ms / 1000), temperature = rows.map(row => row.zone1_c);
+          const time = rows.map(/* @r2fn R2-C0087-F00021 */row => row.t_ms / 1000), temperature = rows.map(/* @r2fn R2-C0087-F00022 */row => row.zone1_c);
           target.cc ||= {};
           target.cc.log = { seconds: time, temp: temperature };
           const metrics = ccThermalSummary(ccThermalSteps(time, temperature, ccSetpoints(target)), ccPeakRates(time, temperature, 2));
@@ -113,37 +113,37 @@
           const missing = telemetryGap(rows);
           metrics.temperature_log_minutes = (time.at(-1)-time[0]-missing)/60;
           metrics.run_log_gap_seconds = missing;
-          metrics.zone_spread = Math.max(...rows.map(row => Math.abs(row.zone1_c - row.zone2_c)));
-          metrics.cover_temp = ccMedian(rows.map(row => row.lid_c));
-          metrics.heatsink_max = Math.max(...rows.map(row => row.heatsink_c));
-          metrics.invalid_acq = { bad: optical.filter(row => row.sat_samples > 0).length, n: optical.length };
-          const byChannel = byKey(optical.filter(row => row.kind === "A"), row => String(row.channel + 1));
+          metrics.zone_spread = Math.max(...rows.map(/* @r2fn R2-C0087-F00023 */row => Math.abs(row.zone1_c - row.zone2_c)));
+          metrics.cover_temp = ccMedian(rows.map(/* @r2fn R2-C0087-F00024 */row => row.lid_c));
+          metrics.heatsink_max = Math.max(...rows.map(/* @r2fn R2-C0087-F00025 */row => row.heatsink_c));
+          metrics.invalid_acq = { bad: optical.filter(/* @r2fn R2-C0087-F00026 */row => row.sat_samples > 0).length, n: optical.length };
+          const byChannel = byKey(optical.filter(/* @r2fn R2-C0087-F00027 */row => row.kind === "A"), /* @r2fn R2-C0087-F00028 */row => String(row.channel + 1));
           metrics.lamp_ref = {}; metrics.lamp_drift = {}; metrics.exposure = {};
           for (const [channel, readings] of byChannel) {
-            const ref = readings.map(row => (row.ref_sum_on - row.ref_sum_off) / (row.periods * 8));
+            const ref = readings.map(/* @r2fn R2-C0087-F00029 */row => (row.ref_sum_on - row.ref_sum_off) / (row.periods * 8));
             metrics.lamp_ref[channel] = ccMedian(ref);
             metrics.lamp_drift[channel] = ref[0] ? 100 * (ref.at(-1) / ref[0] - 1) : 0;
-            metrics.exposure[channel] = ccMedian(readings.map(row => row.periods));
+            metrics.exposure[channel] = ccMedian(readings.map(/* @r2fn R2-C0087-F00030 */row => row.periods));
           }
-          metrics.virtual_fan_rpm = ccMedian(rows.map(row => row.fan_rpm));
-          metrics.virtual_tec_current = rows.reduce((largest, row) => Math.max(largest, row.i_tec1_mA, row.i_tec2_mA), 0);
-          metrics.virtual_tec_duty = average(rows.map(row => (Math.abs(row.duty1) + Math.abs(row.duty2)) / 2));
-          metrics.virtual_lid_duty = average(rows.map(row => row.lid_duty));
-          const holds = rows.filter(row => row.state === "HOLD");
-          if (holds.length) metrics.virtual_hold_rms = Math.sqrt(average(holds.map(row => ((row.zone1_c - row.setpoint_c) ** 2 + (row.zone2_c - row.setpoint_c) ** 2) / 2)));
+          metrics.virtual_fan_rpm = ccMedian(rows.map(/* @r2fn R2-C0087-F00031 */row => row.fan_rpm));
+          metrics.virtual_tec_current = rows.reduce(/* @r2fn R2-C0087-F00032 */(largest, row) => Math.max(largest, row.i_tec1_mA, row.i_tec2_mA), 0);
+          metrics.virtual_tec_duty = average(rows.map(/* @r2fn R2-C0087-F00033 */row => (Math.abs(row.duty1) + Math.abs(row.duty2)) / 2));
+          metrics.virtual_lid_duty = average(rows.map(/* @r2fn R2-C0087-F00034 */row => row.lid_duty));
+          const holds = rows.filter(/* @r2fn R2-C0087-F00035 */row => row.state === "HOLD");
+          if (holds.length) metrics.virtual_hold_rms = Math.sqrt(average(holds.map(/* @r2fn R2-C0087-F00036 */row => ((row.zone1_c - row.setpoint_c) ** 2 + (row.zone2_c - row.setpoint_c) ** 2) / 2)));
           metrics.virtual_zone_spread = metrics.zone_spread;
           metrics.virtual_lid_temp = metrics.cover_temp;
           metrics.virtual_sink_peak = metrics.heatsink_max;
-          const referenceGaps = rows.filter(row=>[row.ref_c,row.zone1_c,row.zone2_c].every(Number.isFinite)).map(row=>Math.abs(row.ref_c-(row.zone1_c+row.zone2_c)/2));
-          if (referenceGaps.length) metrics.virtual_reference_gap = referenceGaps.reduce((largest,value)=>Math.max(largest,value),0);
-          const traces=byKey(optical.filter(row=>row.kind==='A'&&row.cycle>=2&&row.cycle<=10),row=>row.well+'/'+row.channel);
+          const referenceGaps = rows.filter(/* @r2fn R2-C0087-F00037 */row=>[row.ref_c,row.zone1_c,row.zone2_c].every(Number.isFinite)).map(/* @r2fn R2-C0087-F00038 */row=>Math.abs(row.ref_c-(row.zone1_c+row.zone2_c)/2));
+          if (referenceGaps.length) metrics.virtual_reference_gap = referenceGaps.reduce(/* @r2fn R2-C0087-F00039 */(largest,value)=>Math.max(largest,value),0);
+          const traces=byKey(optical.filter(/* @r2fn R2-C0087-F00040 */row=>row.kind==='A'&&row.cycle>=2&&row.cycle<=10),/* @r2fn R2-C0087-F00041 */row=>row.well+'/'+row.channel);
           const noiseByChannel=new Map(),driftByChannel=new Map();
           for(const trace of traces.values()){
             if(trace.length<3)continue;
-            const xs=trace.map(row=>row.cycle),ys=trace.map(row=>(row.sum_on-row.sum_off)/(row.periods*8));
-            const mx=average(xs),my=average(ys),sxx=xs.reduce((sum,value)=>sum+(value-mx)**2,0);
-            const slope=sxx?xs.reduce((sum,value,i)=>sum+(value-mx)*(ys[i]-my),0)/sxx:0;
-            const residual=Math.sqrt(ys.reduce((sum,value,i)=>sum+(value-(my+slope*(xs[i]-mx)))**2,0)/(ys.length-2));
+            const xs=trace.map(/* @r2fn R2-C0087-F00042 */row=>row.cycle),ys=trace.map(/* @r2fn R2-C0087-F00043 */row=>(row.sum_on-row.sum_off)/(row.periods*8));
+            const mx=average(xs),my=average(ys),sxx=xs.reduce(/* @r2fn R2-C0087-F00044 */(sum,value)=>sum+(value-mx)**2,0);
+            const slope=sxx?xs.reduce(/* @r2fn R2-C0087-F00045 */(sum,value,i)=>sum+(value-mx)*(ys[i]-my),0)/sxx:0;
+            const residual=Math.sqrt(ys.reduce(/* @r2fn R2-C0087-F00046 */(sum,value,i)=>sum+(value-(my+slope*(xs[i]-mx)))**2,0)/(ys.length-2));
             const channel=String(trace[0].channel+1);
             if(!noiseByChannel.has(channel)){noiseByChannel.set(channel,[]);driftByChannel.set(channel,[]);}
             noiseByChannel.get(channel).push(residual);driftByChannel.get(channel).push(slope);
@@ -162,16 +162,16 @@
           const positive = (assay.positive_cq || []).filter(Number.isFinite);
           if (positive.length) metrics.pc_cq[name] = average(positive);
           if (sourceRecord) {
-            const controls = new Set((assay.wells || []).filter(well => well.role === "positive").map(well => well.well));
-            const readings = (sourceRecord.optical || []).filter(row => row.kind === "A" && row.channel === assay.channel - 1 && controls.has(row.well));
-            const amplitudes = [...byKey(readings, row => row.well).values()].map(rows => {
-              const signal = rows.map(row => (row.sum_on - row.sum_off) / (row.periods * 8));
+            const controls = new Set((assay.wells || []).filter(/* @r2fn R2-C0087-F00047 */well => well.role === "positive").map(/* @r2fn R2-C0087-F00048 */well => well.well));
+            const readings = (sourceRecord.optical || []).filter(/* @r2fn R2-C0087-F00049 */row => row.kind === "A" && row.channel === assay.channel - 1 && controls.has(row.well));
+            const amplitudes = [...byKey(readings, /* @r2fn R2-C0087-F00050 */row => row.well).values()].map(/* @r2fn R2-C0087-F00051 */rows => {
+              const signal = rows.map(/* @r2fn R2-C0087-F00052 */row => (row.sum_on - row.sum_off) / (row.periods * 8));
               return ccMedian(signal.slice(-4)) - ccMedian(signal.slice(2, 7));
             });
             if (amplitudes.length) metrics.pc_amplitude[name] = ccMedian(amplitudes);
           }
-          const negatives = (assay.wells || []).filter(well => well.role === "ntc");
-          if (negatives.length) metrics.ntc_rate[name] = { bad: negatives.filter(well => Number.isFinite(well.cq)).length, n: negatives.length };
+          const negatives = (assay.wells || []).filter(/* @r2fn R2-C0087-F00053 */well => well.role === "ntc");
+          if (negatives.length) metrics.ntc_rate[name] = { bad: negatives.filter(/* @r2fn R2-C0087-F00054 */well => Number.isFinite(well.cq)).length, n: negatives.length };
           if (assay.calibration) metrics.efficiency[name] = assay.calibration.efficiency * 100;
         }
         target.r2ControlMetrics = metrics;
@@ -182,12 +182,12 @@
   }
 
   const nativeProcessing = runProcessingState;
-  runProcessingState = function(run) {
+  runProcessingState = /* @r2fn R2-C0087-F00055 */function(run) {
     if (run?.r2Virtual) return { state: "instrument", reason: "Verified virtual instrument record in RDMLt; simulated measurements and producer calculations" };
     return nativeProcessing(run);
   };
   const nativeApplicability = sopRunApplicability;
-  sopRunApplicability = function(run) {
+  sopRunApplicability = /* @r2fn R2-C0087-F00056 */function(run) {
     if (run.r2Virtual && SOP.sourceWorkbenchSop?.id === run.r2Virtual.sourceSop && SOP.evaluationMode === "unconfigured" && SOP.experimentalDesign) {
       const design = SOP.experimentalDesign;
       return { applicable: false, reason: "Custom design requires SOP review: " + (design.extractions ?? 3) + " extractions × " + (design.replicates ?? 3) + " PCR replicates differs from the source method's 3 × 3 design. Raw wells remain available; no sample decision is issued under this method." };
@@ -197,11 +197,11 @@
     return nativeApplicability(run);
   };
   const nativeTimeline = runTimeline;
-  runTimeline = function(run) {
-    return [...nativeTimeline(run), ...(run.r2Timeline || [])].sort((a, b) => a.time - b.time);
+  runTimeline = /* @r2fn R2-C0087-F00057 */function(run) {
+    return [...nativeTimeline(run), ...(run.r2Timeline || [])].sort(/* @r2fn R2-C0087-F00058 */(a, b) => a.time - b.time);
   };
   const nativeEvaluate = sopEvaluateRun;
-  sopEvaluateRun = function(run, ri) {
+  sopEvaluateRun = /* @r2fn R2-C0087-F00059 */function(run, ri) {
     if (run.r2Virtual && SOP.sourceWorkbenchSop?.id && SOP.sourceWorkbenchSop.id !== run.r2Virtual.sourceSop) {
       const applicability = sopRunApplicability(run);
       return { run, ri, rows: [], criteria: [{ criterion: "Source procedure", action: "unresolved", status: "n/a", evidence: applicability.reason }],
@@ -215,7 +215,7 @@
     if (run.r2Virtual && (run.r2Virtual.outcome !== "completed" || run.r2Virtual.legacyMissingControls)) {
       const reason = run.r2Virtual.legacyMissingControls ? "The legacy missing-controls scenario omitted NTC/extraction blanks; its generated SOP did not retain the intended control requirements." : "Virtual programme did not complete: " + (run.r2Virtual.outcome || "unknown");
       result.criteria.push({criterion:run.r2Virtual.legacyMissingControls?"Required run controls (NTC and extraction blank)":"Virtual programme completed",action:"reject",status:"fail",evidence:reason});
-      result.rejected=result.criteria.filter(item=>item.status==="fail");result.status="Rejected";
+      result.rejected=result.criteria.filter(/* @r2fn R2-C0087-F00060 */item=>item.status==="fail");result.status="Rejected";
       for(const row of result.rows) if(!row.ctrl && row.role!=="Standard") {
         row.outcome="Invalid run";row.label="Invalid run";row.reason=reason;row.report=reason;row.conc=NaN;
         if(row.methodValues){row.methodValues={...row.methodValues};delete row.methodValues.content_percent;delete row.methodValues.U;}
@@ -225,75 +225,75 @@
     if (run.r2Virtual?.telemetryGapSeconds > 0) {
       result.criteria.push({criterion:"Recorded data continuity",action:"review",status:"review",
         evidence:run.r2Virtual.telemetryGapSeconds.toFixed(2)+" s of missing telemetry relative to the observed recording cadence"});
-      result.reviewed=result.criteria.filter(item=>item.status==="review");
+      result.reviewed=result.criteria.filter(/* @r2fn R2-C0087-F00061 */item=>item.status==="review");
       if(!result.rejected.length) result.status="Accepted with review";
     }
     if (!run.r2Virtual || !rules || SOP.sourceWorkbenchSop?.id !== run.r2Virtual.sourceSop || !result.rows.length) return result;
-    const add = (criterion, pass, evidence) => result.criteria.push({ criterion, action: "reject", status: pass ? "pass" : "fail", evidence });
+    const add = /* @r2fn R2-C0087-F00062 */(criterion, pass, evidence) => result.criteria.push({ criterion, action: "reject", status: pass ? "pass" : "fail", evidence });
     add("Virtual programme completed", run.r2Virtual.outcome === "completed", run.r2Virtual.outcome || "unknown");
     for (const control of SOP.controls) {
-      const matchingTargets = (rules.expectedTargets || [...new Set(run.wells.map(well => well.target || well.analysis))]).filter(target => sopMatcher(control.targets || "*")(target));
+      const matchingTargets = (rules.expectedTargets || [...new Set(run.wells.map(/* @r2fn R2-C0087-F00063 */well => well.target || well.analysis))]).filter(/* @r2fn R2-C0087-F00064 */target => sopMatcher(control.targets || "*")(target));
       for (const target of matchingTargets) {
-        const count = result.rows.filter(row => row.ctrl === control && row.target === target).reduce((n, row) => n + row.n, 0);
+        const count = result.rows.filter(/* @r2fn R2-C0087-F00065 */row => row.ctrl === control && row.target === target).reduce(/* @r2fn R2-C0087-F00066 */(n, row) => n + row.n, 0);
         add("Control present — " + control.name + " / " + target, count >= Number(control.minPerRun || 0), count + " wells");
       }
     }
     if (rules.family === "screening-lod") {
-      const samples = [...byKey(result.rows.filter(row => !row.ctrl && row.role !== "Standard"), row => row.sample).values()];
+      const samples = [...byKey(result.rows.filter(/* @r2fn R2-C0087-F00067 */row => !row.ctrl && row.role !== "Standard"), /* @r2fn R2-C0087-F00068 */row => row.sample).values()];
       for (const rows of samples) {
-        const reference = rows.find(row => row.spec.kind === "reference");
+        const reference = rows.find(/* @r2fn R2-C0087-F00069 */row => row.spec.kind === "reference");
         const validReference = reference && reference.det === reference.n && Number.isFinite(reference.cqMean) && reference.cqMean >= rules.referenceRange[0] && reference.cqMean <= rules.referenceRange[1];
         for (const row of rows) {
           if (!validReference) { row.outcome = "Invalid"; row.reason = "Reference-gene Cq must be within " + rules.referenceRange.join("–") + "; dilute or re-extract and repeat."; continue; }
           if (row.spec.kind === "reference" || ["Repeat", "Invalid run"].includes(row.outcome)) continue;
-          const lod = result.rows.find(item => item.target === row.target && item.ctrl?.name === "PC at LOD");
+          const lod = result.rows.find(/* @r2fn R2-C0087-F00070 */item => item.target === row.target && item.ctrl?.name === "PC at LOD");
           if (!lod || lod.outcome !== "Control pass") { row.outcome = "Invalid run"; row.reason = "Valid control at the detection limit is required."; }
           else if (!Number.isFinite(row.cqMean) || row.cqMean >= rules.negativeCq) { row.outcome = "Negative"; row.reason = "No amplification before Cq " + rules.negativeCq; }
           else if (row.cqMean >= lod.cqMean) { row.outcome = "Inconclusive"; row.reason = "Amplification below the detection limit: mean Cq " + num(row.cqMean, 2) + ", LOD control " + num(lod.cqMean, 2); }
           else { row.outcome = "Positive"; row.reason = "Mean Cq below the detection-limit control (" + num(lod.cqMean, 2) + ")"; }
         }
-        const elements = rows.filter(row => row.spec.kind === "target");
-        if (elements.length === 2 && elements.filter(row => row.outcome === "Positive").length === 1) {
+        const elements = rows.filter(/* @r2fn R2-C0087-F00071 */row => row.spec.kind === "target");
+        if (elements.length === 2 && elements.filter(/* @r2fn R2-C0087-F00072 */row => row.outcome === "Positive").length === 1) {
           for (const row of elements) if (!["Invalid", "Invalid run"].includes(row.outcome)) { row.outcome = "Repeat"; row.reason = "Only one screening element detected above the detection limit; repeat DNA extraction."; }
         }
       }
     }
     if (run.r2Virtual.stage === "quant" && rules.family === "reference-method") {
-      const calibration=sopStdCurves(run),curveOf=row=>calibration.find(curve=>curve.target===row.target);
-      const valid=curve=>{
+      const calibration=sopStdCurves(run),curveOf=/* @r2fn R2-C0087-F00073 */row=>calibration.find(/* @r2fn R2-C0087-F00074 */curve=>curve.target===row.target);
+      const valid=/* @r2fn R2-C0087-F00075 */curve=>{
         if(!curve||curve.levels<4||curve.points.length<12||curve.slope< -3.6||curve.slope> -3.1||curve.r2<0.98)return false;
         const levels=new Map();for(const point of curve.points)levels.set(point.conc,(levels.get(point.conc)||0)+1);
-        return [...levels.values()].every(count=>count>=3);
+        return [...levels.values()].every(/* @r2fn R2-C0087-F00076 */count=>count>=3);
       };
-      const quantity=(row,curve)=>valid(curve)?average(row.used.map(well=>Math.pow(10,(sopCq(well)-curve.intercept)/curve.slope)).filter(Number.isFinite)):NaN;
+      const quantity=/* @r2fn R2-C0087-F00077 */(row,curve)=>valid(curve)?average(row.used.map(/* @r2fn R2-C0087-F00078 */well=>Math.pow(10,(sopCq(well)-curve.intercept)/curve.slope)).filter(Number.isFinite)):NaN;
       for(const curve of calibration)add('Quantification calibration — '+curve.target,valid(curve),'slope '+num(curve.slope,3)+', R² '+num(curve.r2,4)+', '+curve.levels+' levels');
-      const targets=result.rows.filter(row=>!row.ctrl&&row.role!=='Standard'&&row.spec.kind==='target');
-      const pcEvent=result.rows.find(row=>row.ctrl?.expect==='positive'&&row.spec.kind==='target'),pcRef=result.rows.find(row=>row.ctrl?.expect==='positive'&&row.spec.kind==='reference');
+      const targets=result.rows.filter(/* @r2fn R2-C0087-F00079 */row=>!row.ctrl&&row.role!=='Standard'&&row.spec.kind==='target');
+      const pcEvent=result.rows.find(/* @r2fn R2-C0087-F00080 */row=>row.ctrl?.expect==='positive'&&row.spec.kind==='target'),pcRef=result.rows.find(/* @r2fn R2-C0087-F00081 */row=>row.ctrl?.expect==='positive'&&row.spec.kind==='reference');
       const controlPct=pcEvent&&pcRef?100*quantity(pcEvent,curveOf(pcEvent))/quantity(pcRef,curveOf(pcRef)):NaN;
       add('1% control recovery',Number.isFinite(controlPct)&&controlPct>=0.5&&controlPct<=1.5,Number.isFinite(controlPct)?num(controlPct,3)+' %':'Not quantifiable');
       for(const row of targets){
-        const ref=result.rows.find(item=>!item.ctrl&&item.sample===row.sample&&item.spec.kind==='reference'),eventCurve=curveOf(row),refCurve=ref&&curveOf(ref);
+        const ref=result.rows.find(/* @r2fn R2-C0087-F00082 */item=>!item.ctrl&&item.sample===row.sample&&item.spec.kind==='reference'),eventCurve=curveOf(row),refCurve=ref&&curveOf(ref);
         const reason=!valid(eventCurve)||!valid(refCurve)?'Calibration outside the prescribed slope/R²/level requirements':!ref||ref.det!==ref.n?'Reference triplicates not accepted':row.det!==row.n||row.n<3?'Target triplicates not accepted':!Number.isFinite(controlPct)||controlPct<0.5||controlPct>1.5?'1% control recovery failed':null;
         let rangeOK=true;
         for(const [group,curve] of [[row,eventCurve],[ref,refCurve]])if(group&&valid(curve)){
-          const lo=Math.min(...curve.points.map(point=>point.conc)),hi=Math.max(...curve.points.map(point=>point.conc));
-          if(group.used.some(well=>{const q=Math.pow(10,(sopCq(well)-curve.intercept)/curve.slope);return!Number.isFinite(q)||q<lo||q>hi}))rangeOK=false;
+          const lo=Math.min(...curve.points.map(/* @r2fn R2-C0087-F00083 */point=>point.conc)),hi=Math.max(...curve.points.map(/* @r2fn R2-C0087-F00084 */point=>point.conc));
+          if(group.used.some(/* @r2fn R2-C0087-F00085 */well=>{const q=Math.pow(10,(sopCq(well)-curve.intercept)/curve.slope);return!Number.isFinite(q)||q<lo||q>hi}))rangeOK=false;
         }
         const pct=reason?NaN:100*quantity(row,eventCurve)/quantity(ref,refCurve);
         row.conc=NaN;
         if(reason||!rangeOK||!Number.isFinite(pct)){row.quantWithheldReason=reason||(!rangeOK?'Sample outside calibration range':'Not quantifiable');if(!['Negative','Invalid','Invalid run','Repeat'].includes(row.outcome))row.outcome='Inconclusive';}
         else{row.conc=pct;row.quantification=true;row.methodValues={content_percent:pct};}
       }
-      const groups=[...byKey(targets,row=>String(row.wells[0]?.r2Well?.sampleNo||row.sample.replace(/-E[1-9].*$/,''))).values()];
+      const groups=[...byKey(targets,/* @r2fn R2-C0087-F00086 */row=>String(row.wells[0]?.r2Well?.sampleNo||row.sample.replace(/-E[1-9].*$/,''))).values()];
       for(const rows of groups){
-        const values=rows.map(row=>row.conc).filter(Number.isFinite),mu=average(values),rsd=values.length>1&&mu>0?100*Math.sqrt(values.reduce((sum,value)=>sum+(value-mu)**2,0)/(values.length-1))/mu:NaN;
+        const values=rows.map(/* @r2fn R2-C0087-F00087 */row=>row.conc).filter(Number.isFinite),mu=average(values),rsd=values.length>1&&mu>0?100*Math.sqrt(values.reduce(/* @r2fn R2-C0087-F00088 */(sum,value)=>sum+(value-mu)**2,0)/(values.length-1))/mu:NaN;
         if(values.length!==3||!Number.isFinite(rsd)||rsd>25){for(const row of rows){row.conc=NaN;row.quantification=false;row.quantWithheldReason=row.quantWithheldReason||'Three eligible extractions and RSD ≤25% are required';if(!['Negative','Invalid','Invalid run','Repeat'].includes(row.outcome))row.outcome='Inconclusive';}}
       }
     }
-    result.rejected = result.criteria.filter(item => item.status === "fail");
+    result.rejected = result.criteria.filter(/* @r2fn R2-C0087-F00089 */item => item.status === "fail");
     if (result.rejected.length) {
       result.status = "Rejected";
-      for (const row of result.rows) if (!row.ctrl && row.role !== "Standard") { row.outcome = "Invalid run"; row.reason = result.rejected.map(item => item.criterion).join("; "); row.conc=NaN; if(row.quantification)row.quantWithheldReason=row.reason;row.quantification=false;if(row.methodValues){delete row.methodValues.content_percent;delete row.methodValues.U;} }
+      for (const row of result.rows) if (!row.ctrl && row.role !== "Standard") { row.outcome = "Invalid run"; row.reason = result.rejected.map(/* @r2fn R2-C0087-F00090 */item => item.criterion).join("; "); row.conc=NaN; if(row.quantification)row.quantWithheldReason=row.reason;row.quantification=false;if(row.methodValues){delete row.methodValues.content_percent;delete row.methodValues.U;} }
     }
     for (const row of result.rows) {
       const outcome = SOP.outcomes[row.outcome] || SOP_OUTCOME_DEFAULTS[row.outcome] || {};
@@ -304,7 +304,7 @@
   };
 
   const nativeSopHeader = renderSopHeader;
-  renderSopHeader = function(...args) {
+  renderSopHeader = /* @r2fn R2-C0087-F00091 */function(...args) {
     const result = nativeSopHeader(...args);
     const id = SOP.sourceWorkbenchSop?.id;
     if (id) {
@@ -315,13 +315,13 @@
     return result;
   };
   const nativeRead = readStaged;
-  readStaged = async function(...args) {
+  readStaged = /* @r2fn R2-C0087-F00092 */async function(...args) {
     decodedFiles = 0;
-    const ownsLoading = STAGED.some(s => s.r2Bundle) && !window.R2TransferLoading.active;
+    const ownsLoading = STAGED.some(/* @r2fn R2-C0087-F00093 */s => s.r2Bundle) && !window.R2TransferLoading.active;
     if (ownsLoading) window.R2TransferLoading.open(loadingText("Reading raw curves and integrating telemetry…", "正在读取原始曲线并整合遥测数据…"));
     try {
       const result = await nativeRead(...args);
-      if (STAGED.length && STAGED.every(s => s.r2Bundle?.input?.gmo && s.r2Bundle.files.has("source/simulator-record.json")) && RUNS.length !== STAGED.length) throw new Error("MISSY could not read every selected experiment.");
+      if (STAGED.length && STAGED.every(/* @r2fn R2-C0087-F00094 */s => s.r2Bundle?.input?.gmo && s.r2Bundle.files.has("source/simulator-record.json")) && RUNS.length !== STAGED.length) throw new Error("MISSY could not read every selected experiment.");
       paint();
       if (ownsLoading) {
         window.R2TransferLoading.close();
@@ -334,7 +334,7 @@
     }
   };
   const nativeDecode = decodeReaderSource;
-  decodeReaderSource = async function(source) {
+  decodeReaderSource = /* @r2fn R2-C0087-F00095 */async function(source) {
     const bundle = source.r2Bundle;
     if (!bundle) return nativeDecode(source);
     loadingProgress(72 + 24 * decodedFiles / Math.max(1, bundles.length),
@@ -364,25 +364,25 @@
         const legacy=String.fromCharCode(76,67,67,83,77,83);
         for(const suffix of ["35S","TNOS","LEC","HMG"])aliases[legacy+"-"+suffix]=aliases["SIMPLEX-"+suffix];
         for(const well of run.wells){
-          const source=input.plate[well.pos],target=source?.t?.find(target=>(aliases[target.m]||target.m)===well.target);
+          const source=input.plate[well.pos],target=source?.t?.find(/* @r2fn R2-C0087-F00096 */target=>(aliases[target.m]||target.m)===well.target);
           if(!source||!target)continue;
           well.r2Well={sampleNo:source.sampleNo,extraction:source.ext,replicate:source.rep,method:target.m};
           if(source.role==='standard' && Number.isFinite(target.q) && target.q>0){well.givenConc=target.q;well.StandardConc=target.q;}
         }
       }
       if (input && record && /MISSY R2 simulated instrument/.test(run.meta.InstrumentName || run.rdmlDoc?.instrument || "")) {
-        const events = record.events || [], startEvent = events.find(event => event.code === "RUN_START");
-        const endEvent = events.findLast(event => ["RUN_COMPLETE", "RUN_ABORTED"].includes(event.code));
+        const events = record.events || [], startEvent = events.find(/* @r2fn R2-C0087-F00097 */event => event.code === "RUN_START");
+        const endEvent = events.findLast(/* @r2fn R2-C0087-F00098 */event => ["RUN_COMPLETE", "RUN_ABORTED"].includes(event.code));
         const start = Date.parse(input.startedAt), origin = startEvent?.t_ms || 0;
         run.r2Virtual = { outcome: input.outcome, stage: input.gmo?.stage, sourceSop: bundle.sopId,
-          legacyMissingControls: !input.sopPlate && input.injectedFault?.id === "hu-no-controls" && Array.isArray(input.plate) && !input.plate.some(well=>well.role === "ntc" && well.t?.length),
+          legacyMissingControls: !input.sopPlate && input.injectedFault?.id === "hu-no-controls" && Array.isArray(input.plate) && !input.plate.some(/* @r2fn R2-C0087-F00099 */well=>well.role === "ntc" && well.t?.length),
           browserStartedAt: input.startedAt, browserFinishedAt: input.finishedAt, telemetryGapSeconds: telemetryGap(record.telemetry || []),
           clock: "Simulated instrument elapsed time anchored to browser run start" };
         run.meta.RunClock = run.r2Virtual.clock;
         run.meta.BrowserStartTime = input.startedAt || "";
         run.meta.BrowserEndTime = input.finishedAt || "";
         if (Number.isFinite(start)) {
-          const iso = value => new Date(value).toISOString();
+          const iso = /* @r2fn R2-C0087-F00100 */value => new Date(value).toISOString();
           run.meta.Created = run.meta.RunCreated = run.meta.StartTime = iso(start);
           if (endEvent && Number.isFinite(endEvent.t_ms)) {
             run.meta.EndTime = iso(start + endEvent.t_ms - origin);
@@ -391,7 +391,7 @@
           }
           const labels = { SELFTEST_OK: "Simulated self-test passed", LID_READY: "Simulated heated lid ready",
             STAGE_START: "Simulated stage", HOST_LINK_TIMEOUT: "Recorded host data-link gap", HOST_CRASH: "Recorded host crash", MELT_START: "Simulated melt started", MELT_END: "Simulated melt ended" };
-          run.r2Timeline = events.filter(event => labels[event.code] && Number.isFinite(event.t_ms)).map(event => ({
+          run.r2Timeline = events.filter(/* @r2fn R2-C0087-F00101 */event => labels[event.code] && Number.isFinite(event.t_ms)).map(/* @r2fn R2-C0087-F00102 */event => ({
             what: labels[event.code] + (event.code === "STAGE_START" ? " " + (event.a + 1) : ""),
             time: start + event.t_ms - origin, source: "Verified RDMLt firmware event; simulated elapsed clock", kind: "run" }));
         }
@@ -404,19 +404,19 @@
         run.r2EvidenceProfileHash = sopHash(bundle.profile);
       }
     }
-    bundle.timingEvents = (bundle.record?.events || []).filter(e => ["RUN_START", "RUN_COMPLETE", "RUN_ABORTED"].includes(e.code));
+    bundle.timingEvents = (bundle.record?.events || []).filter(/* @r2fn R2-C0087-F00103 */e => ["RUN_START", "RUN_COMPLETE", "RUN_ABORTED"].includes(e.code));
     delete bundle.record;
     decodedFiles++;
     await yieldFrame();
     return runs;
   };
   const nativeMaraInput = maraInput;
-  maraInput = function(run, profile = SOP, evidence = maraEvidence(run)) {
+  maraInput = /* @r2fn R2-C0087-F00104 */function(run, profile = SOP, evidence = maraEvidence(run)) {
     const proof = run.r2MethodEvidence;
     if (run.r2Virtual && proof?.sourceSop === profile.sourceWorkbenchSop?.id && run.r2EvidenceProfileHash === sopHash(profile)) {
       for (const [key, value] of Object.entries(proof.context)) if (!(key in evidence.context)) evidence.context[key] = value;
       for (const [index, well] of run.wells.entries()) {
-        const observed = proof.reactions.find(r => r.position === well.pos && r.method === well.r2Well?.method);
+        const observed = proof.reactions.find(/* @r2fn R2-C0087-F00105 */r => r.position === well.pos && r.method === well.r2Well?.method);
         if (!observed) continue;
         const id = maraWellID(well, index);
         evidence.reactions[id] ||= {};
@@ -427,7 +427,7 @@
     return nativeMaraInput(run, profile, evidence);
   };
   const nativeMethodInputs = maraRenderEvidence;
-  maraRenderEvidence = function(index = 0) {
+  maraRenderEvidence = /* @r2fn R2-C0087-F00106 */function(index = 0) {
     const result = nativeMethodInputs(index), run = RUNS[index];
     const section = document.getElementById("mara-run-inputs");
     if (section && run?.r2MethodEvidence && run.r2EvidenceProfileHash === sopHash(SOP)) {
@@ -443,9 +443,9 @@
   const nativeIntake = intake;
   const bundles = [];
   let notice, pending = false, selection = 0, attachedProfile = null;
-  const own = (node, name) => [...node.children].find(el => el.localName === name)?.textContent || "";
-  const exact = path => ({ test: name => name === path });
-  async function extract(bundle, path) {
+  const own = /* @r2fn R2-C0087-F00107 */(node, name) => [...node.children].find(/* @r2fn R2-C0087-F00108 */el => el.localName === name)?.textContent || "";
+  const exact = /* @r2fn R2-C0087-F00109 */path => ({ test: /* @r2fn R2-C0087-F00110 */name => name === path });
+  /* @r2fn R2-C0087-F00111 */async function extract(bundle, path) {
     const info = bundle.files.get(path);
     if (!info) throw new Error("RDMLt manifest does not list " + path);
     const members = await readZipFiltered(await bundle.file.arrayBuffer(), { name: bundle.file.name }, exact(path));
@@ -455,34 +455,34 @@
       throw new Error("RDMLt checksum or byte count mismatch for " + path);
     return bytes;
   }
-  function repairProfile(procedure) {
-    return new Promise((resolve, reject) => {
+  /* @r2fn R2-C0087-F00112 */function repairProfile(procedure) {
+    return new Promise(/* @r2fn R2-C0087-F00113 */(resolve, reject) => {
       const requestId = crypto.randomUUID();
-      const finish = event => {
+      const finish = /* @r2fn R2-C0087-F00114 */event => {
         if (event.source !== parentWindow || event.data?.token !== token || event.data?.requestId !== requestId || event.data?.type !== "r2-missy-profile") return;
         clearTimeout(timer); window.removeEventListener("message", finish);
         if (event.data.error) reject(new Error(event.data.error)); else resolve(event.data.profile);
       };
-      const timer = setTimeout(() => { window.removeEventListener("message", finish); reject(new Error("SOP compatibility mapping timed out; keep the workbench open.")); }, 20000);
+      const timer = setTimeout(/* @r2fn R2-C0087-F00115 */() => { window.removeEventListener("message", finish); reject(new Error("SOP compatibility mapping timed out; keep the workbench open.")); }, 20000);
       window.addEventListener("message", finish);
       tell("r2-missy-profile-request", { requestId, procedure });
     });
   }
-  function repairEvidence(bundle, diagnostics) {
-    return new Promise((resolve, reject) => {
+  /* @r2fn R2-C0087-F00116 */function repairEvidence(bundle, diagnostics) {
+    return new Promise(/* @r2fn R2-C0087-F00117 */(resolve, reject) => {
       const requestId = crypto.randomUUID();
-      const receive = event => {
+      const receive = /* @r2fn R2-C0087-F00118 */event => {
         if (event.source !== parentWindow || event.data?.token !== token || event.data?.requestId !== requestId || event.data?.type !== "r2-missy-evidence") return;
         clearTimeout(timer); window.removeEventListener("message", receive);
         event.data.error ? reject(new Error(event.data.error)) : resolve(event.data.proof);
       };
-      const timer = setTimeout(() => { window.removeEventListener("message", receive); reject(new Error("Virtual method evidence request did not respond")); }, 180000);
+      const timer = setTimeout(/* @r2fn R2-C0087-F00119 */() => { window.removeEventListener("message", receive); reject(new Error("Virtual method evidence request did not respond")); }, 180000);
       window.addEventListener("message", receive);
       tell("r2-missy-evidence-request", { requestId, input: bundle.input, procedure: bundle.procedure, diagnostics });
     });
   }
   const preparedBundles = new WeakMap();
-  async function openBundle(file) {
+  /* @r2fn R2-C0087-F00120 */async function openBundle(file) {
     if (preparedBundles.has(file)) return preparedBundles.get(file);
     const manifests = await readZipFiltered(await file.arrayBuffer(), { name: file.name }, exact("rdmlt_data.xml"));
     if (manifests.length !== 1) throw new Error("Expected one RDMLt companion XML document");
@@ -490,13 +490,13 @@
     const root = doc.documentElement;
     if (root.localName !== "rdmlt" || root.namespaceURI !== "urn:rdmlt:1")
       throw new Error("Unrecognized RDMLt companion");
-    const entries = [...root.children].filter(el => el.localName === "file");
-    const files = new Map(entries.map(el => [own(el, "filename"), {
+    const entries = [...root.children].filter(/* @r2fn R2-C0087-F00121 */el => el.localName === "file");
+    const files = new Map(entries.map(/* @r2fn R2-C0087-F00122 */el => [own(el, "filename"), {
       id: el.getAttribute("id"), sha: own(el, "sha256"), bytes: Number(own(el, "byteCount"))
     }]));
     if (files.size !== entries.length) throw new Error("Duplicate RDMLt manifest entry");
-    const coreRef = [...root.children].find(el => el.localName === "core")?.firstElementChild?.getAttribute("id");
-    const corePath = [...files].find(([, info]) => info.id === coreRef)?.[0];
+    const coreRef = [...root.children].find(/* @r2fn R2-C0087-F00123 */el => el.localName === "core")?.firstElementChild?.getAttribute("id");
+    const corePath = [...files].find(/* @r2fn R2-C0087-F00124 */([, info]) => info.id === coreRef)?.[0];
     if (!corePath) throw new Error("RDMLt companion does not identify a core");
     const bundle = { file, files };
     const core = await extract(bundle, corePath);
@@ -534,7 +534,7 @@
     preparedBundles.set(file, bundle);
     return bundle;
   }
-  function setProfile(profile) {
+  /* @r2fn R2-C0087-F00125 */function setProfile(profile) {
     SOP = profile;
     SOP_AUTO_DEFAULT = false;
     SOP_CACHE = null;
@@ -542,27 +542,27 @@
     markDirty("review", "graphs", "sop", "results", "panel");
     renderSopHeader();
   }
-  function applyProfile(bundle) {
+  /* @r2fn R2-C0087-F00126 */function applyProfile(bundle) {
     if (!bundle.profile) return false;
     attachedProfile = sopNormalise(bundle.profile);
     setProfile(attachedProfile);
     return true;
   }
 
-  function save(name, data) {
+  /* @r2fn R2-C0087-F00127 */function save(name, data) {
     const link = document.createElement("a");
     link.href = URL.createObjectURL(data); link.download = name; link.click();
-    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+    setTimeout(/* @r2fn R2-C0087-F00128 */() => URL.revokeObjectURL(link.href), 1000);
   }
-  function paint() {
+  /* @r2fn R2-C0087-F00129 */function paint() {
     notice = document.getElementById("loadmsg");
     const list = document.getElementById("r2-raw-files");
-    list.replaceChildren(...bundles.map(bundle => {
+    list.replaceChildren(...bundles.map(/* @r2fn R2-C0087-F00130 */bundle => {
       const row = document.createElement("li"), download = document.createElement("button");
       const name = document.createElement("span");
       name.textContent = bundle.file.name + " · " + (bundle.file.size / 1048576).toFixed(1) + " MB";
       download.type = "button"; download.className = "ghost"; download.textContent = "Download raw RDMLt";
-      download.onclick = () => save(bundle.file.name, bundle.file);
+      download.onclick = /* @r2fn R2-C0087-F00131 */() => save(bundle.file.name, bundle.file);
       row.append(name, " ", download);
       if (bundle.input?.injectedFault) {
         const scenario = document.createElement("p"), fault = bundle.input.injectedFault;
@@ -570,8 +570,8 @@
         scenario.textContent = "Deliberate training scenario: " + fault.title + " · " + fault.kind + ". " + fault.note;
         row.append(scenario);
       }
-      const start = bundle.timingEvents?.find(event => event.code === "RUN_START");
-      const end = bundle.timingEvents?.findLast(event => ["RUN_COMPLETE", "RUN_ABORTED"].includes(event.code));
+      const start = bundle.timingEvents?.find(/* @r2fn R2-C0087-F00132 */event => event.code === "RUN_START");
+      const end = bundle.timingEvents?.findLast(/* @r2fn R2-C0087-F00133 */event => ["RUN_COMPLETE", "RUN_ABORTED"].includes(event.code));
       if (end && Number.isFinite(end.t_ms)) {
         const timing = document.createElement("p");
         timing.textContent = "Simulated instrument duration: " + ((end.t_ms - (start?.t_ms || 0)) / 60000).toFixed(2) + " min. Browser playback: " +
@@ -580,14 +580,14 @@
       }
       return row;
     }));
-    const uniqueSops = [...new Map(bundles.map(bundle => [
+    const uniqueSops = [...new Map(bundles.map(/* @r2fn R2-C0087-F00134 */bundle => [
       (bundle.sopId || "unknown") + ":" + (bundle.profile?.sha256 || ""), bundle])).values()];
-    document.getElementById("r2-sop-files").replaceChildren(...uniqueSops.map(bundle => {
+    document.getElementById("r2-sop-files").replaceChildren(...uniqueSops.map(/* @r2fn R2-C0087-F00135 */bundle => {
       const row = document.createElement("div"), title = document.createElement("b"), label = document.createElement("p");
       title.textContent = bundle.sopId || "SOP identity unavailable";
       label.textContent = bundle.profile?.name || "Procedure attached to " + bundle.file.name;
       const uses = document.createElement("p");
-      uses.textContent = "Used by: " + bundles.filter(item => item.sopId === bundle.sopId && item.profile?.sha256 === bundle.profile?.sha256).map(item => item.file.name).join(", ");
+      uses.textContent = "Used by: " + bundles.filter(/* @r2fn R2-C0087-F00136 */item => item.sopId === bundle.sopId && item.profile?.sha256 === bundle.profile?.sha256).map(/* @r2fn R2-C0087-F00137 */item => item.file.name).join(", ");
       row.append(title, label, uses);
       if (bundle.profileRepaired) {
         const repaired = document.createElement("p");
@@ -597,10 +597,10 @@
       if (bundle.profile) {
         const use = document.createElement("button");
         use.type = "button"; use.className = "ghost"; use.textContent = "Use " + (bundle.sopId || "this SOP");
-        use.onclick = () => { applyProfile(bundle); refreshAll(); showTab("sop"); };
+        use.onclick = /* @r2fn R2-C0087-F00138 */() => { applyProfile(bundle); refreshAll(); showTab("sop"); };
         const download = document.createElement("button");
         download.type = "button"; download.className = "ghost"; download.textContent = "Download SOP JSON";
-        download.onclick = () => save((bundle.sopId || "procedure") + ".sop.json", new Blob([JSON.stringify(bundle.profile, null, 2)], {type:"application/json"}));
+        download.onclick = /* @r2fn R2-C0087-F00139 */() => save((bundle.sopId || "procedure") + ".sop.json", new Blob([JSON.stringify(bundle.profile, null, 2)], {type:"application/json"}));
         row.append(use, " ", download);
       }
       if (bundle.procedure || bundle.profile) {
@@ -612,7 +612,7 @@
       return row;
     }));
   }
-  function addPanel() {
+  /* @r2fn R2-C0087-F00140 */function addPanel() {
     const files = document.createElement("ul");
     files.id = "r2-raw-files";
     document.getElementById("loadmsg").after(files);
@@ -625,10 +625,10 @@
       <button class="ghost" type="button" id="r2-history-add">Load virtual history</button>
       <button class="ghost" type="button" id="r2-chart-catalogue">Show complete chart catalogue</button><span id="r2-history-status" role="status"></span>`;
     document.getElementById("cc-tiles").before(historyTools);
-    document.getElementById("r2-chart-catalogue").onclick = () => {
-      document.querySelectorAll("#cc-tiles .cc-missing").forEach(details => { details.open = true; });
+    document.getElementById("r2-chart-catalogue").onclick = /* @r2fn R2-C0087-F00141 */() => {
+      document.querySelectorAll("#cc-tiles .cc-missing").forEach(/* @r2fn R2-C0087-F00142 */details => { details.open = true; });
     };
-    document.getElementById("r2-history-add").onclick = () => {
+    document.getElementById("r2-history-add").onclick = /* @r2fn R2-C0087-F00143 */() => {
       const history = window.R2_CONTROL_HISTORY[document.getElementById("r2-history-family").value];
       const count = ccImport(JSON.stringify(history));
       CC_STATE.instrument = history.rows[0].instrument; CC_STATE.protocol = ""; CC_STATE.cache = null;
@@ -639,11 +639,11 @@
     paint();
   }
 
-  function sopConflict(opened) {
-    return new Set(opened.map(bundle => bundle.sopId || bundle.profile?.sha256).filter(Boolean)).size > 1 ||
-      new Set(opened.map(bundle => bundle.profile?.sha256).filter(Boolean)).size > 1;
+  /* @r2fn R2-C0087-F00144 */function sopConflict(opened) {
+    return new Set(opened.map(/* @r2fn R2-C0087-F00145 */bundle => bundle.sopId || bundle.profile?.sha256).filter(Boolean)).size > 1 ||
+      new Set(opened.map(/* @r2fn R2-C0087-F00146 */bundle => bundle.profile?.sha256).filter(Boolean)).size > 1;
   }
-  function showSopWarning(opened) {
+  /* @r2fn R2-C0087-F00147 */function showSopWarning(opened) {
     const dialog = document.createElement("dialog");
     dialog.setAttribute("aria-labelledby", "r2-mixed-sop-heading");
     dialog.setAttribute("role", "alertdialog");
@@ -657,16 +657,16 @@
       row.textContent = bundle.file.name + " · " + (bundle.sopId || bundle.profile?.name || "No SOP identity");
       list.append(row);
     }
-    dialog.querySelector("button").onclick = () => dialog.close();
-    dialog.addEventListener("close", () => { dialog.remove(); showTab("panel"); }, { once: true });
+    dialog.querySelector("button").onclick = /* @r2fn R2-C0087-F00148 */() => dialog.close();
+    dialog.addEventListener("close", /* @r2fn R2-C0087-F00149 */() => { dialog.remove(); showTab("panel"); }, { once: true });
     document.body.append(dialog);
     dialog.showModal();
   }
 
-  intake = async fileList => {
+  intake = /* @r2fn R2-C0087-F00150 */async fileList => {
     const generation = ++selection;
     const files = [...fileList];
-    if (files.reduce((total, file) => total + file.size, 0) > APP_STATE.limits.maxBytes) throw new Error("The selected raw files exceed MISSY’s staging limit.");
+    if (files.reduce(/* @r2fn R2-C0087-F00151 */(total, file) => total + file.size, 0) > APP_STATE.limits.maxBytes) throw new Error("The selected raw files exceed MISSY’s staging limit.");
     const expanded = [], opened = [], errors = [];
     for (const [index, file] of [...files].entries()) {
       try {
@@ -698,7 +698,7 @@
     readButton.disabled = true;
     const prepared = [];
     for (const source of STAGED) {
-      const bundle = opened.find(item => item.core.name === source.name);
+      const bundle = opened.find(/* @r2fn R2-C0087-F00152 */item => item.core.name === source.name);
       prepared.push(bundle ? { ...source, name: bundle.file.name, path: bundle.file.name,
         bytes: new Uint8Array(await bundle.file.arrayBuffer()), r2Bundle: bundle } : source);
       await yieldFrame();
@@ -714,8 +714,8 @@
     if (opened.length || errors.length) {
 
       const applied = !mixed && opened.length > 0 && opened.length === expanded.length &&
-        opened.every(bundle => bundle.profile) && applyProfile(opened[0]);
-      notice.textContent = [opened.map(bundle => bundle.file.name).join(", "),
+        opened.every(/* @r2fn R2-C0087-F00153 */bundle => bundle.profile) && applyProfile(opened[0]);
+      notice.textContent = [opened.map(/* @r2fn R2-C0087-F00154 */bundle => bundle.file.name).join(", "),
         applied ? "MISSY SOP active: " + opened[0].profile.name : "",
         mixed ? "Different SOPs were found. No shared SOP was activated." : "", ...errors].filter(Boolean).join(" ");
     }
@@ -723,7 +723,7 @@
     return { mixed, opened, errors };
   };
 
-  document.addEventListener("missy-initialized", () => {
+  document.addEventListener("missy-initialized", /* @r2fn R2-C0087-F00155 */() => {
     document.getElementById("missy-startup-enter").click();
     window.MISSY_SETUP.leave();
     document.querySelector("#missy-learning [data-workspace='analysis']")?.click();
@@ -731,8 +731,8 @@
     const fileInput = document.getElementById("file");
     fileInput.accept = [fileInput.accept || readerAccept(), ".rdmlt"].join(",");
     const manualIntake = intake;
-    intake = async files => {
-      const virtual = [...files].some(file => /\.rdmlt$/i.test(file.name));
+    intake = /* @r2fn R2-C0087-F00156 */async files => {
+      const virtual = [...files].some(/* @r2fn R2-C0087-F00157 */file => /\.rdmlt$/i.test(file.name));
       if (virtual) window.R2TransferLoading.open(loadingText("Verifying the selected RDMLt packages and SOPs…", "正在验证所选 RDMLt 包和 SOP…"));
       try {
         const result = await manualIntake([...files]);
@@ -745,7 +745,7 @@
       }
     };
     let incoming = null;
-    window.addEventListener("message", async event => {
+    window.addEventListener("message", /* @r2fn R2-C0087-F00158 */async event => {
       let message = event.data;
       if (event.source !== parentWindow || message?.token !== token) return;
       if (message.type === "r2-missy-transfer-error") { window.R2TransferLoading.fail(message.error || "The selected files could not be prepared."); return; }
@@ -787,13 +787,13 @@
         if (message.files?.length) {
           window.R2TransferLoading.update(70, "Verifying the selected RDMLt packages and SOPs…");
           tell("r2-missy-progress", { progress:70, status:"Verifying RDMLt packages and SOPs…" });
-          await new Promise(resolve => setTimeout(resolve, 0));
+          await new Promise(/* @r2fn R2-C0087-F00159 */resolve => setTimeout(resolve, 0));
           const staged = await manualIntake(message.files);
           if (staged.errors.length) throw new Error(staged.errors.join(" "));
           if (STAGED.length !== message.files.length) throw new Error("MISSY could not stage every selected experiment.");
           window.R2TransferLoading.update(72, "Reading raw curves and integrating telemetry…");
           tell("r2-missy-progress", { progress:72, status:"Reading raw curves and integrating telemetry…" });
-          await new Promise(resolve => setTimeout(resolve, 0));
+          await new Promise(/* @r2fn R2-C0087-F00160 */resolve => setTimeout(resolve, 0));
           await readStaged();
           if (RUNS.length !== message.files.length) throw new Error("MISSY could not read every selected experiment.");
           notice.textContent += " " + RUNS.length + " run(s) read.";

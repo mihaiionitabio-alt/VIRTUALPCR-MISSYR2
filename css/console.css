@@ -103,3 +103,5 @@ button.r2-duration-apply:not(:disabled){background:#cb9acd!important;color:#170e
 #voice-builder .vi-card-label{font:650 21px/1.35 Arial,sans-serif;color:#f2e1fa}
 #voice-builder .vi-console .vi-step button.vi-answer-card:hover,#voice-builder .vi-console .vi-step button.vi-answer-card:focus-visible{background:#efa35c;border-color:#ffd09d;outline:2px solid #ffd09d;outline-offset:3px}
 #voice-builder .vi-answer-card:hover span,#voice-builder .vi-answer-card:focus-visible span{color:#211127}
+
+#voice-builder .vi-console .vi-step button.vi-answer-card[aria-pressed="true"]{background:#efa35c;border-color:#ffd09d}#voice-builder .vi-answer-card[aria-pressed="true"] span{color:#211127}#voice-builder #vi-cards-apply{align-self:flex-end;background:#cb9acd;color:#170e20;min-height:54px;padding:14px 26px;margin:8px 0;font-size:18px}

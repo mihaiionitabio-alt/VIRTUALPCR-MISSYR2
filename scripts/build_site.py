@@ -2,12 +2,13 @@
 from pathlib import Path
 from html.parser import HTMLParser
 from urllib.parse import urlparse, unquote
-import hashlib, re, shutil, zipfile
+import hashlib, re, shutil, zipfile, subprocess, sys
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "_site"
-files = [ROOT / "index.html", ROOT / "credits.html", ROOT / "THIRD_PARTY_NOTICES.txt"]
-for name in ("assets", "css", "data", "js", "missy"):
+subprocess.run([sys.executable, str(ROOT / "scripts/build_wiki.py")], check=True)
+files = [ROOT / "index.html", ROOT / "credits.html", ROOT / "architecture.html", ROOT / "THIRD_PARTY_NOTICES.txt"]
+for name in ("assets", "css", "data", "js", "missy", "wiki"):
     files.extend(p for p in (ROOT / name).rglob("*") if p.is_file())
 files = sorted(files)
 assert all(p.suffix != ".md" for p in files)
@@ -27,7 +28,7 @@ class Dependencies(HTMLParser):
             assert target.is_relative_to(ROOT), (self.entry, ref)
             assert target.is_file(), (self.entry, ref)
 
-for entry in (ROOT / "index.html", ROOT / "credits.html", ROOT / "missy/index.html"):
+for entry in (ROOT / "index.html", ROOT / "credits.html", ROOT / "architecture.html", ROOT / "missy/index.html"):
     parser = Dependencies(entry); parser.feed(entry.read_text(encoding="utf-8"))
 
 class BootComponents(HTMLParser):

@@ -1,10 +1,10 @@
 /* Technician tab 1: the sample. */
-(function (R2) {
+(/* @r2fn R2-C0066-F00001 */function (R2) {
   "use strict";
   const $ = R2.$,
     X = R2.tech;
 
-  function draw() {
+  /* @r2fn R2-C0066-F00002 */function draw() {
     $("g-design-extractions").value = X.design?.extractions ?? 3;
     $("g-design-replicates").value = X.design?.replicates ?? 3;
     const s = X.sample,
@@ -15,9 +15,9 @@
       ? ""
       : `<h3>GM events in the sample</h3><div class="row">` +
         X.D()
-          .events.filter((e) => e.crop === s.crop)
+          .events.filter(/* @r2fn R2-C0066-F00003 */(e) => e.crop === s.crop)
           .map(
-            (e) =>
+            /* @r2fn R2-C0066-F00004 */(e) =>
               `<label>${e.name} <input type="number" data-ev="${e.name}" min="0" max="100" step="0.01" value="${s.events[e.name] || 0}" style="width:4.8em"> %</label>`,
           )
           .join("") +
@@ -33,10 +33,10 @@
     $("t-natural").checked = X.natural;
   }
 
-  function drawSamples() {
+  /* @r2fn R2-C0066-F00005 */function drawSamples() {
     const n = 1 + X.extra.length,
       crop = X.sample.crop,
-      opts = X.D().samples.filter((x) => x.blind || x.crop === crop),
+      opts = X.D().samples.filter(/* @r2fn R2-C0066-F00006 */(x) => x.blind || x.crop === crop),
       max = X.plan ? X.plan.capacity.maxSamples : 19;
     while (X.meta.length < n)
       X.meta.push({
@@ -52,9 +52,9 @@
       `<tr><th>No.</th><th class="l">Name at run start</th><th class="l">Simulated material</th><th class="l">DNA extraction date</th><th class="l">Sample name (optional)</th></tr>` +
       X.meta
         .map(
-          (m, i) =>
+          /* @r2fn R2-C0066-F00007 */(m, i) =>
             `<tr><td>${i + 1}</td><td class="l"><code>######-${i + 1}-${R2.materials.dateCode(m.extractionDate)}</code></td>
-      <td class="l">${i === 0 ? R2.esc(X.sample.label) + " <small>(set above)</small>" : `<select data-mat="${i}">${opts.map((o) => `<option value="${o.key}" ${o.key === X.extra[i - 1] ? "selected" : ""}>${R2.esc(o.label)}</option>`).join("")}</select>`}</td>
+      <td class="l">${i === 0 ? R2.esc(X.sample.label) + " <small>(set above)</small>" : `<select data-mat="${i}">${opts.map(/* @r2fn R2-C0066-F00008 */(o) => `<option value="${o.key}" ${o.key === X.extra[i - 1] ? "selected" : ""}>${R2.esc(o.label)}</option>`).join("")}</select>`}</td>
       <td class="l"><input type="date" data-date="${i}" value="${R2.esc(m.extractionDate)}"></td><td class="l"><input data-lab="${i}" maxlength="100" value="${R2.esc(m.label)}" style="width:12em" autocomplete="off"></td></tr>`,
         )
         .join("");
@@ -62,7 +62,7 @@
   X.tab({
     id: "sample",
     title: "Sample",
-    done: () => true,
+    done: /* @r2fn R2-C0066-F00009 */() => true,
     html: `<div class="panel"><h3>Extraction and PCR replication design</h3><div class="row"><label>Independent DNA extractions per sample <input id="g-design-extractions" type="number" min="1" max="12" value="3"></label><label>PCR replicates per extraction <input id="g-design-replicates" type="number" min="1" max="12" value="3"></label></div><p class="note">These are separate counts. Plate capacity is recalculated for every reaction mix. Configure run controls on the Plate step. Published-method acceptance rules still apply to altered designs.</p><p id="g-design-status" role="status"></p></div><div class="panel" id="tpl-panel"><h3>New analysis</h3>
         <div class="row"><label>Start from template <select id="tpl-sel" style="max-width:min(520px,80vw)"></select></label><button id="tpl-apply" class="primary">Start new analysis</button>
           <button id="tpl-dl">Download template</button><button id="tpl-del">Delete template</button><button id="tpl-imp">Import template (.json, OpticalCyclerA .ixo)</button><input type="file" id="tpl-file" accept=".json,.ixo,application/json" hidden></div>
@@ -83,9 +83,9 @@
         <div class="row"><label>Number of samples <input id="g-n" type="number" min="1" max="19" step="1" style="width:4.5em"></label><small id="g-n-max"></small><button id="g-names-import">Import sample names…</button><input type="file" id="g-names-file" accept=".csv,.tsv,.txt,.json,.rdml,.rdmlt,.xml" hidden></div><small id="g-names-status" role="status"></small>
         <p class="note">Each sample uses the extraction and PCR replicate counts selected above; the method default is three extractions with three replicates each. Names are <code>prefix-n-YYYYMMDD</code>: a random six-digit prefix drawn at run start and unique to the run, the sample number and the DNA extraction date, so that samples of independent runs never share a name.</p>
         <div class="scroll"><table class="sample-table" id="g-samples"></table></div></div>`,
-    init() {
+    init/* @r2fn R2-C0066-F00010 */() {
       for (const id of ["g-design-extractions", "g-design-replicates"])
-        $(id).onchange = () => {
+        $(id).onchange = /* @r2fn R2-C0066-F00011 */() => {
           try {
             X.updateDesign({
               ...X.design,
@@ -99,10 +99,10 @@
           draw();
         };
       const T = R2.templates;
-      X.fillTemplates = (sel) => {
+      X.fillTemplates = /* @r2fn R2-C0066-F00012 */(sel) => {
         $("tpl-sel").innerHTML = T.list()
           .map(
-            (t) =>
+            /* @r2fn R2-C0066-F00013 */(t) =>
               `<option value="${R2.esc(t.id)}">${t.builtIn ? "Built-in · " : "Saved · "}${R2.esc(t.name)}${t.sop_id ? " · " + t.sop_id : ""}</option>`,
           )
           .join("");
@@ -111,8 +111,8 @@
         $("tpl-del").disabled = !t || !!t.builtIn;
       };
       X.fillTemplates();
-      $("tpl-sel").onchange = () => X.fillTemplates($("tpl-sel").value);
-      $("tpl-apply").onclick = () => {
+      $("tpl-sel").onchange = /* @r2fn R2-C0066-F00014 */() => X.fillTemplates($("tpl-sel").value);
+      $("tpl-apply").onclick = /* @r2fn R2-C0066-F00015 */() => {
         const t = T.get($("tpl-sel").value);
         if (!t) return;
         if (X.running()) {
@@ -130,9 +130,9 @@
           return;
         }
         $("tpl-msg").textContent =
-          `New analysis from "${t.name}": ${X.GP().name(X.plan.tubes.flat().find((id) => X.M(id).kind !== "taxon") || X.plan.tubes[0][0])}, ${X.ng} ng per reaction. Check each step, then run. SOP ${T.sopId(X)}.`;
+          `New analysis from "${t.name}": ${X.GP().name(X.plan.tubes.flat().find(/* @r2fn R2-C0066-F00016 */(id) => X.M(id).kind !== "taxon") || X.plan.tubes[0][0])}, ${X.ng} ng per reaction. Check each step, then run. SOP ${T.sopId(X)}.`;
       };
-      $("tpl-dl").onclick = () => {
+      $("tpl-dl").onclick = /* @r2fn R2-C0066-F00017 */() => {
         const t = T.get($("tpl-sel").value);
         if (t)
           R2.download(
@@ -142,7 +142,7 @@
             "application/json",
           );
       };
-      $("tpl-del").onclick = () => {
+      $("tpl-del").onclick = /* @r2fn R2-C0066-F00018 */() => {
         const t = T.get($("tpl-sel").value);
         if (!t || t.builtIn) return;
         T.remove(t.id);
@@ -150,8 +150,8 @@
         $("tpl-msg").textContent =
           `Template "${t.name}" deleted from this browser.`;
       };
-      $("tpl-imp").onclick = () => $("tpl-file").click();
-      $("tpl-file").onchange = async (e) => {
+      $("tpl-imp").onclick = /* @r2fn R2-C0066-F00019 */() => $("tpl-file").click();
+      $("tpl-file").onchange = /* @r2fn R2-C0066-F00020 */async (e) => {
         const f = e.target.files[0];
         e.target.value = "";
         if (!f) return;
@@ -160,7 +160,7 @@
           T.save(t);
           X.fillTemplates(t.id);
           $("tpl-msg").textContent = t.programmeOnly
-            ? `Imported "${t.name}": ${t.fields.cycles} cycles, ${t.fields.annT} °C ${t.fields.annS} s${t.fields.extS ? ", " + t.fields.extT + " °C " + t.fields.extS + " s" : ""}, channels ${t.source.channels.map((c) => c.name).join(", ")}. It sets the programme and reaction volume of the current analysis.`
+            ? `Imported "${t.name}": ${t.fields.cycles} cycles, ${t.fields.annT} °C ${t.fields.annS} s${t.fields.extS ? ", " + t.fields.extT + " °C " + t.fields.extS + " s" : ""}, channels ${t.source.channels.map(/* @r2fn R2-C0066-F00021 */(c) => c.name).join(", ")}. It sets the programme and reaction volume of the current analysis.`
             : `Imported "${t.name}". Press Start new analysis to use it.`;
         } catch (err) {
           $("tpl-msg").textContent = "Not imported: " + err.message;
@@ -168,11 +168,11 @@
       };
       $("g-sample").innerHTML = X.D()
         .samples.map(
-          (s) => `<option value="${s.key}">${R2.esc(s.label)}</option>`,
+          /* @r2fn R2-C0066-F00022 */(s) => `<option value="${s.key}">${R2.esc(s.label)}</option>`,
         )
         .join("");
-      $("g-names-import").onclick = () => $("g-names-file").click();
-      $("g-names-file").onchange = async (e) => {
+      $("g-names-import").onclick = /* @r2fn R2-C0066-F00023 */() => $("g-names-file").click();
+      $("g-names-file").onchange = /* @r2fn R2-C0066-F00024 */async (e) => {
         const file = e.target.files[0];
         e.target.value = "";
         if (!file) return;
@@ -193,9 +193,9 @@
             {
               length: rows.length - 1,
             },
-            (_, i) => X.extra[i] || X.sampleKey,
+            /* @r2fn R2-C0066-F00025 */(_, i) => X.extra[i] || X.sampleKey,
           );
-          X.meta = rows.map((row, i) => ({
+          X.meta = rows.map(/* @r2fn R2-C0066-F00026 */(row, i) => ({
             label: row.label,
             extractionDate:
               row.extractionDate ||
@@ -210,13 +210,13 @@
           $("g-names-status").textContent = err.message;
         }
       };
-      $("g-n").onchange = (e) => {
+      $("g-n").onchange = /* @r2fn R2-C0066-F00027 */(e) => {
         const max = X.plan.capacity.maxSamples,
           n = R2.clamp(Math.round(+e.target.value || 1), 1, max);
         while (X.extra.length < n - 1)
           X.extra.push(
             X.sampleKey === "blind"
-              ? X.D().samples.find((x) => x.crop === X.sample.crop && !x.blind)
+              ? X.D().samples.find(/* @r2fn R2-C0066-F00028 */(x) => x.crop === X.sample.crop && !x.blind)
                   .key
               : X.sampleKey,
           );
@@ -224,7 +224,7 @@
         X.build(false);
         draw();
       };
-      $("g-samples").addEventListener("change", (e) => {
+      $("g-samples").addEventListener("change", /* @r2fn R2-C0066-F00029 */(e) => {
         const d = e.target.dataset;
         if (d.mat) {
           X.extra[+d.mat - 1] = e.target.value;
@@ -237,16 +237,16 @@
         }
         if (d.lab !== undefined) X.meta[+d.lab].label = e.target.value.trim();
       });
-      $("g-sample").onchange = (e) => {
+      $("g-sample").onchange = /* @r2fn R2-C0066-F00030 */(e) => {
         X.setSample(e.target.value);
         draw();
       };
-      $("t-seed").onchange = (e) => {
+      $("t-seed").onchange = /* @r2fn R2-C0066-F00031 */(e) => {
         X.seed = +e.target.value || 7;
         if (X.sample.blind) X.setSample("blind");
         draw();
       };
-      const dna = () => {
+      const dna = /* @r2fn R2-C0066-F00032 */() => {
         X.dna.concNgPerUl = R2.clamp(+$("g-conc").value || 40, 0.1, 200);
         X.dna.volUl = R2.clamp(+$("g-vol").value || 5, 1, 20);
         X.ng = +(X.dna.concNgPerUl * X.dna.volUl).toFixed(2);
@@ -255,18 +255,18 @@
       };
       $("g-conc").onchange = dna;
       $("g-vol").onchange = dna;
-      $("t-natural").onchange = (e) => {
+      $("t-natural").onchange = /* @r2fn R2-C0066-F00033 */(e) => {
         X.natural = e.target.checked;
       };
-      $("g-frag").onchange = (e) => {
+      $("g-frag").onchange = /* @r2fn R2-C0066-F00034 */(e) => {
         X.sample.frag = +e.target.value || 2000;
         X.build(false);
       };
-      $("g-inh").onchange = (e) => {
+      $("g-inh").onchange = /* @r2fn R2-C0066-F00035 */(e) => {
         X.sample.inhibitor = R2.clamp(+e.target.value || 0, 0, 0.8);
         X.build(false);
       };
-      $("g-comp").addEventListener("change", (e) => {
+      $("g-comp").addEventListener("change", /* @r2fn R2-C0066-F00036 */(e) => {
         const k = e.target.dataset.ev;
         if (!k) return;
         const v = R2.clamp(+e.target.value || 0, 0, 100);

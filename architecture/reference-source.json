@@ -1,0 +1,7 @@
+{
+  "archive": "fprime-devel.zip",
+  "sha256": "6881bdc48b08a089419dac82dfbc463e84c7cbaebbc636123cdb2d22078a6841",
+  "license": "Apache-2.0",
+  "purpose": "Component modelling and developer-tool reference for virtual PCR and linked data analysis",
+  "manual": "https://fprime.jpl.nasa.gov/latest/docs/user-manual/overview/03-port-comp-top/"
+}

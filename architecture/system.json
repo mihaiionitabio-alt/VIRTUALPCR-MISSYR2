@@ -1,0 +1,44 @@
+{
+  "schema": "missy-r2-components/1",
+  "reference": {
+    "name": "NASA JPL F Prime",
+    "sourceArchive": "fprime-devel.zip",
+    "manual": "https://fprime.jpl.nasa.gov/latest/docs/user-manual/overview/03-port-comp-top/",
+    "semantics": "F Prime inspired component topology for the MISSY virtual real-time PCR workbench"
+  },
+  "ports": [
+    {
+      "name": "Voice.Submit",
+      "file": "js/ui/voice_builder.js",
+      "handler": "applyInput",
+      "kind": "sync",
+      "category": "command"
+    },
+    {
+      "name": "Batch.Generate",
+      "file": "js/ui/batch_runs.js",
+      "handler": "B.run",
+      "kind": "async",
+      "category": "command"
+    },
+    {
+      "name": "Missy.Open",
+      "file": "js/ui/voice_builder.js",
+      "handler": "quality",
+      "kind": "sync",
+      "category": "command"
+    }
+  ],
+  "states": [
+    "IDLE",
+    "RUNNING",
+    "COMPLETE",
+    "FAILED"
+  ],
+  "telemetry": [
+    "commandCount",
+    "failureCount",
+    "lastDurationMs"
+  ],
+  "privacy": "Only identifiers, counters, status and durations are retained. No arguments, speech transcripts, sample names or profile values are logged."
+}

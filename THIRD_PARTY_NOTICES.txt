@@ -33,3 +33,7 @@ Additional bundled-library notices remain in source and the embedded MISSY page.
 - Animal-shortcut presentation and microphone meter behavior adapted from bundled MISSY; R2 destinations and navigation handlers are specific to this workbench.
 
 - Version 0.4.39 also reuses the exact wakeTone and navigationTone PCM samples from the bundled MISSY catalogue, retaining their source and PCM SHA-256 metadata. Other interface effects remain synthesized.
+
+0.4.40 developer architecture tools:
+- F Prime/FPP concepts and native generated model artifacts; F Prime reference archive is Apache-2.0. No native controller implementation is included. Tool versions and provenance are in architecture/reference-source.json and architecture/tool-validation.json.
+- Acorn 8.15.0 (MIT) and Playwright Core 1.62.1 (Apache-2.0) are development dependencies, not shipped browser runtime libraries.

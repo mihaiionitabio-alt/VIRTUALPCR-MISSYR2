@@ -1,11 +1,11 @@
 /* GMO analysis with EURL GMFF reference methods (or a laboratory procedure): what is in the samples, which wells go on the 384-well
  * plate for screening, identification or quantification, the cycling programme, and the reactions for the instrument model. */
-(function (R2) {
+(/* @r2fn R2-C0026-F00001 */function (R2) {
   "use strict";
   const P = (R2.gmoplan = {}),
-    D = () => R2.GMO,
-    M = (id) => R2.GMO.methods[id];
-  const evt = (name) => D().events.find((e) => e.name === name);
+    D = /* @r2fn R2-C0026-F00002 */() => R2.GMO,
+    M = /* @r2fn R2-C0026-F00003 */(id) => R2.GMO.methods[id];
+  const evt = /* @r2fn R2-C0026-F00004 */(name) => D().events.find(/* @r2fn R2-C0026-F00005 */(e) => e.name === name);
   /* DNA per reaction: 5 µL of extract diluted to 40 ng/µL = 200 ng, the amount used in every real run the curve shape
    * and the control variation were taken from. Calibrants bracket that amount in four-fold steps (5 µL at 80, 20, 5 and
    * 1.25 ng/µL), so a 200 ng sample sits in the middle of the calibrated range on a log scale. */
@@ -53,12 +53,12 @@
     source:
       "robust SD of Cq (10 % of the rise) in the owner's 730 real runs at 200 ng per reaction. Camera well and dilution terms are normalized-template teaching settings.",
   };
-  const cpn = (crop) =>
+  const cpn = /* @r2fn R2-C0026-F00006 */(crop) =>
     D().crops[crop].copiesPerNg * (P.AMPLIFIABLE[crop] || 1);
-  P.blind = function (seed, forcedCrop) {
+  P.blind = /* @r2fn R2-C0026-F00007 */function (seed, forcedCrop) {
     const g = new R2.Rng(1000 + (seed || 7)),
       crop = forcedCrop || (g.u() < 0.5 ? "maize" : "soybean"),
-      pool = D().events.filter((e) => e.crop === crop && !e.mara),
+      pool = D().events.filter(/* @r2fn R2-C0026-F00008 */(e) => e.crop === crop && !e.mara),
       lv = [0.05, 0.1, 0.4, 0.9, 2, 5],
       events = {};
     const n = g.u() < 0.15 ? 0 : g.u() < 0.6 ? 1 : 2;
@@ -75,9 +75,9 @@
       inhibitor: g.u() < 0.25 ? 0.2 : 0,
     };
   };
-  const integrity = (bp, frag) => Math.exp(-bp / (frag || 2000)); // share of target copies still intact across the amplicon
+  const integrity = /* @r2fn R2-C0026-F00009 */(bp, frag) => Math.exp(-bp / (frag || 2000)); // share of target copies still intact across the amplicon
   // copies of a method's target in ng of the sample DNA
-  P.sampleCopies = function (s, m, ng) {
+  P.sampleCopies = /* @r2fn R2-C0026-F00010 */function (s, m, ng) {
     const base = ng * cpn(s.crop) * integrity(m.bp, s.frag);
     if (m.kind === "taxon")
       return {
@@ -102,7 +102,7 @@
     };
   };
   // positive control as the method's record names it; reference-gene and event controls carry the same DNA mass as the sample
-  function control(m, crop, ng) {
+  /* @r2fn R2-C0026-F00011 */function control(m, crop, ng) {
     if (m.kind === "taxon")
       return {
         material: "non-GM " + crop + " genomic DNA, " + ng + " ng",
@@ -138,7 +138,7 @@
     extractions: 3,
     replicates: 3,
   };
-  P.plate = function (sample, choice) {
+  P.plate = /* @r2fn R2-C0026-F00012 */function (sample, choice) {
     const samples =
         choice.samples && choice.samples.length ? choice.samples : [sample],
       first = samples[0],
@@ -165,27 +165,27 @@
       {
         length: NW,
       },
-      () => ({
+      /* @r2fn R2-C0026-F00013 */() => ({
         role: "empty",
         sample: "",
         t: [],
         sim: [],
       }),
     );
-    const short = (id) =>
+    const short = /* @r2fn R2-C0026-F00014 */(id) =>
       M(id).kind === "taxon"
         ? M(id).target.split(" ")[0]
         : M(id).kind === "event"
           ? M(id).event
           : D().elementNames[M(id).el];
-    const mixName = (t) => t.map(short).join("+");
+    const mixName = /* @r2fn R2-C0026-F00015 */(t) => t.map(short).join("+");
     const lab =
       choice.layout === "simplex" && choice.stage === "screen"
         ? R2.LAB.simplex
         : null;
     let tubes, taxon, calPct, em, mara;
     // controls of one mix: [{ role, ctl, label, per target: { q, copies, material, pct } }]
-    const ctl = (role, c, label, mk) => ({
+    const ctl = /* @r2fn R2-C0026-F00016 */(role, c, label, mk) => ({
       role,
       ctl: c,
       label,
@@ -198,33 +198,33 @@
       if (
         !taxon ||
         !choice.assays.length ||
-        choice.assays.some((id) => !field.assays.includes(id))
+        choice.assays.some(/* @r2fn R2-C0026-F00017 */(id) => !field.assays.includes(id))
       )
         throw new Error("Select a supported Standard 17 panel.");
-      tubes = [[taxon], ...choice.assays.map((id) => [id])];
+      tubes = [[taxon], ...choice.assays.map(/* @r2fn R2-C0026-F00018 */(id) => [id])];
       mara = {
         mode: "screen",
         lodPct: 1,
         taxon,
       };
-      controls = ([id]) =>
-        [1, 2, 3].flatMap((rep) => [
+      controls = /* @r2fn R2-C0026-F00019 */([id]) =>
+        [1, 2, 3].flatMap(/* @r2fn R2-C0026-F00020 */(rep) => [
           {
-            ...ctl("positive", "PC", "Rapid-screen positive", () => ({
+            ...ctl("positive", "PC", "Rapid-screen positive", /* @r2fn R2-C0026-F00021 */() => ({
               copies: id === taxon ? ng * cpn(crop) : 0.01 * ng * cpn(crop),
               material: "Simulated positive target control, " + ng + " ng",
             })),
             rep,
           },
           {
-            ...ctl("negative", "NC", "Non-GM control", () => ({
+            ...ctl("negative", "NC", "Non-GM control", /* @r2fn R2-C0026-F00022 */() => ({
               copies: id === taxon ? ng * cpn(crop) : 0,
               material: "Non-GM " + crop + " genomic DNA, " + ng + " ng",
             })),
             rep,
           },
           {
-            ...ctl("ntc", "NTC", "Blank", () => ({
+            ...ctl("ntc", "NTC", "Blank", /* @r2fn R2-C0026-F00023 */() => ({
               copies: 0,
               material: "Water",
             })),
@@ -259,7 +259,7 @@
         {
           length: 5,
         },
-        (_, i) =>
+        /* @r2fn R2-C0026-F00024 */(_, i) =>
           +(method.calMax * Math.pow(minMass / method.calMax, i / 4)).toFixed(
             4,
           ),
@@ -279,28 +279,28 @@
         stockPct,
         levels: mode === "quant" ? levels : [],
       };
-      const triplicate = (role, code, label, make) =>
-        [1, 2, 3].map((rep) => ({
+      const triplicate = /* @r2fn R2-C0026-F00025 */(role, code, label, make) =>
+        [1, 2, 3].map(/* @r2fn R2-C0026-F00026 */(rep) => ({
           ...ctl(role, code, label, make),
           rep,
         }));
-      controls = ([id]) => [
-        ...triplicate("positive", "PC", "Positive control", () => ({
+      controls = /* @r2fn R2-C0026-F00027 */([id]) => [
+        ...triplicate("positive", "PC", "Positive control", /* @r2fn R2-C0026-F00028 */() => ({
           copies: ng * copiesPerNg * (id === em.id ? comparatorPct / 100 : 1),
           material: pcMaterial + ", " + ng + " ng",
           pct: comparatorPct,
         })),
-        ...triplicate("negative", "NC", "Non-GM control", () => ({
+        ...triplicate("negative", "NC", "Non-GM control", /* @r2fn R2-C0026-F00029 */() => ({
           copies: id === em.id ? 0 : ng * copiesPerNg,
           material: "Non-GM " + crop + " genomic DNA, " + ng + " ng",
         })),
-        ...triplicate("ntc", "NTC", "Blank", () => ({
+        ...triplicate("ntc", "NTC", "Blank", /* @r2fn R2-C0026-F00030 */() => ({
           copies: 0,
           material: "Water",
         })),
         ...(mode === "quant"
-          ? levels.flatMap((mass) =>
-              triplicate("standard", "CAL", "STD " + mass + " ng", () => {
+          ? levels.flatMap(/* @r2fn R2-C0026-F00031 */(mass) =>
+              triplicate("standard", "CAL", "STD " + mass + " ng", /* @r2fn R2-C0026-F00032 */() => {
                 const copies =
                   mass * copiesPerNg * (id === em.id ? stockPct / 100 : 1);
                 return {
@@ -327,31 +327,31 @@
     } else if (lab) {
       taxon = lab.taxon[crop];
       tubes = [[lab.assays.p35s], [lab.assays.tnos], [taxon]];
-      const lc = (m, c) => {
+      const lc = /* @r2fn R2-C0026-F00033 */(m, c) => {
         const e = evt(c.event);
         return e && e.el[m.el] > 0 ? (ng * cpn(crop) * c.pct) / 100 : 0;
       };
-      controls = (t) =>
+      controls = /* @r2fn R2-C0026-F00034 */(t) =>
         M(t[0]).kind === "taxon"
           ? []
           : [
-              ctl("positive", "LOD", "PC LOD " + mixName(t), (m) => ({
+              ctl("positive", "LOD", "PC LOD " + mixName(t), /* @r2fn R2-C0026-F00035 */(m) => ({
                 copies: lc(m, lab.crm[crop]),
                 material: lab.crm[crop].name + ", " + ng + " ng",
               })),
-              ctl("positive", "LOD", "PC LOD " + mixName(t), (m) => ({
+              ctl("positive", "LOD", "PC LOD " + mixName(t), /* @r2fn R2-C0026-F00036 */(m) => ({
                 copies: lc(m, lab.crm[crop]),
                 material: lab.crm[crop].name + ", " + ng + " ng",
               })),
-              ctl("positive", "POS", "Pos. sample " + mixName(t), (m) => ({
+              ctl("positive", "POS", "Pos. sample " + mixName(t), /* @r2fn R2-C0026-F00037 */(m) => ({
                 copies: lc(m, lab.positiveSample[crop]),
                 material: lab.positiveSample[crop].name + ", " + ng + " ng",
               })),
-              ctl("ntc", "NTC", "NTC " + mixName(t), () => ({
+              ctl("ntc", "NTC", "NTC " + mixName(t), /* @r2fn R2-C0026-F00038 */() => ({
                 copies: 0,
                 material: "water (no-template control)",
               })),
-              ctl("ntc", "BLK", "Blank extr. " + mixName(t), () => ({
+              ctl("ntc", "BLK", "Blank extr. " + mixName(t), /* @r2fn R2-C0026-F00039 */() => ({
                 copies: 0,
                 material: "DNA extraction blank",
               })),
@@ -366,7 +366,7 @@
       tubes = [[em.id], [taxon]];
       const nominal = D().crops[crop].copiesPerNg,
         amp = cpn(crop);
-      controls = (t) => {
+      controls = /* @r2fn R2-C0026-F00040 */(t) => {
         const id = t[0],
           share = id === em.id ? calPct / 100 : 1,
           out = [];
@@ -374,7 +374,7 @@
         for (const g of P.STD_NG)
           for (let r = 0; r < 3; r++)
             out.push(
-              ctl("standard", "CAL", "STD " + g + " ng", () => ({
+              ctl("standard", "CAL", "STD " + g + " ng", /* @r2fn R2-C0026-F00041 */() => ({
                 q: Math.round(g * nominal * share),
                 copies: g * amp * share,
                 material: em.crm + "; calibrant " + g + " ng",
@@ -383,14 +383,14 @@
         const pc = control(em, crop, ng);
         for (let r = 0; r < 3; r++)
           out.push(
-            ctl("positive", "PC", "Control 1 %", () => ({
+            ctl("positive", "PC", "Control 1 %", /* @r2fn R2-C0026-F00042 */() => ({
               ...pc,
               copies: id === em.id ? pc.copies : ng * amp,
             })),
           );
         for (let r = 0; r < 3; r++)
           out.push(
-            ctl("ntc", "NTC", "NTC", () => ({
+            ctl("ntc", "NTC", "NTC", /* @r2fn R2-C0026-F00043 */() => ({
               copies: 0,
             })),
           );
@@ -401,7 +401,7 @@
       );
     } else {
       let ids = choice.assays.slice();
-      const ev0 = ids.map(M).find((m) => m.kind === "event");
+      const ev0 = ids.map(M).find(/* @r2fn R2-C0026-F00044 */(m) => m.kind === "event");
       taxon = (ev0 && ev0.taxon) || D().crops[crop].taxon;
       tubes = [[taxon]];
       if (
@@ -411,16 +411,16 @@
         ids.includes("QL-ELE-00-013")
       ) {
         tubes.push(["QL-ELE-00-012", "QL-ELE-00-013"]);
-        ids = ids.filter((x) => x !== "QL-ELE-00-012" && x !== "QL-ELE-00-013");
+        ids = ids.filter(/* @r2fn R2-C0026-F00045 */(x) => x !== "QL-ELE-00-012" && x !== "QL-ELE-00-013");
       }
       for (const id of ids) tubes.push([id]);
-      controls = (t) => [
-        ctl("positive", "PC", "PC " + mixName(t), (m) => control(m, crop, ng)),
-        ctl("positive", "PC", "PC " + mixName(t), (m) => control(m, crop, ng)),
-        ctl("ntc", "NTC", "NTC " + mixName(t), () => ({
+      controls = /* @r2fn R2-C0026-F00046 */(t) => [
+        ctl("positive", "PC", "PC " + mixName(t), /* @r2fn R2-C0026-F00047 */(m) => control(m, crop, ng)),
+        ctl("positive", "PC", "PC " + mixName(t), /* @r2fn R2-C0026-F00048 */(m) => control(m, crop, ng)),
+        ctl("ntc", "NTC", "NTC " + mixName(t), /* @r2fn R2-C0026-F00049 */() => ({
           copies: 0,
         })),
-        ctl("ntc", "NTC", "NTC " + mixName(t), () => ({
+        ctl("ntc", "NTC", "NTC " + mixName(t), /* @r2fn R2-C0026-F00050 */() => ({
           copies: 0,
         })),
       ];
@@ -428,7 +428,7 @@
     if (choice.design?.controlCounts) {
       const original = controls,
         requested = choice.design.controlCounts;
-      controls = (t) => {
+      controls = /* @r2fn R2-C0026-F00051 */(t) => {
         const base = original(t),
           groups = new Map();
         if (!base.length) return base; // the procedure has no run controls on this mix (simplex reference gene): leave it unchanged
@@ -447,12 +447,12 @@
             throw new Error(
               "Control counts must be 0–12 for known control types.",
             );
-          if (n > 0 && !base.some((c) => c.ctl === code)) {
+          if (n > 0 && !base.some(/* @r2fn R2-C0026-F00052 */(c) => c.ctl === code)) {
             if (M(t[0]).kind === "taxon" && (code === "LOD" || code === "POS"))
               continue;
             let c;
             if (code === "NC")
-              c = ctl("negative", code, "Non-GM control", (m) => ({
+              c = ctl("negative", code, "Non-GM control", /* @r2fn R2-C0026-F00053 */(m) => ({
                 copies: m.kind === "taxon" ? ng * cpn(crop) : 0,
                 material: "Non-GM " + crop + " genomic DNA",
               }));
@@ -461,13 +461,13 @@
                 "ntc",
                 code,
                 code === "BLK" ? "Extraction blank" : "NTC",
-                () => ({
+                /* @r2fn R2-C0026-F00054 */() => ({
                   copies: 0,
                   material: code === "BLK" ? "DNA extraction blank" : "Water",
                 }),
               );
             else if (code === "PC")
-              c = ctl("positive", code, "PC " + mixName(t), (m) =>
+              c = ctl("positive", code, "PC " + mixName(t), /* @r2fn R2-C0026-F00055 */(m) =>
                 control(m, crop, ng),
               );
             else
@@ -478,12 +478,12 @@
             groups.set(code + "|" + c.label, [c]);
           }
         }
-        return [...groups.values()].flatMap((group) =>
+        return [...groups.values()].flatMap(/* @r2fn R2-C0026-F00056 */(group) =>
           Array.from(
             {
               length: requested[group[0].ctl] ?? group.length,
             },
-            (_, i) => ({
+            /* @r2fn R2-C0026-F00057 */(_, i) => ({
               ...group[i % group.length],
               rep: i + 1,
             }),
@@ -496,9 +496,9 @@
     }
     // capacity: whole rows per mix
     const perSample = X * REP,
-      rowsFor = (n) =>
+      rowsFor = /* @r2fn R2-C0026-F00058 */(n) =>
         tubes.reduce(
-          (a, t) => a + Math.ceil((n * perSample + controls(t).length) / COLS),
+          /* @r2fn R2-C0026-F00059 */(a, t) => a + Math.ceil((n * perSample + controls(t).length) / COLS),
           0,
         );
     let maxN = 0;
@@ -517,7 +517,7 @@
     let row = 0;
     for (const t of tubes) {
       let w = row * COLS;
-      const fill = (role, extra) => {
+      const fill = /* @r2fn R2-C0026-F00060 */(role, extra) => {
         const W = wells[w++];
         Object.assign(W, extra.head);
         W.role = role;
@@ -537,10 +537,10 @@
           );
         }
         W.material = [
-          ...new Set(W.t.map((x) => x.material).filter(Boolean)),
+          ...new Set(W.t.map(/* @r2fn R2-C0026-F00061 */(x) => x.material).filter(Boolean)),
         ].join(" + ");
       };
-      use.forEach((smp, i) => {
+      use.forEach(/* @r2fn R2-C0026-F00062 */(smp, i) => {
         for (let e = 1; e <= X; e++)
           for (let r = 1; r <= REP; r++)
             fill("unknown", {
@@ -551,7 +551,7 @@
                 rep: r,
                 ctl: "S",
               },
-              mk: (m) => {
+              mk: /* @r2fn R2-C0026-F00063 */(m) => {
                 const c =
                   mara && mara.mode !== "screen"
                     ? {
@@ -584,7 +584,7 @@
             ctl: c.ctl,
             rep: c.rep,
           },
-          mk: (m) => c.mk(m),
+          mk: /* @r2fn R2-C0026-F00064 */(m) => c.mk(m),
         });
       row += Math.ceil((use.length * perSample + controls(t).length) / COLS);
     }
@@ -595,7 +595,7 @@
       notes,
       ng,
       pcNg: ng,
-      samples: use.map((s, i) => ({
+      samples: use.map(/* @r2fn R2-C0026-F00065 */(s, i) => ({
         no: i + 1,
         label: s.label,
         preset: s.key || null,
@@ -615,9 +615,9 @@
     return out;
   };
   // cycling fields of the plate: taken from the first GM assay; the others are listed when they differ
-  P.fields = function (tubes) {
+  P.fields = /* @r2fn R2-C0026-F00066 */function (tubes) {
     const all = tubes.flat().map(M),
-      lead = all.find((m) => m.kind !== "taxon") || all[0],
+      lead = all.find(/* @r2fn R2-C0026-F00067 */(m) => m.kind !== "taxon") || all[0],
       c = lead.cyc,
       diff = [];
     for (const m of all)
@@ -641,7 +641,7 @@
         annS: c[5],
         extT: c[6] || 72,
         extS: c[7] || 0,
-        melt: all.some((m) => m.sybr),
+        melt: all.some(/* @r2fn R2-C0026-F00068 */(m) => m.sybr),
         coolT: lead.cool ? lead.cool[0] : 0,
         coolS: lead.cool ? lead.cool[1] : 0,
       },
@@ -649,7 +649,7 @@
       diff,
     };
   };
-  P.protocol = function (f, name) {
+  P.protocol = /* @r2fn R2-C0026-F00069 */function (f, name) {
     const stages = [];
     if (f.ung > 0)
       stages.push({
@@ -673,7 +673,7 @@
       ],
     });
     // the 384-well plate is imaged by a camera in 0.12 s, so the 1 s acquisition hold of the OpticalCyclerA templates is kept
-    const readHold = (s0) => Math.max(s0, P.MIN_READ_S);
+    const readHold = /* @r2fn R2-C0026-F00070 */(s0) => Math.max(s0, P.MIN_READ_S);
     const steps = [
       {
         temp_c: 95,
@@ -730,7 +730,7 @@
   // reactions for the instrument model
   /* opts.runIndex: number of the run in the session, so that each run draws its own natural variation (the seed still decides
    * everything else); opts.natural === false switches the natural variation off (repeatable teaching runs). */
-  P.simWells = function (plate, settings, f, seed, opts) {
+  P.simWells = /* @r2fn R2-C0026-F00071 */function (plate, settings, f, seed, opts) {
     opts = opts || {};
     const g = new R2.Rng(77 + (seed || 7)),
       info = {},
@@ -742,7 +742,7 @@
       runShift = natural ? V.runSd * gv.gauss() : 0,
       tubeShift = [];
     const extr = new Map(); // one draw per sub-sample (independent DNA extraction)
-    const extOf = (W) => {
+    const extOf = /* @r2fn R2-C0026-F00072 */(W) => {
       const k = W.sampleNo + "/" + W.ext;
       if (!extr.has(k))
         extr.set(
@@ -759,7 +759,7 @@
         );
       return extr.get(k);
     };
-    const wells = plate.wells.map((W, w) => {
+    const wells = plate.wells.map(/* @r2fn R2-C0026-F00073 */(W, w) => {
       if (W.role === "empty") {
         tubeShift.push(null);
         return {
@@ -774,7 +774,7 @@
           : 0,
         k = Math.pow(2, -(runShift + z));
       tubeShift.push(+z.toFixed(4));
-      const rx = W.t.map((t, i) => {
+      const rx = W.t.map(/* @r2fn R2-C0026-F00074 */(t, i) => {
         const b = R2.reagents.build(
           M(t.m),
           settings,
@@ -803,7 +803,7 @@
       wells,
       info,
       variation: {
-        extractions: [...extr].map(([k, v]) => ({
+        extractions: [...extr].map(/* @r2fn R2-C0026-F00075 */([k, v]) => ({
           subsample: k,
           dnaShiftCycles: +v.dna.toFixed(4),
           gmFactor: +v.gm.toFixed(4),
@@ -821,7 +821,7 @@
       },
     };
   };
-  P.name = (id) => {
+  P.name = /* @r2fn R2-C0026-F00076 */(id) => {
     const m = M(id);
     return m.kind === "taxon"
       ? m.target.split(" ")[0] + " (" + m.crop + ")"
@@ -829,7 +829,7 @@
         ? m.event
         : D().elementNames[m.el];
   };
-  P.channel = (id) => {
+  P.channel = /* @r2fn R2-C0026-F00077 */(id) => {
     const m = M(id);
     return m.P ? R2.reagents.channelOf(m.P[1]) : 0;
   };

@@ -1,10 +1,10 @@
 /* Simulated instrument hardware: lumped thermal model, independent protection chain (sheet R04), detector.
  * JavaScript port of firmware/sim/hal_sim.c. Parameters are illustrative, not measured. */
-(function (R2) {
+(/* @r2fn R2-C0031-F00001 */function (R2) {
   "use strict";
   const NW = 16, FS = 4095, DARK = 200, COUNTS_PER_BP = 6.0e-12, COUNTS_PER_NM = 45;   // reporter dye: detector counts per nmol/L of unquenched fluorophore
   /* opts.wells: 16 (R2 block, default, engineer bench) or 384 (plate of the technician bench, imaged by a camera) */
-  R2.Plant = function (seed, opts) {
+  R2.Plant = /* @r2fn R2-C0031-F00002 */function (seed, opts) {
     opts = opts || {}; this.NW = opts.wells || NW; this.cols = this.NW === 384 ? 24 : 8; this.rows = this.NW / this.cols; this.camera = !!opts.camera;
     this.rng = new R2.Rng(seed || 7);
     this.opticsSeed = (opts.opticsSeed ?? ((seed || 7) ^ 0x47514f50)) >>> 0;
@@ -23,7 +23,7 @@
     this.loadWells();
   };
   const P = R2.Plant.prototype; R2.Plant.COUNTS_PER_NM = COUNTS_PER_NM;
-  const boundedNormal = rng => R2.clamp(rng.gauss(), -2.5, 2.5);
+  const boundedNormal = /* @r2fn R2-C0031-F00003 */rng => R2.clamp(rng.gauss(), -2.5, 2.5);
   const cameraReporter = R2.Plant.CAMERA_REPORTER_MODEL = Object.freeze({ reachableFraction: 0.115, onsetFraction: 0.05, ratePerCycle: 0.61, transitionCycles: 2,
     lateP35S: Object.freeze({ firstCycle: 34, fullCycle: 37, onsetFraction: 0.025, profiles: 71, elapsedScale: 1.34, riseScale: 1.11 }),
     opticalVariation: Object.freeze({ baselineDriftSd: 0.00045, logReadScatterSd: 0.24, cameraRateSd: 0.026 }),
@@ -118,9 +118,9 @@
    * the intact probe is not fully quenched; the baseline starts about 3 % high and falls about 0.15 % per cycle; one
    * reading scatters by about 0.16 % of the baseline. CUT_MAX is the share of probe cut when the product reaches its plateau. */
   const CUT_MAX = 0.15, FIRST_HIGH = 0.03, DRIFT = 0.0015, READ_SCATTER = 0.0016;
-  const probeInit = a => a && a.probe ? { tot: (a.probe.nM + a.probe.darkNM) * R2.chem.NM, cut: 0, last: 0, tmin: 200, hot: false, cycles: 0 } : null;
-  P.loadWells = function () { for (const w of this.wells) { w.ch = R2.chem.init(w.a, this.rng); w.pr = probeInit(w.a); w.ch2 = w.a2 ? R2.chem.init(w.a2, this.rng) : null; w.pr2 = probeInit(w.a2); w.jit = 1; w.cycles = 0; w.hot = false; } };
-  function probeStep(a, ch, pr, T) {
+  const probeInit = /* @r2fn R2-C0031-F00004 */a => a && a.probe ? { tot: (a.probe.nM + a.probe.darkNM) * R2.chem.NM, cut: 0, last: 0, tmin: 200, hot: false, cycles: 0 } : null;
+  P.loadWells = /* @r2fn R2-C0031-F00005 */function () { for (const w of this.wells) { w.ch = R2.chem.init(w.a, this.rng); w.pr = probeInit(w.a); w.ch2 = w.a2 ? R2.chem.init(w.a2, this.rng) : null; w.pr2 = probeInit(w.a2); w.jit = 1; w.cycles = 0; w.hot = false; } };
+  /* @r2fn R2-C0031-F00006 */function probeStep(a, ch, pr, T) {
     if (T > 85) { pr.tmin = 200; if (!pr.hot) { pr.hot = true; pr.cycles++; } } else { if (T < pr.tmin) pr.tmin = T; if (T < 75) pr.hot = false; }
     const made = ch.madeTgt - pr.last; pr.last = ch.madeTgt; if (made <= 0) return;
     // share of new strands that carry a probe: equilibrium (probe Tm against the annealing temperature) times how far hybridisation gets in the annealing time
@@ -128,14 +128,14 @@
     const delta = pr.tot * CUT_MAX * (made / full) * R2.sigm((a.probe.tm - pr.tmin) / a.probe.width) * hyb / 0.95;
     pr.cut = Math.min(pr.tot * CUT_MAX * 1.5, pr.cut + delta);
   }
-  const smoothstep = value => { const u = R2.clamp(value, 0, 1); return u * u * (3 - 2 * u); };
-  function lateReporter(profile, elapsed) {
+  const smoothstep = /* @r2fn R2-C0031-F00007 */value => { const u = R2.clamp(value, 0, 1); return u * u * (3 - 2 * u); };
+  /* @r2fn R2-C0031-F00008 */function lateReporter(profile, elapsed) {
     const last = profile.length - 1, i = Math.floor(elapsed);
     if (i < last) return profile[i] + (elapsed - i) * (profile[i + 1] - profile[i]);
     const increment = Math.max(0, profile[last] - profile[Math.max(0, last - 2)]) / 2;
     return profile[last] + increment * (1 - Math.exp(-0.45 * (elapsed - last))) / 0.45;
   }
-  function cameraCleavage(pr, methodId, well) {
+  /* @r2fn R2-C0031-F00009 */function cameraCleavage(pr, methodId, well) {
     const limit = pr.tot * cameraReporter.reachableFraction;
     if (limit <= 0) return 0;
     const fraction = pr.cut / limit;
@@ -166,21 +166,21 @@
     }
     return limit * R2.clamp(response, 0, 1.65);
   }
-  const probeCounts = (a, pr, t, camera, well) => {
+  const probeCounts = /* @r2fn R2-C0031-F00010 */(a, pr, t, camera, well) => {
     const cut = camera ? cameraCleavage(pr, a.probe.methodId, well) : pr.cut;
     const bright = a.probe.nM / Math.max(1e-9, a.probe.nM + a.probe.darkNM), cutNM = cut / R2.chem.NM * bright, intactNM = (pr.tot - cut) / R2.chem.NM * bright;
     return COUNTS_PER_NM * (cutNM + (intactNM * (1 - a.probe.q) + a.probe.freeNM) * (1 + FIRST_HIGH * Math.exp(-pr.cycles / 2) - (DRIFT + well.driftOffset) * pr.cycles)) * (1 - 0.004 * (t - 60));
   };
-  P.probeState = function (wi, second) { const w = this.wells[wi], a = second ? w.a2 : w.a, pr = second ? w.pr2 : w.pr; if (!pr) return null; return { cleaved: pr.tot > 0 ? pr.cut / pr.tot : 0, bound: R2.sigm((a.probe.tm - Math.min(pr.tmin, this.wellTemp(wi))) / a.probe.width), tm: a.probe.tm }; };
-  P.zoneOf = function (w) { return (w % this.cols) < this.cols / 2 ? 0 : 1; };
+  P.probeState = /* @r2fn R2-C0031-F00011 */function (wi, second) { const w = this.wells[wi], a = second ? w.a2 : w.a, pr = second ? w.pr2 : w.pr; if (!pr) return null; return { cleaved: pr.tot > 0 ? pr.cut / pr.tot : 0, bound: R2.sigm((a.probe.tm - Math.min(pr.tmin, this.wellTemp(wi))) / a.probe.width), tm: a.probe.tm }; };
+  P.zoneOf = /* @r2fn R2-C0031-F00012 */function (w) { return (w % this.cols) < this.cols / 2 ? 0 : 1; };
   // tubes at the ends of the block (and, on the 384-well plate, the first and last row) lose a little more heat to the room
-  P.wellTemp = function (w) { const t = this.Ts[this.zoneOf(w)], col = w % this.cols, row = Math.floor(w / this.cols), edge = col === 0 || col === this.cols - 1 || (this.cols === 24 && (row === 0 || row === this.rows - 1)); return edge ? t - (this.camera ? 0.0015 : 0.008) * (t - this.Tamb) : t; };
-  P.faultActive = function (name) { return this.fault === name && this.t >= this.faultAt && (!this.faultEnd || this.t < this.faultEnd); };
-  P.hwEnable = function () { return this.fwEnable && !this.hwTrip && this.wdtOk && this.lidClosed && this.railsOk; };
-  P.chain = function () {            // every node of the enable chain, for display
+  P.wellTemp = /* @r2fn R2-C0031-F00013 */function (w) { const t = this.Ts[this.zoneOf(w)], col = w % this.cols, row = Math.floor(w / this.cols), edge = col === 0 || col === this.cols - 1 || (this.cols === 24 && (row === 0 || row === this.rows - 1)); return edge ? t - (this.camera ? 0.0015 : 0.008) * (t - this.Tamb) : t; };
+  P.faultActive = /* @r2fn R2-C0031-F00014 */function (name) { return this.fault === name && this.t >= this.faultAt && (!this.faultEnd || this.t < this.faultEnd); };
+  P.hwEnable = /* @r2fn R2-C0031-F00015 */function () { return this.fwEnable && !this.hwTrip && this.wdtOk && this.lidClosed && this.railsOk; };
+  P.chain = /* @r2fn R2-C0031-F00016 */function () {            // every node of the enable chain, for display
     return { fwEnable: this.fwEnable, tripLatched: this.hwTrip, watchdogOk: this.wdtOk, lidClosed: this.lidClosed, railsOk: this.railsOk, enDrv: this.hwEnable() };
   };
-  P.stepMs = function () {
+  P.stepMs = /* @r2fn R2-C0031-F00017 */function () {
     const dt = 1e-3; this.t++;
     if (this.fault === "lid_open") this.lidClosed = !this.faultActive("lid_open");
     if (this.faultActive("rails")) this.railsOk = false;
@@ -211,22 +211,22 @@
       if (w.a2) { R2.chem.step(w.ch2, w.a2, T, 0.05, this.rng); if (w.pr2) probeStep(w.a2, w.ch2, w.pr2, T); } }
   };
   // sensors as the controller sees them: [zone1, zone2, lid, heat sink, independent block sensor]; NaN = open, -Infinity = short
-  P.readSensors = function () {
-    const n = () => 0.01 * this.rng.gauss();
+  P.readSensors = /* @r2fn R2-C0031-F00018 */function () {
+    const n = /* @r2fn R2-C0031-F00019 */() => 0.01 * this.rng.gauss();
     const r = [this.Tb[0] + n(), this.Tb[1] + n(), this.Tlid + n(), this.Ths + n(), 0.5 * (this.Tb[0] + this.Tb[1]) + n()];
     if (this.faultActive("ntc_open")) r[0] = NaN;
     if (this.faultActive("ntc_short")) r[0] = -Infinity;
     if (this.faultActive("ntc_drift")) r[0] = this.Tb[0] - Math.min(12, (this.t - this.faultAt) * 1e-3 * 0.5) + n();
     return r;
   };
-  P.clearTrip = function () { if (Math.max(this.Tb[0], this.Tb[1]) < 100 && this.Tlid < 115 && !this.otTest) this.hwTrip = false; };
-  P.kick = function () { this.lastKick = this.t; };
-  P.select = function (well, code) { this.sel = well; this.led = well < 0 ? 0 : code / 128; if (well >= 0) this.wells[well].jit = 1 + READ_SCATTER * this.wells[well].scatterScale * this.rng.gauss(); };   // each reading of a tube differs slightly (optical path, timing)
+  P.clearTrip = /* @r2fn R2-C0031-F00020 */function () { if (Math.max(this.Tb[0], this.Tb[1]) < 100 && this.Tlid < 115 && !this.otTest) this.hwTrip = false; };
+  P.kick = /* @r2fn R2-C0031-F00021 */function () { this.lastKick = this.t; };
+  P.select = /* @r2fn R2-C0031-F00022 */function (well, code) { this.sel = well; this.led = well < 0 ? 0 : code / 128; if (well >= 0) this.wells[well].jit = 1 + READ_SCATTER * this.wells[well].scatterScale * this.rng.gauss(); };   // each reading of a tube differs slightly (optical path, timing)
   // expected detector counts (above dark) of both channels for a well, LED on
-  P.signal = function (wi) {
+  P.signal = /* @r2fn R2-C0031-F00023 */function (wi) {
     const w = this.wells[wi], t = this.wellTemp(wi); let dyeA = 0, dyeB = 0;
     if (w.a.kind === "reaction") {
-      const add = (a, ch, pr) => { if (pr) { const v = probeCounts(a, pr, t, this.camera, w); if (a.probe.channel === 1) dyeB += v; else dyeA += v; } else dyeA += (COUNTS_PER_BP * 0.55 * R2.chem.dsBasePairs(ch, a, t) + 780 * (1 + FIRST_HIGH * Math.exp(-w.cycles / 2) - (DRIFT + w.driftOffset) * w.cycles)) * (1 - 0.008 * (t - 60)); };   // SYBR Green: unbound dye and primers give a sizeable background
+      const add = /* @r2fn R2-C0031-F00024 */(a, ch, pr) => { if (pr) { const v = probeCounts(a, pr, t, this.camera, w); if (a.probe.channel === 1) dyeB += v; else dyeA += v; } else dyeA += (COUNTS_PER_BP * 0.55 * R2.chem.dsBasePairs(ch, a, t) + 780 * (1 + FIRST_HIGH * Math.exp(-w.cycles / 2) - (DRIFT + w.driftOffset) * w.cycles)) * (1 - 0.008 * (t - 60)); };   // SYBR Green: unbound dye and primers give a sizeable background
       add(w.a, w.ch, w.pr); if (w.a2) add(w.a2, w.ch2, w.pr2);
       if (!w.a.noRef) dyeB += 800 * (1 - 0.003 * (t - 60));            // passive reference dye, absent in probe-based mixes run without it
     }
@@ -236,7 +236,7 @@
     return [f * (1.00 * dyeA + 0.04 * dyeB + 60) * w.gainBoost, f * (0.08 * dyeA + 1.00 * dyeB + 50)];
   };
   // one 1 ms chop period: 8 samples LED on, 8 samples LED off, per channel, plus the LED reference photodiode
-  P.opticsPeriod = function () {
+  P.opticsPeriod = /* @r2fn R2-C0031-F00025 */function () {
     const n = 8, g = this.rng, p = { on: [0, 0], off: [0, 0], sat: [0, 0], refOn: 0, refOff: 0 };
     const sig = (this.sel >= 0 && this.hwEnable()) ? this.signal(this.sel) : [0, 0];
     for (let c = 0; c < 2; c++) for (let k = 0; k < n; k++) {
@@ -250,14 +250,14 @@
   };
   /* camera exposure (384-well plate): the whole plate is lit and imaged at once; every occupied well gets its own
    * chopped integral, as one pixel group of the camera; each exposure scatters a little per well (optical path) */
-  P.illuminate = function (code, wells) { this.led = code / 128; for (const w of wells) this.wells[w].jit = 1 + READ_SCATTER * this.wells[w].scatterScale * this.rng.gauss(); };
-  P.darken = function () { this.led = 0; };
-  P.opticsPeriodWell = function (wi) {
+  P.illuminate = /* @r2fn R2-C0031-F00026 */function (code, wells) { this.led = code / 128; for (const w of wells) this.wells[w].jit = 1 + READ_SCATTER * this.wells[w].scatterScale * this.rng.gauss(); };
+  P.darken = /* @r2fn R2-C0031-F00027 */function () { this.led = 0; };
+  P.opticsPeriodWell = /* @r2fn R2-C0031-F00028 */function (wi) {
     const n = 8, g = this.rng, p = { on: [0, 0], off: [0, 0], sat: [0, 0] }, sig = this.led > 0 && this.hwEnable() ? this.signal(wi) : [0, 0];
     for (let c = 0; c < 2; c++) for (let k = 0; k < n; k++) { let v = DARK + sig[c] + (2 + 0.15 * Math.sqrt(sig[c])) * g.gauss(); if (v >= FS) { v = FS; p.sat[c]++; } p.on[c] += Math.floor(v + 0.5); p.off[c] += Math.floor(DARK + 2 * g.gauss() + 0.5); }
     return p;
   };
-  P.opticsReference = function () { const n = 8, g = this.rng; let on = 0, off = 0; for (let k = 0; k < n; k++) { on += Math.floor(DARK + 3000 * this.led + 3 * g.gauss() + 0.5); off += Math.floor(DARK + 2 * g.gauss() + 0.5); } return { on: this.led > 0 ? on : off, off }; };
+  P.opticsReference = /* @r2fn R2-C0031-F00029 */function () { const n = 8, g = this.rng; let on = 0, off = 0; for (let k = 0; k < n; k++) { on += Math.floor(DARK + 3000 * this.led + 3 * g.gauss() + 0.5); off += Math.floor(DARK + 2 * g.gauss() + 0.5); } return { on: this.led > 0 ? on : off, off }; };
   R2.Plant.FAULTS = { ntc_open: "Zone-1 sensor open", ntc_short: "Zone-1 sensor short", ntc_drift: "Zone-1 sensor drifts low", tec_open: "Peltier 1 open circuit",
     fan_stall: "Fan stalled", lid_open: "Lid opened", rails: "Supply rail fails", bridge_stuck: "Bridge 1 stuck fully on",
     fw_hang: "Firmware hangs", fw_runaway: "Firmware drives full heat, ignores limits", latch_dead: "Trip latch defective" };

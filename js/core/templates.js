@@ -3,7 +3,7 @@
  * without the run's identity. A template is chosen at the start of a new analysis and saved after a run.
  * Built-in templates take the programme from the method records; saved ones keep the programme as it was run.
  * Stored in this browser (local storage) and downloadable as JSON, so they can be moved to another computer. */
-(function (R2) {
+(/* @r2fn R2-C0035-F00001 */function (R2) {
   "use strict";
   const T = (R2.templates = {}),
     KEY = "missy-r2-templates",
@@ -141,7 +141,7 @@
         ...R2.LAB.simplex.dna,
       },
     },
-  ].map((t) =>
+  ].map(/* @r2fn R2-C0035-F00002 */(t) =>
     Object.assign(
       {
         format: FORMAT,
@@ -157,14 +157,14 @@
       t,
     ),
   );
-  const stored = () => {
+  const stored = /* @r2fn R2-C0035-F00003 */() => {
     try {
       return JSON.parse(localStorage.getItem(KEY) || "[]");
     } catch {
       return T._mem || (T._mem = []);
     }
   };
-  const store = (list) => {
+  const store = /* @r2fn R2-C0035-F00004 */(list) => {
     T._mem = list;
     try {
       localStorage.setItem(KEY, JSON.stringify(list));
@@ -173,10 +173,10 @@
       return false;
     }
   };
-  T.list = () => T.builtIn.concat(stored());
-  T.get = (id) => T.list().find((t) => t.id === id);
+  T.list = /* @r2fn R2-C0035-F00005 */() => T.builtIn.concat(stored());
+  T.get = /* @r2fn R2-C0035-F00006 */(id) => T.list().find(/* @r2fn R2-C0035-F00007 */(t) => t.id === id);
   // the template of the technician's current set-up (X = R2.tech)
-  T.capture = function (X, name) {
+  T.capture = /* @r2fn R2-C0035-F00008 */function (X, name) {
     const t = {
       format: FORMAT,
       name: (name || "").trim() || "Template",
@@ -204,8 +204,8 @@
         : null,
       natural: X.natural !== false,
     };
-    if (X.meta?.some((row) => row.label))
-      t.batch = X.meta.map((row, i) => ({
+    if (X.meta?.some(/* @r2fn R2-C0035-F00009 */(row) => row.label))
+      t.batch = X.meta.map(/* @r2fn R2-C0035-F00010 */(row, i) => ({
         ...row,
         preset: i === 0 ? X.sampleKey : X.extra[i - 1],
       }));
@@ -225,7 +225,7 @@
         .toUpperCase();
     return t;
   };
-  T.sopId = (X) =>
+  T.sopId = /* @r2fn R2-C0035-F00011 */(X) =>
     R2.sop.idOf(
       R2.sop.definition({
         mara: X.plan.mara,
@@ -240,17 +240,17 @@
         protocol: X.protocol(),
       }),
     );
-  T.save = function (t) {
-    const list = stored().filter((x) => x.id !== t.id && x.name !== t.name);
+  T.save = /* @r2fn R2-C0035-F00012 */function (t) {
+    const list = stored().filter(/* @r2fn R2-C0035-F00013 */(x) => x.id !== t.id && x.name !== t.name);
     list.push(t);
     return store(list);
   };
-  T.remove = (id) => store(stored().filter((x) => x.id !== id));
+  T.remove = /* @r2fn R2-C0035-F00014 */(id) => store(stored().filter(/* @r2fn R2-C0035-F00015 */(x) => x.id !== id));
   /* OpticalCyclerA 480 run template (.ixo, "objectstream"): the programme (holds, cycles, segments with acquisition), the
    * detection channels and the reaction volume. It carries no assays, so applying it changes only the programme and the
    * reaction volume of the current analysis. */
-  T.fromIxo = function (text, file) {
-    const grab = (blk, name) => {
+  T.fromIxo = /* @r2fn R2-C0035-F00016 */function (text, file) {
+    const grab = /* @r2fn R2-C0035-F00017 */(blk, name) => {
       const m = new RegExp('<prop name="' + name + '">([^<]*)</prop>').exec(
         blk,
       );
@@ -259,7 +259,7 @@
     const progs = text
       .split('class="HTCRunProgram"')
       .slice(1)
-      .map((b) => {
+      .map(/* @r2fn R2-C0035-F00018 */(b) => {
         b = b.split('class="HTCRunProgram"')[0];
         return {
           name: grab(b, "name"),
@@ -268,7 +268,7 @@
           segs: b
             .split('class="HTCRunSegment"')
             .slice(1)
-            .map((g) => ({
+            .map(/* @r2fn R2-C0035-F00019 */(g) => ({
               T: +grab(g, "Target"),
               hold: +grab(g, "Hold"),
               slope: +grab(g, "Slope"),
@@ -279,15 +279,15 @@
     if (!progs.length)
       throw new Error("no programme found in the OpticalCyclerA template");
     const cyc =
-      progs.find((p) => p.cycles > 1 && p.mode === "Quantification") ||
-      progs.find((p) => p.cycles > 1);
+      progs.find(/* @r2fn R2-C0035-F00020 */(p) => p.cycles > 1 && p.mode === "Quantification") ||
+      progs.find(/* @r2fn R2-C0035-F00021 */(p) => p.cycles > 1);
     if (!cyc || cyc.segs.length < 2)
       throw new Error("no amplification programme with at least two segments");
     const before = progs.slice(0, progs.indexOf(cyc)),
       after = progs.slice(progs.indexOf(cyc) + 1);
-    const act = before.flatMap((p) => p.segs).find((g) => g.T >= 90),
-      ung = before.flatMap((p) => p.segs).find((g) => g.T >= 45 && g.T <= 55),
-      cool = after.flatMap((p) => p.segs).find((g) => g.T < 50);
+    const act = before.flatMap(/* @r2fn R2-C0035-F00022 */(p) => p.segs).find(/* @r2fn R2-C0035-F00023 */(g) => g.T >= 90),
+      ung = before.flatMap(/* @r2fn R2-C0035-F00024 */(p) => p.segs).find(/* @r2fn R2-C0035-F00025 */(g) => g.T >= 45 && g.T <= 55),
+      cool = after.flatMap(/* @r2fn R2-C0035-F00026 */(p) => p.segs).find(/* @r2fn R2-C0035-F00027 */(g) => g.T < 50);
     const f = {
       ung: ung ? ung.hold : 0,
       act: act ? act.hold : 0,
@@ -297,7 +297,7 @@
       annS: cyc.segs[1].hold,
       extT: cyc.segs[2] ? cyc.segs[2].T : 72,
       extS: cyc.segs[2] ? cyc.segs[2].hold : 0,
-      melt: progs.some((p) => /melting/i.test(p.mode || "")),
+      melt: progs.some(/* @r2fn R2-C0035-F00028 */(p) => /melting/i.test(p.mode || "")),
       coolT: cool ? cool.T : 0,
       coolS: cool ? cool.hold : 0,
     };
@@ -311,7 +311,7 @@
       ...text.matchAll(
         /class="HTCChannel"[\s\S]*?<prop name="name">([^<]*)<\/prop>[\s\S]*?<prop name="EmissionWL">(\d+)<\/prop>[\s\S]*?<prop name="ExcitationWL">(\d+)<\/prop>/g,
       ),
-    ].map((m) => ({
+    ].map(/* @r2fn R2-C0035-F00029 */(m) => ({
       name: m[1],
       excitation: +m[3],
       emission: +m[2],
@@ -339,7 +339,7 @@
         template: name,
         uid,
         channels,
-        programs: progs.map((p) => ({
+        programs: progs.map(/* @r2fn R2-C0035-F00030 */(p) => ({
           name: p.name,
           cycles: p.cycles,
           analysis: p.mode,
@@ -349,7 +349,7 @@
       },
     };
   };
-  T.parse = function (text, file) {
+  T.parse = /* @r2fn R2-C0035-F00031 */function (text, file) {
     if (/^\s*<objectstream/.test(text)) return T.fromIxo(text, file);
     const t = JSON.parse(text);
     if (t.format !== FORMAT)
@@ -368,7 +368,7 @@
     return t;
   };
   // apply a template to the technician bench: species and material first, then step, assays, amounts, settings and programme
-  T.apply = function (t, X) {
+  T.apply = /* @r2fn R2-C0035-F00032 */function (t, X) {
     if (t.programmeOnly) {
       // a OpticalCyclerA template: programme and reaction volume only
       X.f = {
@@ -394,8 +394,8 @@
     }
     X.design = structuredClone(t.design || null);
     const preset =
-      R2.GMO.samples.find((s) => s.key === t.samplePreset) ||
-      R2.GMO.samples.find((s) => s.crop === t.crop && !s.blind);
+      R2.GMO.samples.find(/* @r2fn R2-C0035-F00033 */(s) => s.key === t.samplePreset) ||
+      R2.GMO.samples.find(/* @r2fn R2-C0035-F00034 */(s) => s.crop === t.crop && !s.blind);
     if (
       !X.sample ||
       X.sample.crop !== t.crop ||
@@ -416,16 +416,16 @@
     X.duplex = !!t.duplex;
     X.setStage(t.stage, true);
     if (Array.isArray(t.batch) && t.batch.length) {
-      X.meta = t.batch.map((row) => ({
+      X.meta = t.batch.map(/* @r2fn R2-C0035-F00035 */(row) => ({
         label: String(row.label || "").slice(0, 100),
         extractionDate:
           row.extractionDate || new Date().toISOString().slice(0, 10),
       }));
       X.extra = t.batch
         .slice(1)
-        .map((row) =>
+        .map(/* @r2fn R2-C0035-F00036 */(row) =>
           R2.GMO.samples.some(
-            (s) => s.key === row.preset && (s.crop === t.crop || s.blind),
+            /* @r2fn R2-C0035-F00037 */(s) => s.key === row.preset && (s.crop === t.crop || s.blind),
           )
             ? row.preset
             : X.sampleKey,

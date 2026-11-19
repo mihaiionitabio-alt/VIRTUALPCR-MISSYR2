@@ -3,7 +3,7 @@
  * model (plant.js), plus a plain-language list of what each setting did.
  * Every number in this file is a teaching assumption chosen for plausible direction and order of magnitude.
  * None is a measured property of any product; the comments say what each one stands for. */
-(function (R2) {
+(/* @r2fn R2-C0033-F00001 */function (R2) {
   "use strict";
   const G = R2.reagents = {}, O = R2.oligo, K = 45;        // K: detector counts per nmol/L of free reporter (same constant as plant.js)
   G.DEFAULT = { primerF: 1, primerR: 1, probe: 1,            // multiples of the method's concentration
@@ -17,18 +17,18 @@
   G.quenchers = ["TAMRA", "BHQ1", "MGBNFQ"];
   // half-life (days) of an oligonucleotide in solution against storage temperature: log-linear between anchor points
   const HL = [[-80, 73000], [-20, 14600], [4, 2920], [22, 730], [37, 180]];
-  G.halfLifeDays = function (c) { if (c <= HL[0][0]) return HL[0][1]; for (let i = 1; i < HL.length; i++) if (c <= HL[i][0]) { const f = (c - HL[i - 1][0]) / (HL[i][0] - HL[i - 1][0]); return Math.exp(Math.log(HL[i - 1][1]) * (1 - f) + Math.log(HL[i][1]) * f); } return HL[HL.length - 1][1] * Math.pow(0.5, (c - 37) / 8); };
-  const intact = (c, months, hlFactor) => Math.pow(0.5, months * 30.4 / (G.halfLifeDays(c) * (hlFactor || 1)));
+  G.halfLifeDays = /* @r2fn R2-C0033-F00002 */function (c) { if (c <= HL[0][0]) return HL[0][1]; for (let i = 1; i < HL.length; i++) if (c <= HL[i][0]) { const f = (c - HL[i - 1][0]) / (HL[i][0] - HL[i - 1][0]); return Math.exp(Math.log(HL[i - 1][1]) * (1 - f) + Math.log(HL[i][1]) * f); } return HL[HL.length - 1][1] * Math.pow(0.5, (c - 37) / 8); };
+  const intact = /* @r2fn R2-C0033-F00003 */(c, months, hlFactor) => Math.pow(0.5, months * 30.4 / (G.halfLifeDays(c) * (hlFactor || 1)));
   // reporter photobleaching in ambient laboratory light, clear tube: half-life in hours
   G.BLEACH_H = { FAM: 24, VIC: 48, HEX: 48, YY: 40 };
-  G.channelOf = dye => dye === "FAM" || !dye ? 0 : 1;
+  G.channelOf = /* @r2fn R2-C0033-F00004 */dye => dye === "FAM" || !dye ? 0 : 1;
   // minor-groove binder: raises the Tm of a short probe (larger gain for shorter probes)
-  G.mgbBonus = len => R2.clamp(30 - 0.8 * len, 10, 20);
+  G.mgbBonus = /* @r2fn R2-C0033-F00005 */len => R2.clamp(30 - 0.8 * len, 10, 20);
   G.COND = { mono: 0.05, mg: 0.003 };       // reaction buffer assumed for Tm: 50 mM monovalent, 3 mM free Mg2+
 
   /* method: entry of R2.GMO.methods; s: settings (G.DEFAULT shape); well: { copies, isSample, imperfect, annealC, ungStep }.
    * Returns { a: assay for the instrument model, info: {...numbers for display} }. */
-  G.build = function (m, s, well, rng) {
+  G.build = /* @r2fn R2-C0033-F00006 */function (m, s, well, rng) {
     s = Object.assign({}, G.DEFAULT, s); const info = {};
     const pI = intact(s.primerStoreC, s.primerMonths, 3);                         // unlabelled primers: three times the half-life of a labelled probe
     const F = m.nM[0] * s.primerF * pI, R = m.nM[1] * s.primerR * pI, lim = Math.min(F, R);
@@ -62,9 +62,9 @@
     return { a, info };
   };
   // plain-language account of the settings for one method
-  G.explain = function (m, s, annealC) {
+  G.explain = /* @r2fn R2-C0033-F00007 */function (m, s, annealC) {
     const b = G.build(m, s, { copies: 0, isSample: false, annealC, ungStep: m.cyc[0] > 0 }, null), i = b.info, out = [], nom = G.build(m, G.DEFAULT, { copies: 0, annealC, ungStep: m.cyc[0] > 0 }, null).info;
-    const pct = v => (v * 100).toFixed(0) + " %";
+    const pct = /* @r2fn R2-C0033-F00008 */v => (v * 100).toFixed(0) + " %";
     out.push(`Primers ${i.F.toFixed(0)} / ${i.R.toFixed(0)} nmol/L (Tm ${i.tmF.toFixed(1)} / ${i.tmR.toFixed(1)} °C).` + (Math.min(i.tmF, i.tmR) + 2 < annealC ? " The weaker primer binds poorly at " + annealC + " °C." : "") + (i.F !== i.R ? " The lower concentration limits the product." : ""));
     if (i.primerIntact < 0.97) out.push(`Primer storage: ${pct(i.primerIntact)} still intact.`);
     if (i.dimer3 >= 5) out.push(`The primers can pair over ${i.dimer3} bases at a 3′ end: more primer means more primer-dimer.` + (m.P ? " A probe does not report dimers, but they use up primers." : " SYBR Green reports them."));

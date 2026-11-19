@@ -1,16 +1,16 @@
 /* Shared full-screen transfer display for the workbench and bundled MISSY. */
-(() => {
+(/* @r2fn R2-C0079-F00001 */() => {
   "use strict";
   let screen, timer, began, settled = true;
-  function update(value, status) {
+  /* @r2fn R2-C0079-F00002 */function update(value, status) {
     if (!screen || settled) return;
     screen.querySelector("progress").value = value;
     screen.querySelector("[data-stage]").textContent = status;
   }
-  function close() {
+  /* @r2fn R2-C0079-F00003 */function close() {
     clearInterval(timer); settled = true; screen?.close(); screen?.remove(); screen = null;
   }
-  function open(status = "Preparing the analysis workspace…") {
+  /* @r2fn R2-C0079-F00004 */function open(status = "Preparing the analysis workspace…") {
     close(); settled = false; began = performance.now();
     screen = document.createElement("dialog");
     screen.id = "r2-transfer-loading"; screen.setAttribute("aria-labelledby", "r2-loading-title");
@@ -22,10 +22,10 @@
       <pre data-computer style="white-space:pre-wrap;font:15px/1.8 monospace;color:#cc99cc"></pre>
       <button type="button" data-return style="align-self:start;padding:10px 22px;border-radius:25px;background:#cc99cc;color:#1a0b20;border:0" hidden>Go back</button></div>`;
     document.body.append(screen); screen.showModal();
-    screen.addEventListener("cancel", event => event.preventDefault());
+    screen.addEventListener("cancel", /* @r2fn R2-C0079-F00005 */event => event.preventDefault());
     screen.querySelector("[data-return]").onclick = close;
     let previous = performance.now();
-    function sample() {
+    /* @r2fn R2-C0079-F00006 */function sample() {
       if (!screen || settled) return;
       const now = performance.now(), memory = performance.memory;
       const zh = document.documentElement.lang.startsWith("zh");
@@ -37,6 +37,6 @@
     }
     sample(); timer = setInterval(sample, 500); update(5, status);
   }
-  function fail(message) { if (!screen) return; update(0, message); settled = true; clearInterval(timer); const zh = document.documentElement.lang.startsWith("zh"); screen.querySelector("#r2-loading-title").textContent = zh ? "MISSY 未能完成加载" : "MISSY could not finish loading"; const back = screen.querySelector("[data-return]"); back.textContent = zh ? "返回" : "Go back"; back.hidden = false; }
-  window.R2TransferLoading = { open, update, close, fail, get active() { return !!screen && !settled; } };
+  /* @r2fn R2-C0079-F00007 */function fail(message) { if (!screen) return; update(0, message); settled = true; clearInterval(timer); const zh = document.documentElement.lang.startsWith("zh"); screen.querySelector("#r2-loading-title").textContent = zh ? "MISSY 未能完成加载" : "MISSY could not finish loading"; const back = screen.querySelector("[data-return]"); back.textContent = zh ? "返回" : "Go back"; back.hidden = false; }
+  window.R2TransferLoading = { open, update, close, fail, get active/* @r2fn R2-C0079-F00008 */() { return !!screen && !settled; } };
 })();

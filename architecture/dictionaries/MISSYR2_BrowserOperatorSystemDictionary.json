@@ -1,0 +1,550 @@
+{
+  "metadata" : {
+    "deploymentName" : "MISSYR2.OperatorAndReview",
+    "projectVersion" : "0.4.40",
+    "frameworkVersion" : "",
+    "libraryVersions" : [
+    ],
+    "dictionarySpecVersion" : "1.0.0"
+  },
+  "typeDefinitions" : [
+    {
+      "kind" : "alias",
+      "qualifiedName" : "FwTlmPacketizeIdType",
+      "type" : {
+        "name" : "U16",
+        "kind" : "integer",
+        "size" : 16,
+        "signed" : false
+      },
+      "underlyingType" : {
+        "name" : "U16",
+        "kind" : "integer",
+        "size" : 16,
+        "signed" : false
+      }
+    },
+    {
+      "kind" : "alias",
+      "qualifiedName" : "FwPrmIdType",
+      "type" : {
+        "name" : "U32",
+        "kind" : "integer",
+        "size" : 32,
+        "signed" : false
+      },
+      "underlyingType" : {
+        "name" : "U32",
+        "kind" : "integer",
+        "size" : 32,
+        "signed" : false
+      }
+    },
+    {
+      "kind" : "enum",
+      "qualifiedName" : "Fw.DpState",
+      "representationType" : {
+        "name" : "U8",
+        "kind" : "integer",
+        "size" : 8,
+        "signed" : false
+      },
+      "enumeratedConstants" : [
+        {
+          "name" : "UNTRANSMITTED",
+          "value" : 0
+        },
+        {
+          "name" : "PARTIAL",
+          "value" : 1
+        },
+        {
+          "name" : "TRANSMITTED",
+          "value" : 2
+        }
+      ],
+      "default" : "Fw.DpState.UNTRANSMITTED"
+    },
+    {
+      "kind" : "alias",
+      "qualifiedName" : "FwEventIdType",
+      "type" : {
+        "name" : "U32",
+        "kind" : "integer",
+        "size" : 32,
+        "signed" : false
+      },
+      "underlyingType" : {
+        "name" : "U32",
+        "kind" : "integer",
+        "size" : 32,
+        "signed" : false
+      }
+    },
+    {
+      "kind" : "alias",
+      "qualifiedName" : "FwSizeType",
+      "type" : {
+        "name" : "U32",
+        "kind" : "integer",
+        "size" : 32,
+        "signed" : false
+      },
+      "underlyingType" : {
+        "name" : "U32",
+        "kind" : "integer",
+        "size" : 32,
+        "signed" : false
+      }
+    },
+    {
+      "kind" : "alias",
+      "qualifiedName" : "FwDpIdType",
+      "type" : {
+        "name" : "U32",
+        "kind" : "integer",
+        "size" : 32,
+        "signed" : false
+      },
+      "underlyingType" : {
+        "name" : "U32",
+        "kind" : "integer",
+        "size" : 32,
+        "signed" : false
+      }
+    },
+    {
+      "kind" : "alias",
+      "qualifiedName" : "FwSizeStoreType",
+      "type" : {
+        "name" : "U32",
+        "kind" : "integer",
+        "size" : 32,
+        "signed" : false
+      },
+      "underlyingType" : {
+        "name" : "U32",
+        "kind" : "integer",
+        "size" : 32,
+        "signed" : false
+      }
+    },
+    {
+      "kind" : "alias",
+      "qualifiedName" : "FwDpPriorityType",
+      "type" : {
+        "name" : "U32",
+        "kind" : "integer",
+        "size" : 32,
+        "signed" : false
+      },
+      "underlyingType" : {
+        "name" : "U32",
+        "kind" : "integer",
+        "size" : 32,
+        "signed" : false
+      }
+    },
+    {
+      "kind" : "enum",
+      "qualifiedName" : "Fw.DpCfg.ProcType",
+      "representationType" : {
+        "name" : "U8",
+        "kind" : "integer",
+        "size" : 8,
+        "signed" : false
+      },
+      "enumeratedConstants" : [
+        {
+          "name" : "PROC_TYPE_NONE",
+          "value" : 0
+        },
+        {
+          "name" : "PROC_TYPE_ZLIB_DEFLATE",
+          "value" : 1
+        },
+        {
+          "name" : "PROC_TYPE_ONE",
+          "value" : 2
+        },
+        {
+          "name" : "PROC_TYPE_TWO",
+          "value" : 4
+        }
+      ],
+      "default" : "Fw.DpCfg.ProcType.PROC_TYPE_NONE"
+    },
+    {
+      "kind" : "alias",
+      "qualifiedName" : "FwTimeContextStoreType",
+      "type" : {
+        "name" : "U8",
+        "kind" : "integer",
+        "size" : 8,
+        "signed" : false
+      },
+      "underlyingType" : {
+        "name" : "U8",
+        "kind" : "integer",
+        "size" : 8,
+        "signed" : false
+      }
+    },
+    {
+      "kind" : "alias",
+      "qualifiedName" : "FwPacketDescriptorType",
+      "type" : {
+        "name" : "U32",
+        "kind" : "integer",
+        "size" : 32,
+        "signed" : false
+      },
+      "underlyingType" : {
+        "name" : "U32",
+        "kind" : "integer",
+        "size" : 32,
+        "signed" : false
+      }
+    },
+    {
+      "kind" : "alias",
+      "qualifiedName" : "FwTimeBaseStoreType",
+      "type" : {
+        "name" : "U16",
+        "kind" : "integer",
+        "size" : 16,
+        "signed" : false
+      },
+      "underlyingType" : {
+        "name" : "U16",
+        "kind" : "integer",
+        "size" : 16,
+        "signed" : false
+      }
+    },
+    {
+      "kind" : "alias",
+      "qualifiedName" : "FwOpcodeType",
+      "type" : {
+        "name" : "U32",
+        "kind" : "integer",
+        "size" : 32,
+        "signed" : false
+      },
+      "underlyingType" : {
+        "name" : "U32",
+        "kind" : "integer",
+        "size" : 32,
+        "signed" : false
+      }
+    },
+    {
+      "kind" : "alias",
+      "qualifiedName" : "FwChanIdType",
+      "type" : {
+        "name" : "U32",
+        "kind" : "integer",
+        "size" : 32,
+        "signed" : false
+      },
+      "underlyingType" : {
+        "name" : "U32",
+        "kind" : "integer",
+        "size" : 32,
+        "signed" : false
+      }
+    }
+  ],
+  "constants" : [
+    {
+      "kind" : "constant",
+      "qualifiedName" : "FW_FIXED_LENGTH_STRING_SIZE",
+      "type" : {
+        "name" : "U64",
+        "kind" : "integer",
+        "size" : 64,
+        "signed" : false
+      },
+      "value" : 256
+    },
+    {
+      "kind" : "constant",
+      "qualifiedName" : "Fw.DpCfg.CONTAINER_USER_DATA_SIZE",
+      "type" : {
+        "name" : "U64",
+        "kind" : "integer",
+        "size" : 64,
+        "signed" : false
+      },
+      "value" : 32
+    }
+  ],
+  "commands" : [
+    {
+      "name" : "MISSYR2.operator.SUBMIT_OPTION",
+      "commandKind" : "sync",
+      "opcode" : 1879048208,
+      "formalParams" : [
+        {
+          "name" : "optionNumber",
+          "type" : {
+            "name" : "U32",
+            "kind" : "integer",
+            "size" : 32,
+            "signed" : false
+          },
+          "ref" : false
+        }
+      ]
+    },
+    {
+      "name" : "MISSYR2.operator.GENERATE_RUNS",
+      "commandKind" : "sync",
+      "opcode" : 1879048209,
+      "formalParams" : [
+        {
+          "name" : "profileDigest",
+          "type" : {
+            "name" : "string",
+            "kind" : "string",
+            "size" : 64
+          },
+          "ref" : false
+        }
+      ]
+    },
+    {
+      "name" : "MISSYR2.operator.OPEN_MISSY",
+      "commandKind" : "sync",
+      "opcode" : 1879048210,
+      "formalParams" : [
+      ]
+    },
+    {
+      "name" : "MISSYR2.operator.STATUS",
+      "commandKind" : "sync",
+      "opcode" : 1879048211,
+      "formalParams" : [
+      ]
+    },
+    {
+      "name" : "MISSYR2.operator.LOAD_RDMLT",
+      "commandKind" : "sync",
+      "opcode" : 1879048212,
+      "formalParams" : [
+        {
+          "name" : "packageDigest",
+          "type" : {
+            "name" : "string",
+            "kind" : "string",
+            "size" : 64
+          },
+          "ref" : false
+        }
+      ]
+    },
+    {
+      "name" : "MISSYR2.operator.APPLY_SOP",
+      "commandKind" : "sync",
+      "opcode" : 1879048213,
+      "formalParams" : [
+        {
+          "name" : "procedureId",
+          "type" : {
+            "name" : "string",
+            "kind" : "string",
+            "size" : 64
+          },
+          "ref" : false
+        }
+      ]
+    },
+    {
+      "name" : "MISSYR2.operator.SHOW_RESULTS",
+      "commandKind" : "sync",
+      "opcode" : 1879048214,
+      "formalParams" : [
+      ]
+    },
+    {
+      "name" : "MISSYR2.operator.SHOW_CONTROL_PANEL",
+      "commandKind" : "sync",
+      "opcode" : 1879048215,
+      "formalParams" : [
+      ]
+    },
+    {
+      "name" : "MISSYR2.operator.SHOW_CURVES",
+      "commandKind" : "sync",
+      "opcode" : 1879048216,
+      "formalParams" : [
+      ]
+    },
+    {
+      "name" : "MISSYR2.operator.SESSIONMINUTES_PRM_SET",
+      "commandKind" : "set",
+      "opcode" : 1879048217,
+      "formalParams" : [
+        {
+          "name" : "val",
+          "type" : {
+            "name" : "U32",
+            "kind" : "integer",
+            "size" : 32,
+            "signed" : false
+          },
+          "ref" : false
+        }
+      ]
+    },
+    {
+      "name" : "MISSYR2.operator.SESSIONMINUTES_PRM_SAVE",
+      "commandKind" : "save",
+      "opcode" : 1879048218,
+      "formalParams" : [
+      ]
+    }
+  ],
+  "parameters" : [
+    {
+      "name" : "MISSYR2.operator.SessionMinutes",
+      "type" : {
+        "name" : "U32",
+        "kind" : "integer",
+        "size" : 32,
+        "signed" : false
+      },
+      "id" : 1879048256,
+      "default" : 10
+    }
+  ],
+  "events" : [
+    {
+      "name" : "MISSYR2.operator.Started",
+      "severity" : "ACTIVITY_LO",
+      "formalParams" : [
+        {
+          "name" : "commandCode",
+          "type" : {
+            "name" : "U32",
+            "kind" : "integer",
+            "size" : 32,
+            "signed" : false
+          },
+          "ref" : false
+        }
+      ],
+      "id" : 1879048240,
+      "format" : "Command {} started"
+    },
+    {
+      "name" : "MISSYR2.operator.Completed",
+      "severity" : "ACTIVITY_LO",
+      "formalParams" : [
+        {
+          "name" : "commandCode",
+          "type" : {
+            "name" : "U32",
+            "kind" : "integer",
+            "size" : 32,
+            "signed" : false
+          },
+          "ref" : false
+        }
+      ],
+      "id" : 1879048241,
+      "format" : "Command {} completed"
+    },
+    {
+      "name" : "MISSYR2.operator.Failed",
+      "severity" : "WARNING_LO",
+      "formalParams" : [
+        {
+          "name" : "commandCode",
+          "type" : {
+            "name" : "U32",
+            "kind" : "integer",
+            "size" : 32,
+            "signed" : false
+          },
+          "ref" : false
+        }
+      ],
+      "id" : 1879048242,
+      "format" : "Command {} failed"
+    }
+  ],
+  "telemetryChannels" : [
+    {
+      "name" : "MISSYR2.operator.CommandCount",
+      "type" : {
+        "name" : "U32",
+        "kind" : "integer",
+        "size" : 32,
+        "signed" : false
+      },
+      "id" : 1879048224,
+      "telemetryUpdate" : "always"
+    },
+    {
+      "name" : "MISSYR2.operator.FailureCount",
+      "type" : {
+        "name" : "U32",
+        "kind" : "integer",
+        "size" : 32,
+        "signed" : false
+      },
+      "id" : 1879048225,
+      "telemetryUpdate" : "always"
+    },
+    {
+      "name" : "MISSYR2.operator.LastDurationMs",
+      "type" : {
+        "name" : "F64",
+        "kind" : "float",
+        "size" : 64
+      },
+      "id" : 1879048226,
+      "telemetryUpdate" : "always"
+    },
+    {
+      "name" : "MISSYR2.operator.LoadedRuns",
+      "type" : {
+        "name" : "U32",
+        "kind" : "integer",
+        "size" : 32,
+        "signed" : false
+      },
+      "id" : 1879048227,
+      "telemetryUpdate" : "always"
+    },
+    {
+      "name" : "MISSYR2.operator.ResultRows",
+      "type" : {
+        "name" : "U32",
+        "kind" : "integer",
+        "size" : 32,
+        "signed" : false
+      },
+      "id" : 1879048228,
+      "telemetryUpdate" : "always"
+    },
+    {
+      "name" : "MISSYR2.operator.ChartCount",
+      "type" : {
+        "name" : "U32",
+        "kind" : "integer",
+        "size" : 32,
+        "signed" : false
+      },
+      "id" : 1879048229,
+      "telemetryUpdate" : "always"
+    }
+  ],
+  "records" : [
+  ],
+  "containers" : [
+  ],
+  "telemetryPacketSets" : [
+  ]
+}

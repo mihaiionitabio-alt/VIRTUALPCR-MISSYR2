@@ -1,0 +1,60 @@
+{
+  "fpp": "3.4.0",
+  "fprime-layout": "1.0.4",
+  "checks": [
+    {
+      "tool": "fpp-check",
+      "arguments": [],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "tool": "fpp-to-layout",
+      "arguments": [
+        "-d",
+        "architecture/layouts"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "tool": "fpp-to-dict",
+      "arguments": [
+        "-d",
+        "architecture/dictionaries",
+        "-p",
+        "0.4.40"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "tool": "fpp-to-json",
+      "arguments": [
+        "-d",
+        "architecture/ast"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "tool": "fpp-to-cpp",
+      "arguments": [
+        "-u",
+        "-a",
+        "-d",
+        "architecture/generated-cpp",
+        "-p",
+        "$PROJECT"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "cppStatus": "Generated test scaffolds; not compiled or executed"
+}

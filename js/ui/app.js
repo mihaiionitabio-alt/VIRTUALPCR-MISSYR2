@@ -1,5 +1,5 @@
 /* Large role cards open an accessible full-screen level dialog. */
-(function (R2) {
+(/* @r2fn R2-C0048-F00001 */function (R2) {
   "use strict";
   // Remove only retired Engineer training data; PCR runs and other levels are retained.
   for (const key of ["r2-eng-score", "missy-r2-eng-service", "missy-r2-eng-trouble", "missy-r2-level-engineer"]) {
@@ -11,21 +11,21 @@
   dialog.setAttribute("aria-labelledby", "level-dialog-title");
   document.body.append(dialog);
   let chosenRole = null;
-  function closePicker() { if (dialog.open) dialog.close(); }
-  function pick(role, level) {
+  /* @r2fn R2-C0048-F00002 */function closePicker() { if (dialog.open) dialog.close(); }
+  /* @r2fn R2-C0048-F00003 */function pick(role, level) {
     if (role === "technician") return R2.techAccess.open(dialog, level);
     chosenRole = role;
     dialog.innerHTML = `<div class="level-dialog-content"><a class="picker-back" href="#home">← Go back</a>
       <h1 id="level-dialog-title">Choose your level</h1><p>${{technician:"Technician",quality:"Quality manager"}[role]}</p>
-      <div class="workspace-options level-options">${R2.levels.ORDER.map(level => `<button class="workspace-choice" data-picker-level="${level}"><strong>${R2.levels.NAME[level]}</strong><span>${R2.levels.BENCH[role].help[level]}</span></button>`).join("")}</div></div>`;
+      <div class="workspace-options level-options">${R2.levels.ORDER.map(/* @r2fn R2-C0048-F00004 */level => `<button class="workspace-choice" data-picker-level="${level}"><strong>${R2.levels.NAME[level]}</strong><span>${R2.levels.BENCH[role].help[level]}</span></button>`).join("")}</div></div>`;
     if (!dialog.open) dialog.showModal();
     dialog.querySelector("button").focus();
   }
-  dialog.addEventListener("click", event => {
+  dialog.addEventListener("click", /* @r2fn R2-C0048-F00005 */event => {
     const button = event.target.closest("[data-picker-level]");
     if (button && chosenRole) location.hash = chosenRole + "/" + button.dataset.pickerLevel;
   });
-  dialog.addEventListener("cancel", event => { event.preventDefault(); location.hash = "home"; });
+  dialog.addEventListener("cancel", /* @r2fn R2-C0048-F00006 */event => { event.preventDefault(); location.hash = "home"; });
   for (const role of roles) {
     const nav = document.createElement("nav");
     nav.className = "bench-back row";
@@ -33,7 +33,7 @@
     nav.innerHTML = `<a href="#home">Choose role</a>${role === "technician" ? `<a href="#${role}">Choose level</a><span class="bench-level"></span>` : ""}`;
     R2.$("view-" + role).prepend(nav);
   }
-  function show() {
+  /* @r2fn R2-C0048-F00007 */function show() {
     if (window.R2Boot && !R2Boot.entered) return;
     const [requested, requestedLevel] = location.hash.slice(1).split("/");
     const level = requested === "quality" ? "admin" : requestedLevel;

@@ -15,7 +15,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Verify function codification
+        run: |
+          npm ci --ignore-scripts
+          npm run architecture:check
       - uses: actions/configure-pages@v5
+      - name: Verify component contracts
+        run: npm run test:architecture
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - name: Validate FPP architecture
+        run: |
+          python3 -m pip install fprime-fpp==3.4.0
+          fpp-check architecture/fpp/FrameworkTypes.fpp architecture/fpp/SoftwareInventory.fpp architecture/fpp/OperatorAndReview.fpp
       - name: Build website and offline download
         run: python3 scripts/build_site.py
       - uses: actions/upload-pages-artifact@v3

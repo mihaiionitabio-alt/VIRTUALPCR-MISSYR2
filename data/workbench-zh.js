@@ -416,7 +416,7 @@ Beginner unlocked|初级已解锁
 Intermediate unlocked|中级已解锁
 Expert unlocked|高级已解锁
 Administrator unlocked|管理员已解锁
-`.trim().split("\n").map(row => { const i = row.indexOf("|"); return [row.slice(0, i), row.slice(i + 1)]; }));
+`.trim().split("\n").map(/* @r2fn R2-C0016-F00001 */row => { const i = row.indexOf("|"); return [row.slice(0, i), row.slice(i + 1)]; }));
 window.R2_ZH_PATTERNS = [
   [/^Question (\d+) of 10$/, "第 $1 题 / 共 10 题"],
   [/^(\d+) correct · (\d+) of 2 allowed mistakes$/, "答对 $1 题 · 已答错 $2 题（允许 2 题）"],
@@ -427,5 +427,5 @@ window.R2_ZH_PATTERNS = [
   [/^Cycle (\d+)$/, "循环 $1"],
   [/^(\d+) runs loaded\. Review the SOP warning in MISSY\.$/, "已加载 $1 次运行。请在 MISSY 中查看 SOP 警告。"],
   [/^(\d+) of (\d+) workbench modules loaded(.*)$/, "已加载 $1 / $2 个工作台模块$3"],
-  [/^TECHNICIAN \/ (Beginner|Intermediate|Expert|Administrator) \/ UNLOCK QUIZ$/, (_, level) => "技术员 / " + window.R2_WORKBENCH_ZH[level] + " / 解锁测验"],
+  [/^TECHNICIAN \/ (Beginner|Intermediate|Expert|Administrator) \/ UNLOCK QUIZ$/, /* @r2fn R2-C0016-F00002 */(_, level) => "技术员 / " + window.R2_WORKBENCH_ZH[level] + " / 解锁测验"],
 ];

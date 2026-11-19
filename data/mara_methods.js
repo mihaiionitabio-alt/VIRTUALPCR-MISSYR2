@@ -1,6 +1,6 @@
 /* Method data transcribed from the local MARA 1012 registry and checked against
  * the cited primary tables for missing template masses. qPCR only. */
-(function (R2) {
+(/* @r2fn R2-C0009-F00001 */function (R2) {
   "use strict";
   const records = [
   {
@@ -791,7 +791,7 @@
   for (const r of records) {
     const eventId = "MARA-" + r.std + "-EVENT", refId = "MARA-" + r.std + "-REF";
     M.assays[eventId] = r;
-    const add = (id, kind, target, oligos, bp) => {
+    const add = /* @r2fn R2-C0009-F00002 */(id, kind, target, oligos, bp) => {
       const [F, rev, P] = oligos;
       G.methods[id] = { id, kind, target, crop: r.crop, title: target + " · MARA 1012-" + r.std + "-2026",
         mara: r.std, source: "MARA 1012-" + r.std + "-2026 (" + r.source + ")", bp, F, R: rev,
@@ -809,7 +809,7 @@
   M.rapid = { source: "MARA 1012-17-2026 §§7.3 and 8.1, Annex A (P020260708599399150770.pdf)",
     taxon: { maize: "MARA-17-ZSS", soybean: "MARA-17-LEC" },
     assays: ["MARA-17-35S", "MARA-17-NOS", "MARA-17-PAT", "MARA-17-E9"], defaultAssays: ["MARA-17-35S", "MARA-17-NOS"] };
-  const rapid = (suffix, target, crop, el, bp, F, R, P) => {
+  const rapid = /* @r2fn R2-C0009-F00003 */(suffix, target, crop, el, bp, F, R, P) => {
     const id = "MARA-17-" + suffix;
     G.methods[id] = { id, kind: crop ? "taxon" : "screen", crop, el, target, title: target + " · MARA 1012-17-2026",
       source: M.rapid.source, labOnly: true, bp, F: [suffix + "-F", F], R: [suffix + "-R", R],
@@ -822,7 +822,7 @@
   rapid("NOS", "T-nos", null, "tnos", 165, "ATCGTTCAAACATTTGGCA", "ATTGCGGGACTCTAATCATA", "CATCGCAAGACCGGCAACAGG");
   rapid("PAT", "pat", null, "pat", 191, "GTCGACATGTCTCCGGAGAG", "GCAACCAACCAAGGGTATC", "TGGCCGCGGTTTGTGATATCGTTAA");
   rapid("E9", "tE9", null, "te9", 108, "TCTTGTACCATTTGTTGTGCTTGT", "GGACCATATCATTCATTAACTCTTCTCC", "CGGTTTTCGCTATCGAACTGTGAAATGGAAATGG");
-  M.isLayout = layout => layout === "mara" || layout === "mara16";
-  M.comparator = (layout, stage) => layout === "mara16" || stage === "quant" ? 0.9 : 0.5;
+  M.isLayout = /* @r2fn R2-C0009-F00004 */layout => layout === "mara" || layout === "mara16";
+  M.comparator = /* @r2fn R2-C0009-F00005 */(layout, stage) => layout === "mara16" || stage === "quant" ? 0.9 : 0.5;
   M.scope = "MARA Announcement 1012 (2026), event qPCR sections 5 and 6 and Standard 16 sections 5.3–5.4";
 })(window.R2);

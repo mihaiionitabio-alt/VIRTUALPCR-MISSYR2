@@ -1,8 +1,8 @@
 /* Generate the native profile for MISSY alongside the workbench's archival SOP. */
-(function (R2) {
+(/* @r2fn R2-C0040-F00001 */function (R2) {
   "use strict";
-  const clone = (value) => JSON.parse(JSON.stringify(value));
-  const escape = (value) =>
+  const clone = /* @r2fn R2-C0040-F00002 */(value) => JSON.parse(JSON.stringify(value));
+  const escape = /* @r2fn R2-C0040-F00003 */(value) =>
     String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const rapidNames = {
     "MARA-17-35S": "P-35S",
@@ -10,7 +10,7 @@
     "MARA-17-PAT": "pat",
     "MARA-17-E9": "tE9",
   };
-  const publicTarget = (value) =>
+  const publicTarget = /* @r2fn R2-C0040-F00004 */(value) =>
     R2.publicAssayTarget
       ? R2.publicAssayTarget(value)
       : {
@@ -19,7 +19,7 @@
           "SIMPLEX-LEC": "LE1",
           "SIMPLEX-HMG": "hmgA",
         }[value] || value;
-  const targetRule = (method, cqMax) => ({
+  const targetRule = /* @r2fn R2-C0040-F00005 */(method, cqMax) => ({
     match:
       "/^(?:" +
       escape(publicTarget(method.id)) +
@@ -32,21 +32,21 @@
     quantMin: "",
     lateOutcome: "Inconclusive",
   });
-  R2.missySop = function (document) {
+  R2.missySop = /* @r2fn R2-C0040-F00006 */function (document) {
     const mara = document.definition.mara;
     const standards = R2.missyNativeTemplates.mara;
     const event =
       mara?.event ||
-      document.methods.find((method) => method.role === "event")?.target;
+      document.methods.find(/* @r2fn R2-C0040-F00007 */(method) => method.role === "event")?.target;
     const standard = Number(/^MARA-(\d+)-EVENT$/.exec(mara?.method || "")?.[1]);
     const entry =
       mara &&
       (mara.mode === "screen"
-        ? standards.find((x) => x.standard === 17)
+        ? standards.find(/* @r2fn R2-C0040-F00008 */(x) => x.standard === 17)
         : mara.mode === "ddct"
-          ? standards.find((x) => x.standard === 16)
+          ? standards.find(/* @r2fn R2-C0040-F00009 */(x) => x.standard === 16)
           : standards.find(
-              (x) =>
+              /* @r2fn R2-C0040-F00010 */(x) =>
                 x.event === event &&
                 (!standard || x.standard === standard) &&
                 x.role ===
@@ -55,7 +55,7 @@
     const p = clone(entry ? entry.profile : R2.missyNativeTemplates.base);
     p.name = document.title;
     p.fileStem = document.sop_id + "_MISSY";
-    p.assay = document.methods.map((method) => method.target).join(" / ");
+    p.assay = document.methods.map(/* @r2fn R2-C0040-F00011 */(method) => method.target).join(" / ");
     p.sourceWorkbenchSop = {
       id: document.sop_id,
       format: document.format,
@@ -74,7 +74,7 @@
       if (mara.mode !== "screen") {
         p.control_identity = { ...p.control_identity, event,
           positive_percent: mara.comparatorPct };
-        for (const c of p.controls.filter(c => /^pos-/.test(c.id))) {
+        for (const c of p.controls.filter(/* @r2fn R2-C0040-F00012 */c => /^pos-/.test(c.id))) {
           c.event = event;
           c.content_percent = mara.comparatorPct;
           c.name = event + " · " + mara.comparatorPct + " % (virtual assigned control)";
@@ -86,11 +86,11 @@
         material: "Laboratory-prepared virtual control; assigned content is a simulator input, not a CRM certificate"
       });
       const reference = document.methods.find(
-        (method) => method.role === "species reference gene",
+        /* @r2fn R2-C0040-F00013 */(method) => method.role === "species reference gene",
       );
       const refGenes = p.method.reference_genes || [];
       const templateRef =
-        refGenes.find((gene) =>
+        refGenes.find(/* @r2fn R2-C0040-F00014 */(gene) =>
           /lectin|le1/i.test(reference?.target || "")
             ? /lec|le1/i.test(gene.target)
             : gene.target.toLowerCase() === reference?.target.toLowerCase(),
@@ -103,10 +103,10 @@
             target: refName,
           },
         ];
-      const targets = document.methods.filter((method) => method !== reference);
+      const targets = document.methods.filter(/* @r2fn R2-C0040-F00015 */(method) => method !== reference);
       if (mara.mode === "screen")
         p.method.selected_assays = targets.map(
-          (method) => rapidNames[method.id] || method.target,
+          /* @r2fn R2-C0040-F00016 */(method) => rapidNames[method.id] || method.target,
         );
       else {
         p.method.selected_event =
@@ -116,14 +116,14 @@
           flags: "i",
         };
       }
-      p.targets = document.methods.map((method) => {
+      p.targets = document.methods.map(/* @r2fn R2-C0040-F00017 */(method) => {
         const label =
           method === reference
             ? refName
             : rapidNames[method.id] || method.target;
         const kind = method === reference ? "reference" : "target";
         const native = p.targets.find(
-          (rule) =>
+          /* @r2fn R2-C0040-F00018 */(rule) =>
             rule.kind === kind &&
             (rule.match.split("|").includes(label) || entry.standard < 16),
         );
@@ -179,13 +179,13 @@
         family: lab ? "screening-lod" : "reference-method",
         sourceSop: document.sop_id,
         stage: document.definition.stage,
-        expectedTargets: document.methods.map((method) =>
+        expectedTargets: document.methods.map(/* @r2fn R2-C0040-F00019 */(method) =>
           publicTarget(method.id),
         ),
         negativeCq: lab ? R2.LAB.simplex.rules.negativeCq : null,
         referenceRange: lab ? R2.LAB.simplex.rules.taxon : null,
       };
-      p.targets = document.methods.map((method) =>
+      p.targets = document.methods.map(/* @r2fn R2-C0040-F00020 */(method) =>
         targetRule(method, lab ? R2.LAB.simplex.rules.negativeCq : ""),
       );
       p.controls = [];
@@ -231,7 +231,7 @@
                     (control.control === "NC" &&
                       layout.mix
                         .split("+")
-                        .every((id) => R2.GMO.methods[id].kind === "taxon"))
+                        .every(/* @r2fn R2-C0040-F00021 */(id) => R2.GMO.methods[id].kind === "taxon"))
                   ? "positive"
                   : "negative",
             cqLo: range ? range[0] : "",
@@ -268,7 +268,7 @@
             lab &&
             layout.mix
               .split("+")
-              .some((id) => (R2.GMO.methods[id] || {}).kind === "taxon")
+              .some(/* @r2fn R2-C0040-F00022 */(id) => (R2.GMO.methods[id] || {}).kind === "taxon")
           )
             continue;
           const targets =
@@ -277,7 +277,7 @@
             ")$/i";
           for (const [code, min] of Object.entries(MIN)) {
             const id = layout.mix + ":" + code + ":",
-              have = p.controls.filter((c) => c.id.startsWith(id)); // ids end with the control's level, if any
+              have = p.controls.filter(/* @r2fn R2-C0040-F00023 */(c) => c.id.startsWith(id)); // ids end with the control's level, if any
             if (have.length) {
               for (const c of have)
                 c.minReplicates = c.minPerRun = Math.max(c.minReplicates, min);
@@ -310,7 +310,7 @@
           control.matchBy = "role";
           control.match = "Standard";
           const existing = controls.find(
-            (item) =>
+            /* @r2fn R2-C0040-F00024 */(item) =>
               item.expect === "standard" && item.targets === control.targets,
           );
           if (existing) {
@@ -322,10 +322,10 @@
       }
       p.controls = controls;
       const planned = document.definition.layout
-        .map((x) => x.per_sample)
+        .map(/* @r2fn R2-C0040-F00025 */(x) => x.per_sample)
         .filter(Boolean)
         // MISSY evaluates each extraction as its own sample group, so the cap is the PCR replicates per extraction.
-        .map((x) => x.pcr_replicates);
+        .map(/* @r2fn R2-C0040-F00026 */(x) => x.pcr_replicates);
       const minimum =
         document.experimentalDesign && planned.length
           ? Math.min(3, ...planned)
@@ -377,5 +377,5 @@
     p.sha256 = R2.sha256(R2.utf8(R2.sop.canonical(canonical)));
     return JSON.stringify(p, null, 2);
   };
-  R2.missySopForRun = (run) => R2.missySop(R2.sop.docOfRun(run));
+  R2.missySopForRun = /* @r2fn R2-C0040-F00027 */(run) => R2.missySop(R2.sop.docOfRun(run));
 })(window.R2);

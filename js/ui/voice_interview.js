@@ -21,7 +21,7 @@
  * Classic script (works from file://). Exposes window.MissyVoiceInterview.
  * Licence: same as the MISSY R2 workbench. No third-party code.
  */
-(function (root) {
+(/* @r2fn R2-C0082-F00001 */function (root) {
   "use strict";
 
   const ENGINE_VERSION = "0.2.0";
@@ -41,11 +41,12 @@
   };
 
   /* ------------------------------------------------------------------ small helpers */
-  const clone = (x) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
-  const pair = (en, zh) => ({ en, zh: zh || en });
-  const isNum = (v) => typeof v === "number" && Number.isFinite(v);
+  const clone = /* @r2fn R2-C0082-F00002 */(x) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
+  const pair = /* @r2fn R2-C0082-F00003 */(en, zh) => ({ en, zh: zh || en });
+  const cn = /* @r2fn R2-C0082-F00004 */value => root.R2?.i18n?.chinese?.(String(value)) || String(value);
+  const isNum = /* @r2fn R2-C0082-F00005 */(v) => typeof v === "number" && Number.isFinite(v);
 
-  function normalize(text) {
+  /* @r2fn R2-C0082-F00006 */function normalize(text) {
     let s = String(text || "").toLowerCase();
     s = s.replace(/[“”"’'`]/g, "").replace(/[^a-z0-9.\-+%°\s]/g, " ");
     s = s.replace(/\b(uh+|um+|erm|please|okay|ok|well)\b/g, " ");
@@ -64,13 +65,13 @@
   // homophones accepted only when the whole answer is that single word
   const LONE_HOMOPHONES = { to: 2, too: 2, for: 4, fore: 4, ate: 8, won: 1, tree: 3 };
 
-  function parseNumber(text) {
+  /* @r2fn R2-C0082-F00007 */function parseNumber(text) {
     const s = normalize(text).replace(/,/g, "");
     if (s === "") return null;
     const m = s.match(/^(minus |negative )?(-?\d+(?:\.\d+)?)\s*(%|percent|degrees|°c|c|ul|microlitres?|ng|minutes?|months?|hours?|seconds?|s|cycles?)?$/);
     if (m) return (m[1] ? -1 : 1) * parseFloat(m[2]);
     if (LONE_HOMOPHONES[s] !== undefined) return LONE_HOMOPHONES[s];
-    const words = s.replace(/-/g, " ").split(" ").filter((w) => w && w !== "and");
+    const words = s.replace(/-/g, " ").split(" ").filter(/* @r2fn R2-C0082-F00008 */(w) => w && w !== "and");
     let neg = false;
     if (words[0] === "minus" || words[0] === "negative") { neg = true; words.shift(); }
     let total = 0, current = 0, seen = false, i = 0, decimals = null;
@@ -102,7 +103,7 @@
   }
 
   const ORDINALS = { first: 1, second: 2, third: 3, fourth: 4, fifth: 5, sixth: 6, seventh: 7, eighth: 8, ninth: 9, tenth: 10 };
-  function parseIndex(text) {
+  /* @r2fn R2-C0082-F00009 */function parseIndex(text) {
     const s = normalize(text);
     if (ORDINALS[s]) return ORDINALS[s];
     const n = parseNumber(s);
@@ -111,17 +112,17 @@
 
   /* ------------------------------------------------------------------ dates */
   const MONTHS = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
-  function parseDate(text, now) {
+  /* @r2fn R2-C0082-F00010 */function parseDate(text, now) {
     const s = normalize(text);
     const d0 = new Date(now);
-    const iso = (d) => d.toISOString().slice(0, 10);
+    const iso = /* @r2fn R2-C0082-F00011 */(d) => d.toISOString().slice(0, 10);
     if (s === "today") return iso(d0);
     if (s === "yesterday") return iso(new Date(d0.getTime() - 864e5));
     let m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
     if (m) return isValidDate(+m[1], +m[2], +m[3]) ? s : null;
     // "16 november 2026", "sixteen november", "november sixteen twenty twenty six"
     const words = s.split(" ");
-    const mi = words.findIndex((w) => MONTHS.includes(w));
+    const mi = words.findIndex(/* @r2fn R2-C0082-F00012 */(w) => MONTHS.includes(w));
     if (mi < 0) return null;
     const month = MONTHS.indexOf(words[mi]) + 1;
     const before = words.slice(0, mi).join(" ").replace(/^the /, "").replace(/ of$/, "").replace(/(st|nd|rd|th)$/, "");
@@ -139,21 +140,21 @@
     if (!day || !isValidDate(year, month, day)) return null;
     return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
   }
-  function parseOrdinalDay(w) {
+  /* @r2fn R2-C0082-F00013 */function parseOrdinalDay(w) {
     const o = { first: 1, second: 2, third: 3, fourth: 4, fifth: 5, sixth: 6, seventh: 7, eighth: 8, ninth: 9, tenth: 10, eleventh: 11, twelfth: 12, thirteenth: 13, fourteenth: 14, fifteenth: 15, sixteenth: 16, seventeenth: 17, eighteenth: 18, nineteenth: 19, twentieth: 20, thirtieth: 30 };
     if (o[w]) return o[w];
     const m = String(w).match(/^(twenty|thirty)[ -](\w+)$/);
     if (m && o[m[2]]) return TENS[m[1]] + o[m[2]];
     return null;
   }
-  function parseYearWords(t) { // "twenty twenty six", "two thousand twenty six"
+  /* @r2fn R2-C0082-F00014 */function parseYearWords(t) { // "twenty twenty six", "two thousand twenty six"
     const n = parseNumber(t);
     if (isNum(n) && n >= 1990 && n <= 2100) return n;
     const w = t.split(" ");
     if (w.length >= 2) { const a = parseNumber(w[0]), b = parseNumber(w.slice(1).join(" ")); if (a === 20 && isNum(b) && b < 100) return 2000 + b; }
     return null;
   }
-  function isValidDate(y, m, d) { const t = new Date(Date.UTC(y, m - 1, d)); return t.getUTCFullYear() === y && t.getUTCMonth() === m - 1 && t.getUTCDate() === d; }
+  /* @r2fn R2-C0082-F00015 */function isValidDate(y, m, d) { const t = new Date(Date.UTC(y, m - 1, d)); return t.getUTCFullYear() === y && t.getUTCMonth() === m - 1 && t.getUTCDate() === d; }
 
   /* ------------------------------------------------------------------ schema → questions */
   // Spoken aliases for the built-in templates (extendable from the nomenclature register).
@@ -183,19 +184,19 @@
     "dna concentration": "dna.concNgPerUl", "dna volume": "dna.volUl",
   };
 
-  function buildSchema(snapshot) {
+  /* @r2fn R2-C0082-F00016 */function buildSchema(snapshot) {
     const S = snapshot || {};
-    const templates = (S.templates || []).map((t) => ({
+    const templates = (S.templates || []).map(/* @r2fn R2-C0082-F00017 */(t) => ({
       id: t.id, name: t.name || t.id, stage: t.stage,
-      controls: Object.keys(t.controls || {}).filter((c) => CONTROL_CODES.includes(c)),
+      controls: Object.keys(t.controls || {}).filter(/* @r2fn R2-C0082-F00018 */(c) => CONTROL_CODES.includes(c)),
       maxSamples: t.samplesMax || 1,
       crop: t.crop || (/MAIZE|MON810/.test(t.id) ? "maize" : "soybean"),
       aliases: (TEMPLATE_ALIASES[t.id] || []).concat([String(t.name || "").toLowerCase()]),
     }));
-    const scenarios = (S.scenarios || []).map((s) => ({ id: s.id, title: s.title, category: String(s.category) }));
+    const scenarios = (S.scenarios || []).map(/* @r2fn R2-C0082-F00019 */(s) => ({ id: s.id, title: s.title, category: String(s.category) }));
     const categories = S.categories || {};
     const applicability = S.scenarioApplicability || {};
-    const materials = (S.materials || []).map((m) => ({ key: m.key, label: m.label, crop: m.crop }));
+    const materials = (S.materials || []).map(/* @r2fn R2-C0082-F00020 */(m) => ({ key: m.key, label: m.label, crop: m.crop }));
     const fields = S.fields || {};
     // field labels become spoken names too
     const fieldAlias = Object.assign({}, FIELD_ALIASES);
@@ -211,154 +212,154 @@
   /* Question definitions. Group questions use "g{n}." prefixes. Each question:
      key, kind (number|choice|bool|text|date), text(ctx), applies(ctx), options(ctx), min/max,
      def(ctx) default value (undefined = no default), readback(value, ctx), out(profile, value, ctx) */
-  function questionFor(id, schema) {
+  /* @r2fn R2-C0082-F00021 */function questionFor(id, schema) {
     const g = (id.match(/^g(\d+)\./) || [])[1];
     const gi = g ? +g : null;
     const rest = g ? id.slice(id.indexOf(".") + 1) : id;
-    const tplOf = (ctx) => schema.templates.find((t) => t.id === ctx.fact(`g${gi}.template`));
-    const label = (en, zh) => pair(en + (gi ? ` (group ${gi})` : ""), (zh || en) + (gi ? `（第 ${gi} 组）` : ""));
+    const tplOf = /* @r2fn R2-C0082-F00022 */(ctx) => schema.templates.find(/* @r2fn R2-C0082-F00023 */(t) => t.id === ctx.fact(`g${gi}.template`));
+    const label = /* @r2fn R2-C0082-F00024 */(en, zh) => pair(en + (gi ? ` (group ${gi})` : ""), (zh || en) + (gi ? `（第 ${gi} 组）` : ""));
 
     switch (rest) {
       case "@name": return { id, kind: "text", section: "profile",
-        text: () => pair("Name of the run profile? Dictate a name, or say default.", "运行配置文件名称？请口述名称，或说“默认”。"),
-        def: (ctx) => "Voice profile " + ctx.today(), readback: (v) => pair(`Profile name: ${v}.`, `配置文件名称：${v}。`) };
+        text: /* @r2fn R2-C0082-F00025 */() => pair("Name of the run profile? Dictate a name, or say default.", "运行配置文件名称？请口述名称，或说“默认”。"),
+        def: /* @r2fn R2-C0082-F00026 */(ctx) => "Voice profile " + ctx.today(), readback: /* @r2fn R2-C0082-F00027 */(v) => pair(`Profile name: ${v}.`, `配置文件名称：${v}。`) };
       case "@groups": return { id, kind: "number", min: 1, max: MAX_GROUPS, integer: true, section: "profile",
-        text: () => pair("How many run groups? Each group has its own template, design and repeat count.", "共有几组运行？每组有自己的模板、设计和重复次数。"),
-        def: () => 1, readback: (v) => pair(`${v} group${v === 1 ? "" : "s"}.`, `${v} 组。`) };
+        text: /* @r2fn R2-C0082-F00028 */() => pair("How many run groups? Each group has its own template, design and repeat count.", "共有几组运行？每组有自己的模板、设计和重复次数。"),
+        def: /* @r2fn R2-C0082-F00029 */() => 1, readback: /* @r2fn R2-C0082-F00030 */(v) => pair(`${v} group${v === 1 ? "" : "s"}.`, `${v} 组。`) };
       case "template": return { id, kind: "choice", section: "group",
-        text: () => label("Which template?", "使用哪个模板？"),
-        options: () => schema.templates.map((t) => ({ value: t.id, label: t.name, aliases: t.aliases })),
-        readback: (v) => { const t = schema.templates.find((x) => x.id === v); return label(`Template: ${t ? t.name : v}.`, `模板：${t ? t.name : v}。`); } };
+        text: /* @r2fn R2-C0082-F00031 */() => label("Which template?", "使用哪个模板？"),
+        options: /* @r2fn R2-C0082-F00032 */() => schema.templates.map(/* @r2fn R2-C0082-F00033 */(t) => ({ value: t.id, label: t.name, aliases: t.aliases })),
+        readback: /* @r2fn R2-C0082-F00034 */(v) => { const t = schema.templates.find(/* @r2fn R2-C0082-F00035 */(x) => x.id === v); return label(`Template: ${t ? t.name : v}.`, `模板：${cn(t ? t.name : v)}。`); } };
       case "repeat": return { id, kind: "number", min: 1, max: 200, integer: true, section: "group",
-        text: () => label("How many runs in this group?", "本组运行几次？"), def: () => 1,
-        readback: (v) => label(`Repeat ${v}.`, `重复 ${v} 次。`) };
+        text: /* @r2fn R2-C0082-F00036 */() => label("How many runs in this group?", "本组运行几次？"), def: /* @r2fn R2-C0082-F00037 */() => 1,
+        readback: /* @r2fn R2-C0082-F00038 */(v) => label(`Repeat ${v}.`, `重复 ${v} 次。`) };
       case "design.extractions": return { id, kind: "number", min: 1, max: 12, integer: true, section: "design",
-        text: () => label("How many DNA extractions per sample?", "每个样品几次 DNA 提取？"), def: () => 3,
-        readback: (v) => label(`${v} extraction${v === 1 ? "" : "s"}.`, `${v} 次提取。`) };
+        text: /* @r2fn R2-C0082-F00039 */() => label("How many DNA extractions per sample?", "每个样品几次 DNA 提取？"), def: /* @r2fn R2-C0082-F00040 */() => 3,
+        readback: /* @r2fn R2-C0082-F00041 */(v) => label(`${v} extraction${v === 1 ? "" : "s"}.`, `${v} 次提取。`) };
       case "design.replicates": return { id, kind: "number", min: 1, max: 12, integer: true, section: "design",
-        text: () => label("How many PCR replicates per extraction?", "每次提取几个 PCR 重复？"), def: () => 3,
-        readback: (v) => label(`${v} PCR replicate${v === 1 ? "" : "s"}.`, `${v} 个 PCR 重复。`) };
+        text: /* @r2fn R2-C0082-F00042 */() => label("How many PCR replicates per extraction?", "每次提取几个 PCR 重复？"), def: /* @r2fn R2-C0082-F00043 */() => 3,
+        readback: /* @r2fn R2-C0082-F00044 */(v) => label(`${v} PCR replicate${v === 1 ? "" : "s"}.`, `${v} 个 PCR 重复。`) };
       case "keepControls": return { id, kind: "bool", section: "design",
-        text: (ctx) => { const t = tplOf(ctx); return label(`Keep the method controls (${t ? t.controls.join(", ") : "per template"})? Yes or no.`, `保留方法对照（${t ? t.controls.join("、") : "按模板"}）？请回答是或否。`); },
-        def: () => true, readback: (v) => label(v ? "Method controls." : "Custom control counts.", v ? "方法对照。" : "自定义对照数量。") };
+        text: /* @r2fn R2-C0082-F00045 */(ctx) => { const t = tplOf(ctx); return label(`Keep the method controls (${t ? t.controls.join(", ") : "per template"})? Yes or no.`, `保留方法对照（${t ? t.controls.join("、") : "按模板"}）？请回答是或否。`); },
+        def: /* @r2fn R2-C0082-F00046 */() => true, readback: /* @r2fn R2-C0082-F00047 */(v) => label(v ? "Method controls." : "Custom control counts.", v ? "方法对照。" : "自定义对照数量。") };
       case "scenario.arm": return { id, kind: "bool", section: "scenario",
-        text: () => label("Arm a qPCR error scenario in this group? Yes or no.", "本组是否启用 qPCR 错误场景？请回答是或否。"),
-        def: () => false, readback: (v) => label(v ? "Error scenario armed." : "No error scenario.", v ? "已启用错误场景。" : "无错误场景。") };
+        text: /* @r2fn R2-C0082-F00048 */() => label("Arm a qPCR error scenario in this group? Yes or no.", "本组是否启用 qPCR 错误场景？请回答是或否。"),
+        def: /* @r2fn R2-C0082-F00049 */() => false, readback: /* @r2fn R2-C0082-F00050 */(v) => label(v ? "Error scenario armed." : "No error scenario.", v ? "已启用错误场景。" : "无错误场景。") };
       case "scenario.category": return { id, kind: "choice", section: "scenario",
-        applies: (ctx) => ctx.fact(`g${gi}.scenario.arm`) === true,
-        text: () => label("Which scenario category?", "哪一类场景？"),
-        options: () => Object.entries(schema.categories).map(([k, v]) => ({ value: k, label: v, aliases: [String(v).toLowerCase().split(/[ :(]/)[0]] })),
-        readback: (v) => label(`Category: ${schema.categories[v] || v}.`, `类别：${schema.categories[v] || v}。`) };
+        applies: /* @r2fn R2-C0082-F00051 */(ctx) => ctx.fact(`g${gi}.scenario.arm`) === true,
+        text: /* @r2fn R2-C0082-F00052 */() => label("Which scenario category?", "哪一类场景？"),
+        options: /* @r2fn R2-C0082-F00053 */() => Object.entries(schema.categories).map(/* @r2fn R2-C0082-F00054 */([k, v]) => ({ value: k, label: v, aliases: [String(v).toLowerCase().split(/[ :(]/)[0]] })),
+        readback: /* @r2fn R2-C0082-F00055 */(v) => label(`Category: ${schema.categories[v] || v}.`, `类别：${cn(schema.categories[v] || v)}。`) };
       case "scenario.id": return { id, kind: "choice", section: "scenario",
-        applies: (ctx) => ctx.fact(`g${gi}.scenario.arm`) === true && ctx.fact(`g${gi}.scenario.category`) !== undefined,
-        text: () => label("Which scenario? Say option and its number.", "哪个场景？请说“选项”加编号。"),
-        options: (ctx) => { const t = ctx.fact(`g${gi}.template`), cat = ctx.fact(`g${gi}.scenario.category`), ok = schema.applicability[t];
-          return schema.scenarios.filter((s) => s.category === cat && (!ok || ok.includes(s.id))).map((s) => ({ value: s.id, label: s.title, aliases: [] })); },
-        readback: (v) => { const s = schema.scenarios.find((x) => x.id === v); return label(`Scenario: ${s ? s.title : v}.`, `场景：${s ? s.title : v}。`); } };
+        applies: /* @r2fn R2-C0082-F00056 */(ctx) => ctx.fact(`g${gi}.scenario.arm`) === true && ctx.fact(`g${gi}.scenario.category`) !== undefined,
+        text: /* @r2fn R2-C0082-F00057 */() => label("Which scenario? Say option and its number.", "哪个场景？请说“选项”加编号。"),
+        options: /* @r2fn R2-C0082-F00058 */(ctx) => { const t = ctx.fact(`g${gi}.template`), cat = ctx.fact(`g${gi}.scenario.category`), ok = schema.applicability[t];
+          return schema.scenarios.filter(/* @r2fn R2-C0082-F00059 */(s) => s.category === cat && (!ok || ok.includes(s.id))).map(/* @r2fn R2-C0082-F00060 */(s) => ({ value: s.id, label: s.title, aliases: [] })); },
+        readback: /* @r2fn R2-C0082-F00061 */(v) => { const s = schema.scenarios.find(/* @r2fn R2-C0082-F00062 */(x) => x.id === v); return label(`Scenario: ${s ? s.title : v}.`, `场景：${cn(s ? s.title : v)}。`); } };
       case "advanced": return { id, kind: "bool", section: "advanced",
-        text: () => label("Change advanced settings for this group, such as reagents, programme, mix, DNA or samples? Yes or no.", "是否更改本组高级设置（试剂、程序、反应液、DNA 或样品）？请回答是或否。"),
-        def: () => false, readback: (v) => label(v ? "Advanced settings follow." : "No advanced changes.", v ? "以下为高级设置。" : "无高级更改。") };
+        text: /* @r2fn R2-C0082-F00063 */() => label("Change advanced settings for this group, such as reagents, programme, mix, DNA or samples? Yes or no.", "是否更改本组高级设置（试剂、程序、反应液、DNA 或样品）？请回答是或否。"),
+        def: /* @r2fn R2-C0082-F00064 */() => false, readback: /* @r2fn R2-C0082-F00065 */(v) => label(v ? "Advanced settings follow." : "No advanced changes.", v ? "以下为高级设置。" : "无高级更改。") };
       case "advanced.sections": return { id, kind: "multi", section: "advanced",
-        applies: (ctx) => ctx.fact(`g${gi}.advanced`) === true,
-        text: () => label("Which sections? Say one or more: reagents, programme, mix, DNA, samples, seed.", "哪些部分？可说一项或多项：试剂、程序、反应液、DNA、样品、随机种子。"),
-        options: () => ["reagents", "programme", "mix", "dna", "samples", "seed"].map((v) => ({ value: v, label: v, aliases: v === "programme" ? ["program", "cycling"] : v === "dna" ? ["d n a"] : [] })),
-        readback: (v) => label(`Sections: ${v.join(", ")}.`, `部分：${v.join("、")}。`) };
+        applies: /* @r2fn R2-C0082-F00066 */(ctx) => ctx.fact(`g${gi}.advanced`) === true,
+        text: /* @r2fn R2-C0082-F00067 */() => label("Which sections would you like to change? Select one or more cards.", "您想更改哪些部分？请选择一张或多张卡片。"),
+        options: /* @r2fn R2-C0082-F00068 */() => ["reagents", "programme", "mix", "dna", "samples", "seed"].map(/* @r2fn R2-C0082-F00069 */(v) => ({ value: v, label: v, aliases: v === "programme" ? ["program", "cycling"] : v === "dna" ? ["d n a"] : [] })),
+        readback: /* @r2fn R2-C0082-F00070 */(v) => label(`Sections: ${v.join(", ")}.`, `部分：${v.map(cn).join("、")}。`) };
       case "seed": return { id, kind: "number", min: 1, max: 99999, integer: true, section: "advanced",
-        applies: (ctx) => (ctx.fact(`g${gi}.advanced.sections`) || []).includes("seed"),
-        text: () => label("Seed number, 1 to 99999? Or say default.", "随机种子（1 至 99999）？或说“默认”。"), def: () => undefined,
-        readback: (v) => label(v === undefined ? "Seed from the template." : `Seed ${spellDigits(v)}.`, v === undefined ? "使用模板种子。" : `随机种子 ${v}。`) };
+        applies: /* @r2fn R2-C0082-F00071 */(ctx) => (ctx.fact(`g${gi}.advanced.sections`) || []).includes("seed"),
+        text: /* @r2fn R2-C0082-F00072 */() => label("Seed number, 1 to 99999? Or say default.", "随机种子（1 至 99999）？或说“默认”。"), def: /* @r2fn R2-C0082-F00073 */() => undefined,
+        readback: /* @r2fn R2-C0082-F00074 */(v) => label(v === undefined ? "Seed from the template." : `Seed ${spellDigits(v)}.`, v === undefined ? "使用模板种子。" : `随机种子 ${v}。`) };
       case "naturalVariation": return { id, kind: "bool", section: "advanced",
-        applies: (ctx) => (ctx.fact(`g${gi}.advanced.sections`) || []).includes("seed"),
-        text: () => label("Natural variation between runs? Yes or no.", "运行之间是否有自然变异？请回答是或否。"), def: () => true,
-        readback: (v) => label(v ? "Natural variation on." : "Natural variation off.", v ? "自然变异：开。" : "自然变异：关。") };
+        applies: /* @r2fn R2-C0082-F00075 */(ctx) => (ctx.fact(`g${gi}.advanced.sections`) || []).includes("seed"),
+        text: /* @r2fn R2-C0082-F00076 */() => label("Natural variation between runs? Yes or no.", "运行之间是否有自然变异？请回答是或否。"), def: /* @r2fn R2-C0082-F00077 */() => true,
+        readback: /* @r2fn R2-C0082-F00078 */(v) => label(v ? "Natural variation on." : "Natural variation off.", v ? "自然变异：开。" : "自然变异：关。") };
       case "samples.count": return { id, kind: "number", min: 1, integer: true, section: "samples",
-        max: 28, limit: ctx => tplOf(ctx)?.maxSamples || 28, applies: (ctx) => (ctx.fact(`g${gi}.advanced.sections`) || []).includes("samples"),
-        text: (ctx) => { const t = tplOf(ctx); return label(`How many samples? Up to ${t ? t.maxSamples : "the plate limit"}.`, `几个样品？最多 ${t ? t.maxSamples : "板容量"} 个。`); },
-        def: () => 1, readback: (v) => label(`${v} sample${v === 1 ? "" : "s"}.`, `${v} 个样品。`) };
+        max: 28, limit: /* @r2fn R2-C0082-F00079 */ctx => tplOf(ctx)?.maxSamples || 28, applies: /* @r2fn R2-C0082-F00080 */(ctx) => (ctx.fact(`g${gi}.advanced.sections`) || []).includes("samples"),
+        text: /* @r2fn R2-C0082-F00081 */(ctx) => { const t = tplOf(ctx); return label(`How many samples? Up to ${t ? t.maxSamples : "the plate limit"}.`, `几个样品？最多 ${t ? t.maxSamples : "板容量"} 个。`); },
+        def: /* @r2fn R2-C0082-F00082 */() => 1, readback: /* @r2fn R2-C0082-F00083 */(v) => label(`${v} sample${v === 1 ? "" : "s"}.`, `${v} 个样品。`) };
       case "out.openQuality": return { id, kind: "bool", section: "output",
-        text: () => pair("Open the Quality manager when the runs are made? Yes or no.", "运行完成后是否打开质量管理？请回答是或否。"), def: () => true,
-        readback: (v) => pair(v ? "Open Quality manager." : "Do not open Quality manager.", v ? "打开质量管理。" : "不打开质量管理。") };
+        text: /* @r2fn R2-C0082-F00084 */() => pair("Open the Quality manager when the runs are made? Yes or no.", "运行完成后是否打开质量管理？请回答是或否。"), def: /* @r2fn R2-C0082-F00085 */() => true,
+        readback: /* @r2fn R2-C0082-F00086 */(v) => pair(v ? "Open Quality manager." : "Do not open Quality manager.", v ? "打开质量管理。" : "不打开质量管理。") };
       case "out.selectForMissy": return { id, kind: "bool", section: "output",
-        text: () => pair("Select the new runs for MISSY at the end? Yes or no.", "最后是否为 MISSY 勾选新运行？请回答是或否。"), def: () => true,
-        readback: (v) => pair(v ? "Select the new runs for MISSY." : "Do not select for MISSY.", v ? "为 MISSY 勾选新运行。" : "不为 MISSY 勾选。") };
+        text: /* @r2fn R2-C0082-F00087 */() => pair("Select the new runs for MISSY at the end? Yes or no.", "最后是否为 MISSY 勾选新运行？请回答是或否。"), def: /* @r2fn R2-C0082-F00088 */() => true,
+        readback: /* @r2fn R2-C0082-F00089 */(v) => pair(v ? "Select the new runs for MISSY." : "Do not select for MISSY.", v ? "为 MISSY 勾选新运行。" : "不为 MISSY 勾选。") };
       case "out.downloadRdmltZip": return { id, kind: "bool", section: "output",
-        text: () => pair("Download one ZIP with all RDMLt files? Yes or no.", "是否下载包含全部 RDMLt 文件的 ZIP？请回答是或否。"), def: () => false,
-        readback: (v) => pair(v ? "Download the RDMLt ZIP." : "No RDMLt ZIP.", v ? "下载 RDMLt ZIP。" : "不下载 RDMLt ZIP。") };
+        text: /* @r2fn R2-C0082-F00090 */() => pair("Download one ZIP with all RDMLt files? Yes or no.", "是否下载包含全部 RDMLt 文件的 ZIP？请回答是或否。"), def: /* @r2fn R2-C0082-F00091 */() => false,
+        readback: /* @r2fn R2-C0082-F00092 */(v) => pair(v ? "Download the RDMLt ZIP." : "No RDMLt ZIP.", v ? "下载 RDMLt ZIP。" : "不下载 RDMLt ZIP。") };
     }
     // custom control counts: g1.ctl.NTC
     let m = rest.match(/^ctl\.([A-Z]+)$/);
     if (m) {
       const code = m[1];
       return { id, kind: "number", min: 0, max: 12, integer: true, section: "design", allowMethod: true,
-        applies: (ctx) => ctx.fact(`g${gi}.keepControls`) === false && (tplOf(ctx) || { controls: [] }).controls.includes(code),
-        text: () => label(`${code} wells per reaction mix? 0 to 12, or say method.`, `每个反应液的 ${code} 孔数？0 至 12，或说“方法”。`),
-        def: () => "method",
-        readback: (v) => label(v === "method" ? `${code} as the method.` : `${code} ${v}${v === 0 ? " (deliberately omitted)" : ""}.`, v === "method" ? `${code} 按方法。` : `${code} ${v}。`) };
+        applies: /* @r2fn R2-C0082-F00093 */(ctx) => ctx.fact(`g${gi}.keepControls`) === false && (tplOf(ctx) || { controls: [] }).controls.includes(code),
+        text: /* @r2fn R2-C0082-F00094 */() => label(`${code} wells per reaction mix? 0 to 12, or say method.`, `每个反应液的 ${code} 孔数？0 至 12，或说“方法”。`),
+        def: /* @r2fn R2-C0082-F00095 */() => "method",
+        readback: /* @r2fn R2-C0082-F00096 */(v) => label(v === "method" ? `${code} as the method.` : `${code} ${v}${v === 0 ? " (deliberately omitted)" : ""}.`, v === "method" ? `${code} 按方法。` : `${code} ${v}。`) };
     }
     // sample materials and dates: g1.sample.2.material / g1.sample.2.date
     m = rest.match(/^sample\.(\d+)\.(material|date)$/);
     if (m) {
       const n = +m[1], what = m[2];
       if (what === "material") return { id, kind: "choice", section: "samples",
-        applies: (ctx) => (ctx.fact(`g${gi}.advanced.sections`) || []).includes("samples") && n <= (ctx.fact(`g${gi}.samples.count`) || 1),
-        text: () => label(`Material of sample ${n}?`, `样品 ${n} 的材料？`),
-        options: (ctx) => { const t = tplOf(ctx); return schema.materials.filter((x) => !t || x.crop === t.crop || x.key === "blind").map((x) => ({ value: x.key, label: x.label, aliases: [String(x.label).toLowerCase()] })); },
-        readback: (v) => { const x = schema.materials.find((y) => y.key === v); return label(`Sample ${n}: ${x ? x.label : v}.`, `样品 ${n}：${x ? x.label : v}。`); } };
+        applies: /* @r2fn R2-C0082-F00097 */(ctx) => (ctx.fact(`g${gi}.advanced.sections`) || []).includes("samples") && n <= (ctx.fact(`g${gi}.samples.count`) || 1),
+        text: /* @r2fn R2-C0082-F00098 */() => label(`Material of sample ${n}?`, `样品 ${n} 的材料？`),
+        options: /* @r2fn R2-C0082-F00099 */(ctx) => { const t = tplOf(ctx); return schema.materials.filter(/* @r2fn R2-C0082-F00100 */(x) => !t || x.crop === t.crop || x.key === "blind").map(/* @r2fn R2-C0082-F00101 */(x) => ({ value: x.key, label: x.label, aliases: [String(x.label).toLowerCase()] })); },
+        readback: /* @r2fn R2-C0082-F00102 */(v) => { const x = schema.materials.find(/* @r2fn R2-C0082-F00103 */(y) => y.key === v); return label(`Sample ${n}: ${x ? x.label : v}.`, `样品 ${n}：${cn(x ? x.label : v)}。`); } };
       return { id, kind: "date", section: "samples",
-        applies: (ctx) => (ctx.fact(`g${gi}.advanced.sections`) || []).includes("samples") && n <= (ctx.fact(`g${gi}.samples.count`) || 1),
-        text: () => label(`DNA extraction date of sample ${n}? For example today, or sixteen November.`, `样品 ${n} 的 DNA 提取日期？例如“今天”或“11 月 16 日”。`),
-        def: (ctx) => ctx.today(),
-        readback: (v) => label(`Sample ${n} extracted ${v}.`, `样品 ${n} 提取日期 ${v}。`) };
+        applies: /* @r2fn R2-C0082-F00104 */(ctx) => (ctx.fact(`g${gi}.advanced.sections`) || []).includes("samples") && n <= (ctx.fact(`g${gi}.samples.count`) || 1),
+        text: /* @r2fn R2-C0082-F00105 */() => label(`DNA extraction date of sample ${n}? For example today, or sixteen November.`, `样品 ${n} 的 DNA 提取日期？例如“今天”或“11 月 16 日”。`),
+        def: /* @r2fn R2-C0082-F00106 */(ctx) => ctx.today(),
+        readback: /* @r2fn R2-C0082-F00107 */(v) => label(`Sample ${n} extracted ${v}.`, `样品 ${n} 提取日期 ${v}。`) };
     }
     if (rest === "programme.mode") return { id, kind: "choice", section: "programme",
-      applies: (ctx) => (ctx.fact(`g${gi}.advanced.sections`) || []).includes("programme"),
-      text: () => label("Programme: template, method record, or custom?", "程序：模板、方法记录，还是自定义？"),
-      options: () => [{ value: "template", label: "template", aliases: ["default"] }, { value: "method", label: "method record", aliases: ["method"] }, { value: "custom", label: "custom", aliases: ["own", "change it"] }],
-      def: () => "template", readback: (v) => label(`Programme: ${v}.`, `程序：${v}。`) };
+      applies: /* @r2fn R2-C0082-F00108 */(ctx) => (ctx.fact(`g${gi}.advanced.sections`) || []).includes("programme"),
+      text: /* @r2fn R2-C0082-F00109 */() => label("Programme: template, method record, or custom?", "程序：模板、方法记录，还是自定义？"),
+      options: /* @r2fn R2-C0082-F00110 */() => [{ value: "template", label: "template", aliases: ["default"] }, { value: "method", label: "method record", aliases: ["method"] }, { value: "custom", label: "custom", aliases: ["own", "change it"] }],
+      def: /* @r2fn R2-C0082-F00111 */() => "template", readback: /* @r2fn R2-C0082-F00112 */(v) => label(`Programme: ${v}.`, `程序：${cn(v)}。`) };
     // generic FIELDS rows: g1.reagents.probeStoreC, g1.programme.annT, g1.mix.rxnUl, g1.dna.volUl
     m = rest.match(/^(reagents|programme|mix|dna)\.(\w+)$/);
     if (m) {
       const block = m[1], key = m[2];
-      const row = (schema.fields[block] || []).find((r) => r.k === key);
+      const row = (schema.fields[block] || []).find(/* @r2fn R2-C0082-F00113 */(r) => r.k === key);
       if (!row) return null;
       const base = { id, section: block, allowMethod: true,
-        applies: (ctx) => (ctx.fact(`g${gi}.advanced.sections`) || []).includes(block) &&
+        applies: /* @r2fn R2-C0082-F00114 */(ctx) => (ctx.fact(`g${gi}.advanced.sections`) || []).includes(block) &&
           (block !== "programme" || ctx.fact(`g${gi}.programme.mode`) === "custom"),
-        def: () => "method",
-        text: () => label(`${row.label}?${row.type === "number" ? ` ${row.min} to ${row.max},` : ""} or say method.`, `${row.label}？${row.type === "number" ? `${row.min} 至 ${row.max}，` : ""}或说“方法”。`),
-        readback: (v) => label(v === "method" ? `${row.label}: as the method.` : `${row.label}: ${v}.`, v === "method" ? `${row.label}：按方法。` : `${row.label}：${v}。`) };
+        def: /* @r2fn R2-C0082-F00115 */() => "method",
+        text: /* @r2fn R2-C0082-F00116 */() => label(`${row.label}?${row.type === "number" ? ` ${row.min} to ${row.max},` : ""} or say method.`, `${cn(row.label)}？${row.type === "number" ? `${row.min} 至 ${row.max}，` : ""}或说“方法”。`),
+        readback: /* @r2fn R2-C0082-F00117 */(v) => label(v === "method" ? `${row.label}: as the method.` : `${row.label}: ${v}.`, v === "method" ? `${cn(row.label)}：按方法。` : `${cn(row.label)}：${cn(v)}。`) };
       if (row.type === "number") return Object.assign(base, { kind: "number", min: row.min, max: row.max, step: row.step });
-      if (row.type === "bool") return Object.assign(base, { kind: "bool", def: () => "method" });
+      if (row.type === "bool") return Object.assign(base, { kind: "bool", def: /* @r2fn R2-C0082-F00118 */() => "method" });
       if (row.type === "select") return Object.assign(base, { kind: "choice",
-        options: () => row.options.map((o) => ({ value: o, label: String(o), aliases: [String(o).toLowerCase(), typeof o === "number" ? String(o) : ""] })) });
+        options: /* @r2fn R2-C0082-F00119 */() => row.options.map(/* @r2fn R2-C0082-F00120 */(o) => ({ value: o, label: String(o), aliases: [String(o).toLowerCase(), typeof o === "number" ? String(o) : ""] })) });
     }
     return null;
   }
 
-  function spellDigits(n) {
+  /* @r2fn R2-C0082-F00121 */function spellDigits(n) {
     const names = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
-    return String(n).split("").map((c) => names[+c] || c).join("-");
+    return String(n).split("").map(/* @r2fn R2-C0082-F00122 */(c) => names[+c] || c).join("-");
   }
 
   /* ------------------------------------------------------------------ the engine */
-  function create(options) {
-    const opt = Object.assign({ snapshot: null, lang: "en", now: () => Date.now(), longTerm: null, validate: null,
+  /* @r2fn R2-C0082-F00123 */function create(options) {
+    const opt = Object.assign({ snapshot: null, lang: "en", now: /* @r2fn R2-C0082-F00124 */() => Date.now(), longTerm: null, validate: null,
       resetForTemplate: root.R2?.batchRuns?.resetForTemplate }, options || {});
     const schema = buildSchema(opt.snapshot);
     let st = freshState();
 
-    function freshState() {
+    /* @r2fn R2-C0082-F00125 */function freshState() {
       return { schema: MEMORY_SCHEMA, scriptId: SCRIPT_ID, engine: ENGINE_VERSION, startedAt: iso(opt.now()), lang: opt.lang,
         phase: "interview", facts: {}, turns: [], jsonChanges: [], cursor: null, lastAsked: null, pending: null, undo: [], lastInput: null, armedUntil: 0 };
     }
-    function iso(t) { return new Date(t).toISOString(); }
+    /* @r2fn R2-C0082-F00126 */function iso(t) { return new Date(t).toISOString(); }
     const ctx = {
-      fact: (id) => { const f = st.facts[id]; return f && !f.dormant ? f.value : undefined; },
-      today: () => iso(opt.now()).slice(0, 10),
+      fact: /* @r2fn R2-C0082-F00127 */(id) => { const f = st.facts[id]; return f && !f.dormant ? f.value : undefined; },
+      today: /* @r2fn R2-C0082-F00128 */() => iso(opt.now()).slice(0, 10),
     };
 
     /* ---- agenda: ordered list of applicable question ids (re-computed every time) */
-    function agenda() {
+    /* @r2fn R2-C0082-F00129 */function agenda() {
       const ids = ["@name", "@groups"];
       const groups = Math.min(MAX_GROUPS, ctx.fact("@groups") || 1);
       for (let g = 1; g <= groups; g++) {
@@ -377,14 +378,14 @@
         for (const row of schema.fields.mix || []) ids.push(p + "mix." + row.k);
       }
       ids.push("out.openQuality", "out.selectForMissy", "out.downloadRdmltZip");
-      return ids.filter((id) => { const q = Q(id); if (!q) return false; try { return q.applies ? q.applies(ctx) : true; } catch (e) { return false; } });
+      return ids.filter(/* @r2fn R2-C0082-F00130 */(id) => { const q = Q(id); if (!q) return false; try { return q.applies ? q.applies(ctx) : true; } catch (e) { return false; } });
     }
     const qCache = {};
-    function Q(id) { if (!(id in qCache)) qCache[id] = questionFor(id, schema); return qCache[id]; }
-    function nextQuestion() { return agenda().find((id) => ctx.fact(id) === undefined) || null; }
+    /* @r2fn R2-C0082-F00131 */function Q(id) { if (!(id in qCache)) qCache[id] = questionFor(id, schema); return qCache[id]; }
+    /* @r2fn R2-C0082-F00132 */function nextQuestion() { return agenda().find(/* @r2fn R2-C0082-F00133 */(id) => ctx.fact(id) === undefined) || null; }
 
     /* ---- dormancy: facts that no longer apply are kept but marked dormant */
-    function refreshDormancy(reasonTurn) {
+    /* @r2fn R2-C0082-F00134 */function refreshDormancy(reasonTurn) {
       const live = new Set(agenda());
       const dropped = [], revived = [];
       for (const [id, f] of Object.entries(st.facts)) {
@@ -395,14 +396,14 @@
     }
 
     /* ---- memory writes */
-    function say(m, extra) { return logTurn("missy", m.en, Object.assign({ zh: m.zh }, extra)); }
-    function logTurn(role, text, extra) {
+    /* @r2fn R2-C0082-F00135 */function say(m, extra) { return logTurn("missy", m.en, Object.assign({ zh: m.zh }, extra)); }
+    /* @r2fn R2-C0082-F00136 */function logTurn(role, text, extra) {
       const t = Object.assign({ n: st.turns.length ? st.turns[st.turns.length - 1].n + 1 : 1, at: iso(opt.now()), role, text }, extra || {});
       st.turns.push(t);
       if (st.turns.length > MAX_TURNS) st.turns.splice(0, st.turns.length - MAX_TURNS);
       return t;
     }
-    function remember(id, value, turn, via, heard, reason) {
+    /* @r2fn R2-C0082-F00137 */function remember(id, value, turn, via, heard, reason) {
       const prev = st.facts[id];
       const history = prev ? (prev.history || []).concat([{ value: prev.value, dormant: !!prev.dormant }]) : [];
       st.facts[id] = { value: clone(value), turn: turn.n, at: turn.at, via, reason: reason || "answer", history };
@@ -411,7 +412,7 @@
     }
 
     /* ---- answer interpretation for one question */
-    function interpret(q, text, raw) {
+    /* @r2fn R2-C0082-F00138 */function interpret(q, text, raw) {
       const s = normalize(text);
       if (/^(default|skip|use (the )?default|keep (the )?default)$/.test(s)) {
         const d = q.def ? q.def(ctx) : undefined;
@@ -444,25 +445,25 @@
       if (q.kind === "choice" || q.kind === "multi") {
         const opts = q.options(ctx);
         if (!opts.length) return { error: pair("No options are available here.", "此处没有可用选项。") };
-        const pick = (phrase) => {
+        const pick = /* @r2fn R2-C0082-F00139 */(phrase) => {
           const p = normalize(phrase);
           const idx = p.match(/^(option |number )?(.+)$/);
           const n = parseIndex(idx[2]);
           if (idx[1] && n && n <= opts.length) return opts[n - 1];
-          if (!idx[1] && opts.some((o) => typeof o.value === "number")) { // numeric option lists: match the value, never the position
-            const v = parseNumber(p); const hitN = opts.find((o) => o.value === v); return hitN || null;
+          if (!idx[1] && opts.some(/* @r2fn R2-C0082-F00140 */(o) => typeof o.value === "number")) { // numeric option lists: match the value, never the position
+            const v = parseNumber(p); const hitN = opts.find(/* @r2fn R2-C0082-F00141 */(o) => o.value === v); return hitN || null;
           }
-          let hit = opts.filter((o) => normalize(o.value) === p || normalize(o.label) === p || (o.aliases || []).some((a) => a && normalize(a) === p));
+          let hit = opts.filter(/* @r2fn R2-C0082-F00142 */(o) => normalize(o.value) === p || normalize(o.label) === p || (o.aliases || []).some(/* @r2fn R2-C0082-F00143 */(a) => a && normalize(a) === p));
           if (hit.length === 1) return hit[0];
-          hit = opts.filter((o) => (o.aliases || []).concat([o.label]).some((a) => a && normalize(a).length > 3 && (p.includes(normalize(a)) || normalize(a).includes(p) && p.length > 4)));
+          hit = opts.filter(/* @r2fn R2-C0082-F00144 */(o) => (o.aliases || []).concat([o.label]).some(/* @r2fn R2-C0082-F00145 */(a) => a && normalize(a).length > 3 && (p.includes(normalize(a)) || normalize(a).includes(p) && p.length > 4)));
           if (hit.length === 1) return hit[0];
-          if (!idx[1] && n && n <= opts.length && opts.every((o) => typeof o.value !== "number")) return opts[n - 1];
+          if (!idx[1] && n && n <= opts.length && opts.every(/* @r2fn R2-C0082-F00146 */(o) => typeof o.value !== "number")) return opts[n - 1];
           return null;
         };
         if (q.kind === "multi") {
-          const parts = String(raw || text).toLowerCase().split(/,|;|\band\b|\bplus\b|&/).map((x) => normalize(x)).filter(Boolean);
+          const parts = String(raw || text).toLowerCase().split(/,|;|\band\b|\bplus\b|&/).map(/* @r2fn R2-C0082-F00147 */(x) => normalize(x)).filter(Boolean);
           const vals = [];
-          for (const p of parts) { const o = pick(p); if (!o) return { error: pair(`Not one of: ${opts.map((o) => o.label).join(", ")}.`, `不在选项中：${opts.map((o) => o.label).join("、")}。`) }; if (!vals.includes(o.value)) vals.push(o.value); }
+          for (const p of parts) { const o = pick(p); if (!o) return { error: pair(`Not one of: ${opts.map(/* @r2fn R2-C0082-F00148 */(o) => o.label).join(", ")}.`, `不在选项中：${opts.map(/* @r2fn R2-C0082-F00149 */(o) => o.label).join("、")}。`) }; if (!vals.includes(o.value)) vals.push(o.value); }
           return vals.length ? { value: vals } : { error: pair("Say one or more sections.", "请说一项或多项。") };
         }
         const o = pick(s);
@@ -473,26 +474,26 @@
     }
 
     /* ---- reading answers back from memory */
-    function describe(id) {
+    /* @r2fn R2-C0082-F00150 */function describe(id) {
       const q = Q(id), f = st.facts[id];
       if (!q || !f) return null;
       const rb = q.readback(f.value, ctx);
       return { id, text: rb, turn: f.turn, heard: f.heard, via: f.via, dormant: !!f.dormant, history: f.history || [] };
     }
-    function resolveField(phrase, group) {
+    /* @r2fn R2-C0082-F00151 */function resolveField(phrase, group) {
       const p = normalize(phrase).replace(/^(the|my) /, "");
       let key = schema.fieldAlias[p];
       if (!key) for (const c of CONTROL_CODES) if (CONTROL_NAMES[c].includes(p)) key = "ctl." + c;
-      if (!key) { const hit = Object.keys(schema.fieldAlias).filter((a) => a.length > 3 && (a.includes(p) || p.includes(a))); if (hit.length === 1) key = schema.fieldAlias[hit[0]]; }
+      if (!key) { const hit = Object.keys(schema.fieldAlias).filter(/* @r2fn R2-C0082-F00152 */(a) => a.length > 3 && (a.includes(p) || p.includes(a))); if (hit.length === 1) key = schema.fieldAlias[hit[0]]; }
       if (!key) return null;
       if (key.startsWith("@") || key.startsWith("out.")) return key;
       const g = group || groupOf(st.cursor) || 1;
       return `g${g}.${key}`;
     }
-    const groupOf = (id) => { const m = String(id || "").match(/^g(\d+)\./); return m ? +m[1] : null; };
+    const groupOf = /* @r2fn R2-C0082-F00153 */(id) => { const m = String(id || "").match(/^g(\d+)\./); return m ? +m[1] : null; };
 
     /* ---- the next prompt */
-    function askNext(turnRef) {
+    /* @r2fn R2-C0082-F00154 */function askNext(turnRef) {
       if (st.phase !== "interview") return null;
       const id = nextQuestion();
       if (!id) {
@@ -514,15 +515,15 @@
       else if (last !== undefined && last !== null) extra.push(pair(` Last time: ${plain(q.readback(last.value, ctx).en)} Say same as last time to reuse it.`, ` 上次：${q.readback(last.value, ctx).zh} 说“和上次一样”可沿用。`));
       const d = q.def ? q.def(ctx) : undefined;
       if (d !== undefined && !dormant) extra.push(pair(` Default: ${d === "method" ? "method" : typeof d === "boolean" ? (d ? "yes" : "no") : d}.`, ` 默认：${d === "method" ? "方法" : typeof d === "boolean" ? (d ? "是" : "否") : d}。`));
-      m = pair(m.en + extra.map((x) => x.en).join(""), m.zh + extra.map((x) => x.zh).join(""));
+      m = pair(m.en + extra.map(/* @r2fn R2-C0082-F00155 */(x) => x.en).join(""), m.zh + extra.map(/* @r2fn R2-C0082-F00156 */(x) => x.zh).join(""));
       st.lastAsked = id;
-      return say(m, { kind: "question", qid: id, options: opts ? opts.map((o, i) => ({ n: i + 1, value: o.value, label: o.label })) : null, progress: progress(), offer: dormant ? "dormant" : last ? "last" : null, ref: turnRef || null });
+      return say(m, { kind: "question", qid: id, options: opts ? opts.map(/* @r2fn R2-C0082-F00157 */(o, i) => ({ n: i + 1, value: o.value, label: o.label })) : null, progress: progress(), offer: dormant ? "dormant" : last ? "last" : null, ref: turnRef || null });
     }
-    const plain = (s) => String(s).replace(/\s+$/, "");
+    const plain = /* @r2fn R2-C0082-F00158 */(s) => String(s).replace(/\s+$/, "");
 
-    function progress() {
+    /* @r2fn R2-C0082-F00159 */function progress() {
       const ag = agenda();
-      const answered = ag.filter((id) => ctx.fact(id) !== undefined).length;
+      const answered = ag.filter(/* @r2fn R2-C0082-F00160 */(id) => ctx.fact(id) !== undefined).length;
       return { answered, total: ag.length, group: groupOf(st.cursor), groups: ctx.fact("@groups") || 1 };
     }
 
@@ -551,13 +552,13 @@
       [/^launch$/, "launch"],
       [/^(approve|release|validate|override|sign off)\b.*/, "refuse"],
     ];
-    function parseCommand(s) {
+    /* @r2fn R2-C0082-F00161 */function parseCommand(s) {
       for (const [re, name] of COMMANDS) { const m = s.match(re); if (m) return { name, m }; }
       return null;
     }
 
     /* ---- main entry: one operator utterance → MISSY turns */
-    function handle(rawText, meta) {
+    /* @r2fn R2-C0082-F00162 */function handle(rawText, meta) {
       const out = [], before = JSON.stringify(profile());
       try {
         meta = Object.assign({ via: "typed", engine: "none", confidence: null }, meta || {});
@@ -565,8 +566,8 @@
         const now = opt.now();
         if (!s) return out;
         // duplicate recognition results (interim/final revisions) are ignored
-        if (st.lastInput && st.lastInput.s === String(s.length)+":"+[...s].reduce((a,c)=>Math.imul(a^c.charCodeAt(0),16777619),2166136261) && now - st.lastInput.t < DEDUP_MS && st.lastInput.cursor === st.cursor) return out;
-        st.lastInput = { s: String(s.length)+":"+[...s].reduce((a,c)=>Math.imul(a^c.charCodeAt(0),16777619),2166136261), t: now, cursor: st.cursor };
+        if (st.lastInput && st.lastInput.s === String(s.length)+":"+[...s].reduce(/* @r2fn R2-C0082-F00163 */(a,c)=>Math.imul(a^c.charCodeAt(0),16777619),2166136261) && now - st.lastInput.t < DEDUP_MS && st.lastInput.cursor === st.cursor) return out;
+        st.lastInput = { s: String(s.length)+":"+[...s].reduce(/* @r2fn R2-C0082-F00164 */(a,c)=>Math.imul(a^c.charCodeAt(0),16777619),2166136261), t: now, cursor: st.cursor };
         const opTurn = { n: st.turns.length+1, at: iso(now) }; // raw input is transient, never a history turn
         const cmd = parseCommand(s);
         if (cmd) { runCommand(cmd, rawText, opTurn, out); return out; }
@@ -589,14 +590,14 @@
       return out;
     }
 
-    function answerCurrent(rawText, opTurn, out, meta) {
+    /* @r2fn R2-C0082-F00165 */function answerCurrent(rawText, opTurn, out, meta) {
       const id = st.cursor, q = Q(id);
       const r = interpret(q, rawText, rawText);
       if (r.error) { out.push(say(r.error, { kind: "clarify", qid: id })); return; }
       commit(id, r.value === null ? undefined : r.value, opTurn, meta.via, rawText, r.how || "answer", out);
     }
 
-    function commit(id, value, opTurn, via, heard, reason, out) {
+    /* @r2fn R2-C0082-F00166 */function commit(id, value, opTurn, via, heard, reason, out) {
       const q = Q(id);
       if (value === undefined) { // e.g. "default" on a question whose default is "from template"
         remember(id, null, opTurn, via, heard, reason);
@@ -608,14 +609,14 @@
       if (ch.dropped.length) out.push(say(pair(`${ch.dropped.length} earlier answer${ch.dropped.length === 1 ? "" : "s"} no longer appl${ch.dropped.length === 1 ? "ies" : "y"} and ${ch.dropped.length === 1 ? "is" : "are"} kept aside: ${ch.dropped.map(shortName).join(", ")}.`, `${ch.dropped.length} 个先前答案不再适用，已暂存：${ch.dropped.map(shortName).join("、")}。`), { kind: "dormant", ids: ch.dropped }));
       const t = askNext(opTurn.n); if (t) out.push(t);
     }
-    const shortName = (id) => id.replace(/^g(\d+)\./, "group $1 ").replace(/^@/, "").replace(/\./g, " ");
+    const shortName = /* @r2fn R2-C0082-F00167 */(id) => id.replace(/^g(\d+)\./, "group $1 ").replace(/^@/, "").replace(/\./g, " ");
 
-    function runCommand(cmd, rawText, opTurn, out) {
+    /* @r2fn R2-C0082-F00168 */function runCommand(cmd, rawText, opTurn, out) {
       const m = cmd.m;
       switch (cmd.name) {
         case "back": {
-          const answered = agenda().filter((id) => ctx.fact(id) !== undefined);
-          const target = st.cursor ? answered.filter((id) => agenda().indexOf(id) < agenda().indexOf(st.cursor)).pop() : answered.pop();
+          const answered = agenda().filter(/* @r2fn R2-C0082-F00169 */(id) => ctx.fact(id) !== undefined);
+          const target = st.cursor ? answered.filter(/* @r2fn R2-C0082-F00170 */(id) => agenda().indexOf(id) < agenda().indexOf(st.cursor)).pop() : answered.pop();
           if (!target) { out.push(say(pair("This is the first question.", "这是第一个问题。"))); return; }
           const f = st.facts[target];
           st.undo.push({ id: target, prev: clone(f) });
@@ -626,7 +627,7 @@
           const t = askNext(opTurn.n); if (t) out.push(t); return;
         }
         case "repeat": {
-          const last = [...st.turns].reverse().find((t) => t.role === "missy" && (t.kind === "question" || t.kind === "review"));
+          const last = [...st.turns].reverse().find(/* @r2fn R2-C0082-F00171 */(t) => t.role === "missy" && (t.kind === "question" || t.kind === "review"));
           out.push(last ? say(pair(last.text, last.zh), { kind: last.kind, qid: last.qid, options: last.options, progress: progress(), repeat: true }) : say(pair("Nothing to repeat yet.", "尚无可重复内容。")));
           return;
         }
@@ -637,7 +638,7 @@
         }
         case "summary": {
           const cl = readback();
-          out.push(say(pair("So far: " + cl.map((c) => c.en).join(" "), "目前：" + cl.map((c) => c.zh).join("")), { kind: "summary", clauses: cl }));
+          out.push(say(pair("So far: " + cl.map(/* @r2fn R2-C0082-F00172 */(c) => c.en).join(" "), "目前：" + cl.map(/* @r2fn R2-C0082-F00173 */(c) => c.zh).join("")), { kind: "summary", clauses: cl }));
           return;
         }
         case "undo": {
@@ -654,7 +655,7 @@
           const q = st.cursor && Q(st.cursor);
           if (!q || !q.options) { out.push(say(pair(q ? `Say a ${q.kind === "number" ? `number from ${q.min} to ${q.max}` : q.kind === "bool" ? "yes or no" : q.kind}.` : "No question is open.", q ? "请按提示作答。" : "当前没有问题。"))); return; }
           const opts = q.options(ctx);
-          out.push(say(pair("Options: " + opts.map((o, i) => `${i + 1}, ${o.label}`).join("; ") + ".", "选项：" + opts.map((o, i) => `${i + 1}、${o.label}`).join("；") + "。"), { kind: "options", qid: st.cursor, options: opts.map((o, i) => ({ n: i + 1, value: o.value, label: o.label })) }));
+          out.push(say(pair("Options: " + opts.map(/* @r2fn R2-C0082-F00174 */(o, i) => `${i + 1}, ${o.label}`).join("; ") + ".", "选项：" + opts.map(/* @r2fn R2-C0082-F00175 */(o, i) => `${i + 1}、${o.label}`).join("；") + "。"), { kind: "options", qid: st.cursor, options: opts.map(/* @r2fn R2-C0082-F00176 */(o, i) => ({ n: i + 1, value: o.value, label: o.label })) }));
           return;
         }
         case "keep": {
@@ -687,18 +688,18 @@
           const t = askNext(opTurn.n); if (t) out.push(t); return;
         }
         case "lastQuestion": {
-          const qs = st.turns.filter((t) => t.role === "missy" && t.kind === "question");
+          const qs = st.turns.filter(/* @r2fn R2-C0082-F00177 */(t) => t.role === "missy" && t.kind === "question");
           const prev = qs.length > 1 ? qs[qs.length - 2] : qs[qs.length - 1];
           out.push(prev ? say(pair(`I asked: ${prev.text}`, `我问的是：${prev.zh}`), { kind: "recall" }) : say(pair("I have not asked anything yet.", "我还没有提问。"))); return;
         }
         case "recall": {
           const qNum = m[5] ? parseIndex(m[5]) : null;
           let id = null;
-          if (qNum) { const qs = st.turns.filter((t) => t.role === "missy" && t.kind === "question" && !t.repeat); const qt = qs[qNum - 1]; id = qt && qt.qid; }
+          if (qNum) { const qs = st.turns.filter(/* @r2fn R2-C0082-F00178 */(t) => t.role === "missy" && t.kind === "question" && !t.repeat); const qt = qs[qNum - 1]; id = qt && qt.qid; }
           else id = resolveField(m[7] || "", m[10] ? parseIndex(m[10]) : null);
           const d = id && describe(id);
           if (!d) { out.push(say(pair(id ? `No answer is remembered yet for ${shortName(id)}.` : "I do not know that field. Say for example: what did I say for replicates in group one.", id ? `尚未记录 ${shortName(id)} 的答案。` : "我不认识该字段。例如可说：第一组的重复数是多少。"), { kind: "recall" })); return; }
-          const hist = d.history.length ? ` Earlier value${d.history.length > 1 ? "s" : ""}: ${d.history.map((h) => plain(Q(id).readback(h.value, ctx).en)).join("; ")}` : "";
+          const hist = d.history.length ? ` Earlier value${d.history.length > 1 ? "s" : ""}: ${d.history.map(/* @r2fn R2-C0082-F00179 */(h) => plain(Q(id).readback(h.value, ctx).en)).join("; ")}` : "";
           out.push(say(pair(`${plain(d.text.en)}${d.dormant ? " This setting is currently set aside." : ""}${hist}`, `${d.text.zh}${d.dormant ? " 该设置目前暂存。" : ""}`), {kind:"recall",qid:id}));
           return;
         }
@@ -734,7 +735,7 @@
           out.push(say(pair(`Reopening ${shortName(id)}.`, `重新打开 ${shortName(id)}。`)));
           // ask exactly this question next, even if earlier ones follow in the agenda
           st.cursor = id; const q = Q(id);
-          out.push(say(q.text(ctx), { kind: "question", qid: id, options: q.options ? q.options(ctx).map((o, i) => ({ n: i + 1, value: o.value, label: o.label })) : null, progress: progress(), offer: "dormant" }));
+          out.push(say(q.text(ctx), { kind: "question", qid: id, options: q.options ? q.options(ctx).map(/* @r2fn R2-C0082-F00180 */(o, i) => ({ n: i + 1, value: o.value, label: o.label })) : null, progress: progress(), offer: "dormant" }));
           return;
         }
         case "skipSection": {
@@ -779,9 +780,9 @@
         case "save": out.push(say(pair("Saved: profile draft and decision log.", "已保存：配置草稿和决策记录。"), { kind: "save", event: "save" })); return;
         case "finish": {
           const nq = nextQuestion();
-          if (nq) { out.push(say(pair(`${agenda().filter((id) => ctx.fact(id) === undefined).length} questions are still open. Say default to accept defaults one by one, or answer them.`, `仍有 ${agenda().filter((id) => ctx.fact(id) === undefined).length} 个问题未答。`), { kind: "status" })); const t = askNext(opTurn.n); if (t) out.push(t); return; }
+          if (nq) { out.push(say(pair(`${agenda().filter(/* @r2fn R2-C0082-F00181 */(id) => ctx.fact(id) === undefined).length} questions are still open. Say default to accept defaults one by one, or answer them.`, `仍有 ${agenda().filter(/* @r2fn R2-C0082-F00182 */(id) => ctx.fact(id) === undefined).length} 个问题未答。`), { kind: "status" })); const t = askNext(opTurn.n); if (t) out.push(t); return; }
           st.phase = "review";
-          out.push(say(pair("Read-back: " + readback().map((c) => c.en).join(" "), "复述：" + readback().map((c) => c.zh).join("")), { kind: "review", clauses: readback() }));
+          out.push(say(pair("Read-back: " + readback().map(/* @r2fn R2-C0082-F00183 */(c) => c.en).join(" "), "复述：" + readback().map(/* @r2fn R2-C0082-F00184 */(c) => c.zh).join("")), { kind: "review", clauses: readback() }));
           return;
         }
         case "confirmBuild": {
@@ -803,18 +804,18 @@
           return;
       }
     }
-    function safeValidate() { try { const r = opt.validate(profile()) || {}; return { errors: r.errors || [], warnings: r.warnings || [] }; } catch (e) { return { errors: ["validation unavailable: " + e.message], warnings: [] }; } }
-    function totalRuns() { let n = 0; for (let g = 1; g <= (ctx.fact("@groups") || 1); g++) n += ctx.fact(`g${g}.repeat`) || 1; return n; }
+    /* @r2fn R2-C0082-F00185 */function safeValidate() { try { const r = opt.validate(profile()) || {}; return { errors: r.errors || [], warnings: r.warnings || [] }; } catch (e) { return { errors: ["validation unavailable: " + e.message], warnings: [] }; } }
+    /* @r2fn R2-C0082-F00186 */function totalRuns() { let n = 0; for (let g = 1; g <= (ctx.fact("@groups") || 1); g++) n += ctx.fact(`g${g}.repeat`) || 1; return n; }
 
     /* ---- memory → profile (only live facts; "method"/null mean: leave to template) */
-    function generatedProfile() {
+    /* @r2fn R2-C0082-F00187 */function generatedProfile() {
       const p = Object.assign(clone(st.baseProfile || {}), { format: "missy-r2-batch/1", name: ctx.fact("@name") || ("Voice profile " + ctx.today()), runs: [], output: {} });
       const groups = ctx.fact("@groups") || 1;
       for (let g = 1; g <= groups; g++) {
-        const f = (k) => ctx.fact(`g${g}.${k}`);
+        const f = /* @r2fn R2-C0082-F00188 */(k) => ctx.fact(`g${g}.${k}`);
         const r = Object.assign(clone(st.baseProfile?.runs?.[g - 1] || {}), { repeat: f("repeat") || 1 });
         const baseTemplate = st.baseProfile?.runs?.[g - 1]?.template;
-        if (f("template")) { const selected=schema.templates.find(t=>t.id===f("template"));r.template=selected?.inlineTemplate?clone(selected.inlineTemplate):f("template"); }
+        if (f("template")) { const selected=schema.templates.find(/* @r2fn R2-C0082-F00189 */t=>t.id===f("template"));r.template=selected?.inlineTemplate?clone(selected.inlineTemplate):f("template"); }
         // same rule as the Assisted and Visual editors: a new template drops the previous analysis
         if (st.baseProfile?.runs?.[g - 1] && JSON.stringify(r.template) !== JSON.stringify(baseTemplate) && typeof opt.resetForTemplate === "function") opt.resetForTemplate(r, baseTemplate);
         const ex = f("design.extractions"), rp = f("design.replicates");
@@ -845,7 +846,7 @@
           }
           if (secs.includes("samples")) {
             const n = f("samples.count");
-            if (Number.isInteger(n) && n >= 1) { const tpl = schema.templates.find((t) => t.id === r.template); r.sampleCount = n; const previous = clone(r.samples || []); r.samples = [previous[0] || {}];
+            if (Number.isInteger(n) && n >= 1) { const tpl = schema.templates.find(/* @r2fn R2-C0082-F00190 */(t) => t.id === r.template); r.sampleCount = n; const previous = clone(r.samples || []); r.samples = [previous[0] || {}];
               for (let k = 2; k <= n; k++) { const s = previous[k - 1] || {}; if (f(`sample.${k}.material`)) s.material = f(`sample.${k}.material`); if (f(`sample.${k}.date`)) s.extractionDate = f(`sample.${k}.date`); r.samples.push(s); }
               if (tpl && !r.samples[0].material) delete r.samples[0].material; }
           }
@@ -858,13 +859,13 @@
 
     // Preserve explicit defaults, names and unspoken Administrator options. Only
     // differences made by this interview are overlaid on the shared input draft.
-    function applyChanges(base, before, after) {
+    /* @r2fn R2-C0082-F00191 */function applyChanges(base, before, after) {
       if (JSON.stringify(before) === JSON.stringify(after)) return clone(base);
       if (after === undefined) return undefined;
       if (!after || typeof after !== "object" || !before || typeof before !== "object") return clone(after);
       if (Array.isArray(after)) {
         if (!Array.isArray(before) || !Array.isArray(base)) return clone(after);
-        return after.map((item, i) => applyChanges(base[i], before[i], item));
+        return after.map(/* @r2fn R2-C0082-F00192 */(item, i) => applyChanges(base[i], before[i], item));
       }
       const result = base && typeof base === "object" && !Array.isArray(base) ? clone(base) : {};
       for (const key of new Set([...Object.keys(before), ...Object.keys(after)])) {
@@ -874,12 +875,12 @@
       }
       return result;
     }
-    function profile() {
+    /* @r2fn R2-C0082-F00193 */function profile() {
       const current = generatedProfile();
       const p = st.baseProfile && st.importBaseline ? applyChanges(st.baseProfile, st.importBaseline, current) : current;
       // Reset after reconstruction too: stale sample facts must not reintroduce a
       // material of the previous species after a voice template change.
-      if (typeof opt.resetForTemplate === "function") p.runs.forEach((group,i)=>{
+      if (typeof opt.resetForTemplate === "function") p.runs.forEach(/* @r2fn R2-C0082-F00194 */(group,i)=>{
         const old=st.baseProfile?.runs?.[i];
         if(old&&JSON.stringify(group.template)!==JSON.stringify(old.template))opt.resetForTemplate(group,old.template);
       });
@@ -888,15 +889,15 @@
     }
 
     /* ---- deterministic read-back clauses with JSON paths */
-    function readback() {
+    /* @r2fn R2-C0082-F00195 */function readback() {
       const cl = [];
       const nm = ctx.fact("@name");
       cl.push({ path: "name", en: `Build profile ${nm || "(name not set)"}.`, zh: `生成配置文件 ${nm || "（未命名）"}。` });
       const groups = ctx.fact("@groups") || 1;
       for (let g = 1; g <= groups; g++) {
-        const ids = agenda().filter((id) => id.startsWith(`g${g}.`) && ctx.fact(id) !== undefined && !/^g\d+\.(advanced|advanced\.sections|scenario\.arm|scenario\.category)$/.test(id));
-        const parts = ids.map((id) => { const v = ctx.fact(id); return Q(id).readback(v === null ? undefined : v, ctx); });
-        cl.push({ path: `runs[${g - 1}]`, en: `Group ${g}: ` + parts.map((p) => plain(p.en).replace(/ \(group \d+\)/, "").replace(/\.$/, "")).join("; ") + ".", zh: `第 ${g} 组：` + parts.map((p) => p.zh.replace(/（第 \d+ 组）/, "")).join("") });
+        const ids = agenda().filter(/* @r2fn R2-C0082-F00196 */(id) => id.startsWith(`g${g}.`) && ctx.fact(id) !== undefined && !/^g\d+\.(advanced|advanced\.sections|scenario\.arm|scenario\.category)$/.test(id));
+        const parts = ids.map(/* @r2fn R2-C0082-F00197 */(id) => { const v = ctx.fact(id); return Q(id).readback(v === null ? undefined : v, ctx); });
+        cl.push({ path: `runs[${g - 1}]`, en: `Group ${g}: ` + parts.map(/* @r2fn R2-C0082-F00198 */(p) => plain(p.en).replace(/ \(group \d+\)/, "").replace(/\.$/, "")).join("; ") + ".", zh: `第 ${g} 组：` + parts.map(/* @r2fn R2-C0082-F00199 */(p) => p.zh.replace(/（第 \d+ 组）/, "")).join("") });
       }
       const o = profile().output;
       cl.push({ path: "output", en: `Output: ${o.openQuality ? "open Quality manager" : "do not open Quality"}; ${o.selectForMissy ? "select for MISSY" : "do not select for MISSY"}${o.downloadRdmltZip ? "; RDMLt ZIP" : ""}.`, zh: `输出：${o.openQuality ? "打开质量管理" : "不打开质量管理"}；${o.selectForMissy ? "为 MISSY 勾选" : "不为 MISSY 勾选"}${o.downloadRdmltZip ? "；RDMLt ZIP" : ""}。` });
@@ -905,10 +906,10 @@
     }
 
     /* ---- decision log (sidecar) and long-term memory */
-    function decisionLog() {
+    /* @r2fn R2-C0082-F00200 */function decisionLog() {
       return { format:"missy-r2-json-decisions/1", profile:profile(), changes:clone(st.jsonChanges || []) };
     }
-    function longTermUpdate(prev) {
+    /* @r2fn R2-C0082-F00201 */function longTermUpdate(prev) {
       const lt = prev && prev.format === "missy-r2-voice-longterm/1" ? clone(prev) : { format: "missy-r2-voice-longterm/1", interviews: 0, last: {} };
       lt.interviews++;
       for (const [id, f] of Object.entries(st.facts)) if (!f.dormant && f.value !== undefined && id !== "@name") lt.last[id.replace(/^g\d+\./, "g*.")] = { value: f.value, at: f.at };
@@ -919,19 +920,19 @@
 
     // Import the shared builder draft. Facts drive supported interview fields;
     // the base retains all other Administrator settings without inventing answers.
-    function registerInlineTemplates(profile) {
-      (profile?.runs||[]).forEach((run,i)=>{
+    /* @r2fn R2-C0082-F00202 */function registerInlineTemplates(profile) {
+      (profile?.runs||[]).forEach(/* @r2fn R2-C0082-F00203 */(run,i)=>{
         if(!run.template||typeof run.template!=="object")return;
         const info=typeof schema.templateInfo==="function"?schema.templateInfo(run.template):{};
         const entry={id:"INLINE-GROUP-"+(i+1),name:run.template.name||"Embedded template "+(i+1),
           crop:info?.crop||run.template.crop,stage:info?.stage||run.template.stage,
           controls:info?.controls||Object.keys(run.design?.controlCounts||{}),maxSamples:info?.maxSamples||28,
           aliases:["embedded group "+(i+1)],inlineTemplate:clone(run.template)};
-        const index=schema.templates.findIndex(t=>t.id===entry.id);if(index>=0)schema.templates[index]=entry;else schema.templates.push(entry);
-        if(schema.scenarioFor){let cache;Object.defineProperty(schema.applicability,entry.id,{enumerable:true,configurable:true,get:()=>cache||=(schema.scenarioFor(entry.inlineTemplate))});}
+        const index=schema.templates.findIndex(/* @r2fn R2-C0082-F00204 */t=>t.id===entry.id);if(index>=0)schema.templates[index]=entry;else schema.templates.push(entry);
+        if(schema.scenarioFor){let cache;Object.defineProperty(schema.applicability,entry.id,{enumerable:true,configurable:true,get:/* @r2fn R2-C0082-F00205 */()=>cache||=(schema.scenarioFor(entry.inlineTemplate))});}
       });
     }
-    function importProfile(p) {
+    /* @r2fn R2-C0082-F00206 */function importProfile(p) {
       if (!p || !Array.isArray(p.runs) || p.runs.length < 1 || p.runs.length > MAX_GROUPS) return false;
       registerInlineTemplates(p);
       const previous = st;
@@ -940,7 +941,7 @@
       st.turns = clone(previous.turns); st.facts = clone(previous.facts); st.jsonChanges = clone(previous.jsonChanges || []);
       st.startedAt = previous.startedAt;
       st.importSkipped = [];
-      const put = (id, value) => { if (value !== undefined) {
+      const put = /* @r2fn R2-C0082-F00207 */(id, value) => { if (value !== undefined) {
         const q = questionFor(id, schema);
         if (q && !validValue(q, value, ctx)) { delete st.facts[id]; st.importSkipped.push(id); return; } // kept in the shared draft, asked again if needed
         const old = previous.facts[id];
@@ -952,17 +953,17 @@
       }
       };
       put("@name", p.name); put("@groups", p.runs.length);
-      p.runs.forEach((r, i) => {
-        const key = "g" + (i + 1) + ".", set = (id, v) => put(key + id, v);
+      p.runs.forEach(/* @r2fn R2-C0082-F00208 */(r, i) => {
+        const key = "g" + (i + 1) + ".", set = /* @r2fn R2-C0082-F00209 */(id, v) => put(key + id, v);
         set("template", typeof r.template === "string" ? r.template : r.template?"INLINE-GROUP-"+(i+1):undefined);
         set("repeat", r.repeat ?? 1); set("design.extractions", r.design?.extractions ?? 3);
         set("design.replicates", r.design?.replicates ?? 3);
         set("keepControls", !Object.keys(r.design?.controlCounts || {}).length);
         for (const c of CONTROL_CODES) set("ctl." + c, r.design?.controlCounts?.[c] ?? "method");
-        const scenario = schema.scenarios.find(x => x.id === r.errorScenario);
+        const scenario = schema.scenarios.find(/* @r2fn R2-C0082-F00210 */x => x.id === r.errorScenario);
         if(r.errorScenario&&!scenario){for(const k of ["scenario.arm","scenario.category","scenario.id"])delete st.facts[key+k];st.importSkipped.push(key+"scenario.id");}
         else{set("scenario.arm", !!scenario); set("scenario.category", scenario?.category); set("scenario.id", scenario?.id);}
-        const secs = ["dna", "reagents", "mix", "programme"].filter(k => r[k] !== undefined);
+        const secs = ["dna", "reagents", "mix", "programme"].filter(/* @r2fn R2-C0082-F00211 */k => r[k] !== undefined);
         if (r.seed !== undefined || r.naturalVariation !== undefined) secs.push("seed");
         if (r.samples || r.sampleCount) secs.push("samples");
         set("advanced", secs.length > 0); set("advanced.sections", secs);
@@ -971,7 +972,7 @@
           for (const row of schema.fields[area] || []) set(area + "." + row.k, r[area]?.[row.k] ?? "method");
         set("programme.mode", typeof r.programme === "object" ? "custom" : r.programme === "method" ? "method" : "template");
         set("samples.count", r.samples?.length || r.sampleCount || 1);
-        (r.samples || []).forEach((s, n) => { set("sample." + (n + 1) + ".material", s.material);
+        (r.samples || []).forEach(/* @r2fn R2-C0082-F00212 */(s, n) => { set("sample." + (n + 1) + ".material", s.material);
           set("sample." + (n + 1) + ".date", s.extractionDate); });
       });
       for (const k of ["openQuality", "selectForMissy", "downloadRdmltZip"]) put("out." + k, p.output?.[k] ?? (k !== "downloadRdmltZip"));
@@ -986,36 +987,36 @@
     }
 
     /* ---- persistence */
-    function validValue(q, v, candidate) {
+    /* @r2fn R2-C0082-F00213 */function validValue(q, v, candidate) {
       try {
         if (v === null || (v === "method" && q.allowMethod)) return true;
         if (q.kind === "number") return isNum(v) && v >= q.min && v <= (q.limit ? q.limit(candidate) : q.max) && (!q.integer || Number.isInteger(v));
         if (q.kind === "bool") return typeof v === "boolean";
         if (q.kind === "text") return typeof v === "string" && v.length <= 100;
         if (q.kind === "date") return typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) && !!parseDate(v, opt.now());
-        if (q.kind === "choice") return q.options(candidate).some(o => o.value === v);
-        if (q.kind === "multi") return Array.isArray(v) && v.length <= 10 && v.every(value => q.options(candidate).some(o => o.value === value));
+        if (q.kind === "choice") return q.options(candidate).some(/* @r2fn R2-C0082-F00214 */o => o.value === v);
+        if (q.kind === "multi") return Array.isArray(v) && v.length <= 10 && v.every(/* @r2fn R2-C0082-F00215 */value => q.options(candidate).some(/* @r2fn R2-C0082-F00216 */o => o.value === value));
         return false;
       } catch (e) { return false; }
     }
-    function cleanState(state) {
+    /* @r2fn R2-C0082-F00217 */function cleanState(state) {
       const s = clone(state); s.turns=[];s.lastInput=null;s.pending=null;s.undo=[];
-      s.jsonChanges=(s.jsonChanges||[]).filter(x=>x?.profile?.format==="missy-r2-batch/1"&&Array.isArray(x.profile.runs))
-        .slice(-200).map(x=>({at:x.at,profile:x.profile}));
+      s.jsonChanges=(s.jsonChanges||[]).filter(/* @r2fn R2-C0082-F00218 */x=>x?.profile?.format==="missy-r2-batch/1"&&Array.isArray(x.profile.runs))
+        .slice(-200).map(/* @r2fn R2-C0082-F00219 */x=>({at:x.at,profile:x.profile}));
       for (const f of Object.values(s.facts || {})) {
         delete f.heard;delete f.reason;delete f.via;
-        f.history=(f.history||[]).map(h=>({value:h.value}));
+        f.history=(f.history||[]).map(/* @r2fn R2-C0082-F00220 */h=>({value:h.value}));
       }
       return s;
     }
-    function save() { return JSON.stringify(cleanState(st)); }
-    function load(json) {
+    /* @r2fn R2-C0082-F00221 */function save() { return JSON.stringify(cleanState(st)); }
+    /* @r2fn R2-C0082-F00222 */function load(json) {
       try {
         const s = typeof json === "string" ? JSON.parse(json) : clone(json);
         if (!s || s.schema !== MEMORY_SCHEMA || typeof s.facts !== "object" || !Array.isArray(s.turns)) return false;
         if (!s.facts || Array.isArray(s.facts) || Object.keys(s.facts).length > 5000 || s.turns.length > MAX_TURNS) return false;
         registerInlineTemplates(s.baseProfile);
-        const candidate = { fact: id => s.facts[id] && !s.facts[id].dormant ? s.facts[id].value : undefined,
+        const candidate = { fact: /* @r2fn R2-C0082-F00223 */id => s.facts[id] && !s.facts[id].dormant ? s.facts[id].value : undefined,
           today: ctx.today };
         // An out-of-range value drops only that answer (it is asked again); the rest of the
         // saved interview is kept instead of losing the whole draft.
@@ -1025,7 +1026,7 @@
           const q = questionFor(id, schema); if (!q || !fact || !("value" in fact)) continue;
           if (!validValue(q, fact.value, candidate)) { delete s.facts[id]; s.droppedOnLoad.push(id); }
         }
-        if (!s.turns.every(t => t && typeof t.text === "string" && t.text.length < 100000 && ["missy", "operator"].includes(t.role))) return false;
+        if (!s.turns.every(/* @r2fn R2-C0082-F00224 */t => t && typeof t.text === "string" && t.text.length < 100000 && ["missy", "operator"].includes(t.role))) return false;
         if (s.baseProfile && (!Array.isArray(s.baseProfile.runs) || s.baseProfile.runs.length > MAX_GROUPS)) return false;
         for (const [id, f] of Object.entries(s.facts)) { const q = questionFor(id, schema); if (!q || !f || !("value" in f)) delete s.facts[id]; }
         st = Object.assign(freshState(), cleanState(s));
@@ -1035,26 +1036,26 @@
         return true;
       } catch (e) { return false; }
     }
-    function resume() {
+    /* @r2fn R2-C0082-F00225 */function resume() {
       const out = [];
       if (st.phase === "interview") { const id = nextQuestion(); out.push(say(pair(`Resuming. ${progress().answered} answers remembered.`, `继续访谈。已记录 ${progress().answered} 个答案。`), { kind: "resume" })); const t = askNext(); if (t) out.push(t); }
       else out.push(say(pair("Resuming in review. Say read back or confirm build.", "在复述阶段继续。请说“复述”或“确认生成”。"), { kind: "review" }));
       return out;
     }
 
-    function start() { const t = say(pair("Acknowledged. New run profile. I will ask questions and keep accepted JSON settings only. Say back, say again, where am I, what did I say for a field, change a field to a value, same as group one, undo, or stop at any time.", "收到。新运行配置文件。我会提问，仅保留已接受的 JSON 设置。随时可说：返回、再说一遍、进度、某字段我说了什么、将某字段改为某值、和第一组一样、撤销、停止。"), { kind: "brief" }); const q = askNext(t.n); return q ? [t, q] : [t]; }
+    /* @r2fn R2-C0082-F00226 */function start() { const t = say(pair("Acknowledged. New run profile. I will ask questions and keep accepted JSON settings only. Say back, say again, where am I, what did I say for a field, change a field to a value, same as group one, undo, or stop at any time.", "收到。新运行配置文件。我会提问，仅保留已接受的 JSON 设置。随时可说：返回、再说一遍、进度、某字段我说了什么、将某字段改为某值、和第一组一样、撤销、停止。"), { kind: "brief" }); const q = askNext(t.n); return q ? [t, q] : [t]; }
 
     return {
       start, handle, resume, save, load, importProfile, profile, readback, decisionLog, longTermUpdate, agenda, progress,
-      get state() { return st; }, get schema() { return schema; },
-      questionSpec: () => { if(!st.cursor)return null;const q = Q(st.cursor); if (!q) return null; const value = q.def ? q.def(ctx) : undefined;
+      get state/* @r2fn R2-C0082-F00227 */() { return st; }, get schema/* @r2fn R2-C0082-F00228 */() { return schema; },
+      questionSpec: /* @r2fn R2-C0082-F00229 */() => { if(!st.cursor)return null;const q = Q(st.cursor); if (!q) return null; const value = q.def ? q.def(ctx) : undefined;
         return { kind:q.kind, min:q.min, max:q.limit ? q.limit(ctx) : q.max, step:q.step, integer:!!q.integer,
           hasDefault:!!q.def, defaultValue:value, allowMethod:!!q.allowMethod,
-          options:q.options ? q.options(ctx).map((o,i)=>({n:i+1,value:o.value,label:o.label})) : [] }; },
-      grammarFor: (id) => { const q = Q(id || st.cursor); if (!q) return []; const w = ["default", "back", "say again", "list options", "undo", "where am i", "[unk]"];
+          options:q.options ? q.options(ctx).map(/* @r2fn R2-C0082-F00230 */(o,i)=>({n:i+1,value:o.value,label:o.label})) : [] }; },
+      grammarFor: /* @r2fn R2-C0082-F00231 */(id) => { const q = Q(id || st.cursor); if (!q) return []; const w = ["default", "back", "say again", "list options", "undo", "where am i", "[unk]"];
         if (q.kind === "number") for (let n = q.min; n <= Math.min(q.max, 200); n += 1) w.push(String(n));
         if (q.kind === "bool") w.push("yes", "no", "affirmative", "negative");
-        if (q.options) q.options(ctx).forEach((o, i) => { w.push("option " + (i + 1)); (o.aliases || []).forEach((a) => a && w.push(a)); });
+        if (q.options) q.options(ctx).forEach(/* @r2fn R2-C0082-F00232 */(o, i) => { w.push("option " + (i + 1)); (o.aliases || []).forEach(/* @r2fn R2-C0082-F00233 */(a) => a && w.push(a)); });
         if (q.allowMethod) w.push("method"); return w; },
     };
   }

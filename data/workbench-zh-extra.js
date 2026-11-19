@@ -395,7 +395,7 @@ Check the set-up on the full bench (Expert).|请在完整工作台（高级）�
 Reduce the number of samples or assays to fit the plate.|请减少样品或检测项目数量，使其能放入板中。
 The selected MARA method requires its stated DNA mass per well.|所选 MARA 方法要求每孔使用其规定的 DNA 量。
 Restore the cycling programme for the selected MARA method.|请恢复所选 MARA 方法的循环程序。
-`.trim().split("\n").map(row => { const i = row.indexOf("|"); return [row.slice(0, i), row.slice(i + 1)]; })));
+`.trim().split("\n").map(/* @r2fn R2-C0014-F00001 */row => { const i = row.indexOf("|"); return [row.slice(0, i), row.slice(i + 1)]; })));
 
 Object.assign(window.R2_WORKBENCH_ZH, Object.fromEntries(`
 Assisted|辅助式
@@ -474,7 +474,7 @@ Ready — click the MISSY logo to enter.|已就绪 — 点击 MISSY 标志进入
 BOOT LOG / EMBEDDED COMPONENTS|启动日志 / 内嵌组件
 Say: back, undo, say again, where am I, change replicates in group one to two, same as group one, same as last time, rest as method, confirm build, launch, stop.|英语指令示例：back（返回）、undo（撤销）、say again（重说）、where am I（进度）、change replicates in group one to two（第一组重复数改为二）、same as group one（同第一组）、same as last time（同上次）、rest as method（其余按方法）、confirm build（确认）、launch（启动）、stop（停止）。
 Recognition is push-to-talk. Click Microphone for each answer. Play reads the current prompt; Stop closes the microphone, cancels speech and disarms launch. During generation, Stop finishes and files the current run.|识别采用按键通话。每次回答前点击麦克风。播放按钮朗读当前提示；停止按钮关闭麦克风、停止朗读并取消启动就绪状态。生成过程中，停止按钮会在本次运行完成并归档后结束。
-`.trim().split("\n").map(row => { const i = row.indexOf("|"); return [row.slice(0, i), row.slice(i + 1)]; })));
+`.trim().split("\n").map(/* @r2fn R2-C0014-F00002 */row => { const i = row.indexOf("|"); return [row.slice(0, i), row.slice(i + 1)]; })));
 
 Object.assign(window.R2_WORKBENCH_ZH, {
 "Internet is needed only to install the recognition pack. Downloads are managed by the browser; no separate pack file or percentage is provided.": "仅安装识别包时需要网络。下载由浏览器管理，不提供独立安装包文件或百分比进度。",
@@ -575,4 +575,9 @@ Object.assign(window.R2_WORKBENCH_ZH, {
 Object.assign(window.R2_WORKBENCH_ZH, {
 "Start spoken interview in the bottom bar; this also starts the timed microphone session. Set the session duration in Microphone settings using min and ✓. The default is 10 minutes. During a reply, only a wake word can interrupt. Say Computer or Missy, hear the wake cue, then give the command within 10 seconds. Other sounds pause recognition.":"在底栏启动语音访谈，会同时启动麦克风会话。在麦克风设置中用 min 和 ✓ 设置会话时长，默认为 10 分钟。回复期间只监听唤醒词。说 Computer 或 Missy 打断回复，听到唤醒音后，在 10 秒内说出命令。其他音效播放时暂停识别。",
 "Stop listening, pause the interview and disarm launch. Interrupt a reply with the wake word first, or use the bottom-bar Stop button.":"停止聆听、暂停访谈并解除启动确认。先用唤醒词打断回复，或使用底栏的停止按钮。"
+});
+
+Object.assign(window.R2_WORKBENCH_ZH, {
+"reagents":"试剂","programme":"扩增程序","mix":"反应体系","dna":"DNA","samples":"样品","seed":"随机种子",
+"template":"模板","method record":"方法记录","custom":"自定义","soybean":"大豆","maize":"玉米","screen":"筛查","ident":"鉴定","quant":"定量","ddct":"相对定量","template defaults":"模板默认设置"
 });

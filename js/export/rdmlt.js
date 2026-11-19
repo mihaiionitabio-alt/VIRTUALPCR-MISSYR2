@@ -1,5 +1,5 @@
 /* Offline RDMLt 1.0 draft revision 2 package with an RDML 1.3 core. */
-(function (R2) {
+(/* @r2fn R2-C0042-F00001 */function (R2) {
   "use strict";
   const xml = R2.esc;
   const temperatures = [
@@ -28,43 +28,43 @@
     STEP_END: "thermal step end", TARGET_REACHED: "thermal target reached", PAUSED: "programme pause",
     RESUMED: "programme resume", HOLDING: "indefinite hold start", FAULT_CLEARED: "fault cleared"
   };
-  const ref = (tag, id) => `<${tag} id="${xml(id)}"/>`;
-  const elapsed = seconds => `<elapsed unit="s" origin="reported" termId="elapsed-time">${seconds}</elapsed><clock>elapsed</clock>`;
+  const ref = /* @r2fn R2-C0042-F00002 */(tag, id) => `<${tag} id="${xml(id)}"/>`;
+  const elapsed = /* @r2fn R2-C0042-F00003 */seconds => `<elapsed unit="s" origin="reported" termId="elapsed-time">${seconds}</elapsed><clock>elapsed</clock>`;
   const origin = `<timeOrigin>${elapsed(0)}${ref("referenceEvent", "clock-origin")}</timeOrigin>`;
-  const col = (id, quantity, unit, source) => `<column id="${id}"><quantity>${quantity}</quantity><unit>${unit}</unit><dataType>float64</dataType><missingValue>NA</missingValue><origin>${source}</origin></column>`;
+  const col = /* @r2fn R2-C0042-F00004 */(id, quantity, unit, source) => `<column id="${id}"><quantity>${quantity}</quantity><unit>${unit}</unit><dataType>float64</dataType><missingValue>NA</missingValue><origin>${source}</origin></column>`;
 
-  const q = (tag, value, unit, source = "reported") => Number.isFinite(value) ?
+  const q = /* @r2fn R2-C0042-F00005 */(tag, value, unit, source = "reported") => Number.isFinite(value) ?
     `<${tag} unit="${unit}" origin="${source}">${value}</${tag}>` : "";
-  const annotation = (property, value) =>
+  const annotation = /* @r2fn R2-C0042-F00006 */(property, value) =>
     `<annotation><rdml:property>${xml(property)}</rdml:property><rdml:value>${xml(value)}</rdml:value></annotation>`;
-  const stepId = (stage, step) => "step-" + stage + "-" + step;
-  const channelId = channel => "channel-" + (channel + 1);
-  const acquisitionId = row => "read-" + row.acq + "-" + (row.channel + 1);
+  const stepId = /* @r2fn R2-C0042-F00007 */(stage, step) => "step-" + stage + "-" + step;
+  const channelId = /* @r2fn R2-C0042-F00008 */channel => "channel-" + (channel + 1);
+  const acquisitionId = /* @r2fn R2-C0042-F00009 */row => "read-" + row.acq + "-" + (row.channel + 1);
   const countUnit = "{instrument_unit}";
-  const net = row => (row.sum_on - row.sum_off) / (8 * row.periods);
+  const net = /* @r2fn R2-C0042-F00010 */row => (row.sum_on - row.sum_off) / (8 * row.periods);
   const opticalCols = [
-    ["reaction", "Reaction position (row-major, one-based)", "1", row => row.well + 1],
-    ["sequence", "Firmware record sequence", "1", row => row.seq],
-    ["start", "Integration start elapsed time", "s", row => row.t_start_ms / 1000],
-    ["end", "Integration end elapsed time", "s", row => row.t_end_ms / 1000],
-    ["integration", "Integration duration", "ms", row => row.t_end_ms - row.t_start_ms],
-    ["periods", "Chopped illumination periods", "1", row => row.periods],
-    ["led-on", "Sum of illuminated detector counts", countUnit, row => row.sum_on],
-    ["led-off", "Sum of dark detector counts", countUnit, row => row.sum_off],
+    ["reaction", "Reaction position (row-major, one-based)", "1", /* @r2fn R2-C0042-F00011 */row => row.well + 1],
+    ["sequence", "Firmware record sequence", "1", /* @r2fn R2-C0042-F00012 */row => row.seq],
+    ["start", "Integration start elapsed time", "s", /* @r2fn R2-C0042-F00013 */row => row.t_start_ms / 1000],
+    ["end", "Integration end elapsed time", "s", /* @r2fn R2-C0042-F00014 */row => row.t_end_ms / 1000],
+    ["integration", "Integration duration", "ms", /* @r2fn R2-C0042-F00015 */row => row.t_end_ms - row.t_start_ms],
+    ["periods", "Chopped illumination periods", "1", /* @r2fn R2-C0042-F00016 */row => row.periods],
+    ["led-on", "Sum of illuminated detector counts", countUnit, /* @r2fn R2-C0042-F00017 */row => row.sum_on],
+    ["led-off", "Sum of dark detector counts", countUnit, /* @r2fn R2-C0042-F00018 */row => row.sum_off],
     ["mean-net", "Mean background-subtracted detector counts", countUnit, net, "derived"],
-    ["squared-net", "Sum of squared net detector counts", "{instrument_unit}2", row => row.sumsq_net],
-    ["min-net", "Minimum net detector count", countUnit, row => row.min_net],
-    ["max-net", "Maximum net detector count", countUnit, row => row.max_net],
-    ["saturation", "Saturated detector samples", "1", row => row.sat_samples],
-    ["reference-on", "Illuminated instrument reference sum", countUnit, row => row.ref_sum_on],
-    ["reference-off", "Dark instrument reference sum", countUnit, row => row.ref_sum_off],
-    ["zone-start", "Block zone temperature at integration start", "Cel", row => row.tzone_start_mC / 1000],
-    ["zone-end", "Block zone temperature at integration end", "Cel", row => row.tzone_end_mC / 1000]
+    ["squared-net", "Sum of squared net detector counts", "{instrument_unit}2", /* @r2fn R2-C0042-F00019 */row => row.sumsq_net],
+    ["min-net", "Minimum net detector count", countUnit, /* @r2fn R2-C0042-F00020 */row => row.min_net],
+    ["max-net", "Maximum net detector count", countUnit, /* @r2fn R2-C0042-F00021 */row => row.max_net],
+    ["saturation", "Saturated detector samples", "1", /* @r2fn R2-C0042-F00022 */row => row.sat_samples],
+    ["reference-on", "Illuminated instrument reference sum", countUnit, /* @r2fn R2-C0042-F00023 */row => row.ref_sum_on],
+    ["reference-off", "Dark instrument reference sum", countUnit, /* @r2fn R2-C0042-F00024 */row => row.ref_sum_off],
+    ["zone-start", "Block zone temperature at integration start", "Cel", /* @r2fn R2-C0042-F00025 */row => row.tzone_start_mC / 1000],
+    ["zone-end", "Block zone temperature at integration end", "Cel", /* @r2fn R2-C0042-F00026 */row => row.tzone_end_mC / 1000]
   ];
 
-  const metric = (label, value, unit, source) =>
+  const metric = /* @r2fn R2-C0042-F00027 */(label, value, unit, source) =>
     `<metric><property>${label}</property>${q("value", value, unit, source)}</metric>`;
-  function eventDetails(event, acquisitionKinds) {
+  /* @r2fn R2-C0042-F00028 */function eventDetails(event, acquisitionKinds) {
     const { code, a, b } = event;
     switch (code) {
       case "STEP_START":
@@ -96,33 +96,33 @@
     }
   }
 
-  function conditions(protocol) {
-    const steps = protocol.stages.flatMap((stage, i) => {
+  /* @r2fn R2-C0042-F00029 */function conditions(protocol) {
+    const steps = protocol.stages.flatMap(/* @r2fn R2-C0042-F00030 */(stage, i) => {
       if (stage.type === "melt") return [`<step id="${stepId(i, 0)}"><description>Continuous melt ramp from ${stage.from_c} to ${stage.to_c} °C</description>${q("temperature", stage.to_c, "Cel", "programmed")}${q("rampRate", stage.rate_c_per_s, "Cel/s", "programmed")}<acquisition>true</acquisition><acquisitionMode>melting</acquisitionMode></step>`];
-      return stage.steps.map((step, j) => `<step id="${stepId(i, j)}"><description>${stage.type} stage ${i + 1}, step ${j + 1}</description>${q("temperature", step.temp_c, "Cel", "programmed")}${q("temperatureChange", step.delta_temp_c, "Cel", "programmed")}${q("duration", step.hold_s, "s", "programmed")}${q("rampRate", step.ramp_c_per_s, "Cel/s", "programmed")}<acquisition>${!!step.read}</acquisition>${stage.repeats > 1 && j === stage.steps.length - 1 ? `<repeat>${stage.repeats}</repeat>` : ""}</step>`);
+      return stage.steps.map(/* @r2fn R2-C0042-F00031 */(step, j) => `<step id="${stepId(i, j)}"><description>${stage.type} stage ${i + 1}, step ${j + 1}</description>${q("temperature", step.temp_c, "Cel", "programmed")}${q("temperatureChange", step.delta_temp_c, "Cel", "programmed")}${q("duration", step.hold_s, "s", "programmed")}${q("rampRate", step.ramp_c_per_s, "Cel/s", "programmed")}<acquisition>${!!step.read}</acquisition>${stage.repeats > 1 && j === stage.steps.length - 1 ? `<repeat>${stage.repeats}</repeat>` : ""}</step>`);
     });
     return `<conditions><description>Programmed stages in order. Repeat applies to all steps of the named stage.</description>${ref("thermalCyclingConditions", "protocol")}${q("coverTemperature", protocol.lid_c, "Cel", "programmed")}${steps.join("")}${ref("documentation", "inputs")}</conditions>`;
   }
 
-  function reactionDetails(run, evaluation, byWell) {
-    const analyses = evaluation.order.map(method => `<analysis id="analysis-${method}"><name>${xml(evaluation.assays[method].name)}</name>${ref("software", "workbench")}<origin>stored analysis</origin>${ref("documentation", "evaluation")}${ref("documentation", "assay-diagnostics")}</analysis>`);
-    const bySample = new Map((evaluation.samples || []).map(s => [s.no, s.ev]));
-    const reacts = run.plate.flatMap((well, w) => {
+  /* @r2fn R2-C0042-F00032 */function reactionDetails(run, evaluation, byWell) {
+    const analyses = evaluation.order.map(/* @r2fn R2-C0042-F00033 */method => `<analysis id="analysis-${method}"><name>${xml(evaluation.assays[method].name)}</name>${ref("software", "workbench")}<origin>stored analysis</origin>${ref("documentation", "evaluation")}${ref("documentation", "assay-diagnostics")}</analysis>`);
+    const bySample = new Map((evaluation.samples || []).map(/* @r2fn R2-C0042-F00034 */s => [s.no, s.ev]));
+    const reacts = run.plate.flatMap(/* @r2fn R2-C0042-F00035 */(well, w) => {
       if (!well.t.length) return [];
-      const data = well.t.map(target => {
+      const data = well.t.map(/* @r2fn R2-C0042-F00036 */target => {
         const sampleEvaluation = bySample.get(well.sampleNo) || evaluation;
         const assay = sampleEvaluation.assays[target.m], amp = assay.one.res.amp, curve = amp?.wells[w];
         const reads = byWell[w][assay.channel], signals = [];
-        function signal(type, suffix, points) {
+        /* @r2fn R2-C0042-F00037 */function signal(type, suffix, points) {
           if (points.length) signals.push(`<signal id="signal-${w + 1}-${target.m}-${suffix}"><type>${type}</type>${ref("channel", channelId(assay.channel))}<unit>${countUnit}</unit><origin>derived</origin>${points.join("")}${ref("documentation", "mapping")}</signal>`);
         }
-        const point = (tag, coordinate, value, row) => `<${tag}>${coordinate}${q("fluor", value, countUnit, "derived")}${q("elapsed", row.t_end_ms / 1000, "s")}${ref("acquisition", acquisitionId(row))}${row.sat_samples ? "<valid>false</valid>" : ""}</${tag}>`;
-        const amplification = reads.filter(row => row.kind === "A"), melting = reads.filter(row => row.kind === "M");
-        signal("background corrected", "amp", amplification.map(row => point("adp", `<cyc>${row.cycle}</cyc>`, net(row), row)));
-        signal("melting", "melt", melting.map(row => point("mdp", q("tmp", (row.tzone_start_mC + row.tzone_end_mC) / 2000, "Cel", "derived"), net(row), row)));
+        const point = /* @r2fn R2-C0042-F00038 */(tag, coordinate, value, row) => `<${tag}>${coordinate}${q("fluor", value, countUnit, "derived")}${q("elapsed", row.t_end_ms / 1000, "s")}${ref("acquisition", acquisitionId(row))}${row.sat_samples ? "<valid>false</valid>" : ""}</${tag}>`;
+        const amplification = reads.filter(/* @r2fn R2-C0042-F00039 */row => row.kind === "A"), melting = reads.filter(/* @r2fn R2-C0042-F00040 */row => row.kind === "M");
+        signal("background corrected", "amp", amplification.map(/* @r2fn R2-C0042-F00041 */row => point("adp", `<cyc>${row.cycle}</cyc>`, net(row), row)));
+        signal("melting", "melt", melting.map(/* @r2fn R2-C0042-F00042 */row => point("mdp", q("tmp", (row.tzone_start_mC + row.tzone_end_mC) / 2000, "Cel", "derived"), net(row), row)));
         if (curve?.corrected) {
-          const mainReads = new Map(amplification.map(row => [row.cycle, row]));
-          signal("baseline corrected", "baseline", amp.cycles.flatMap((cycle, i) => {
+          const mainReads = new Map(amplification.map(/* @r2fn R2-C0042-F00043 */row => [row.cycle, row]));
+          signal("baseline corrected", "baseline", amp.cycles.flatMap(/* @r2fn R2-C0042-F00044 */(cycle, i) => {
             const row = mainReads.get(cycle), value = curve.corrected[i];
             return row && Number.isFinite(value) ? [point("adp", `<cyc>${cycle}</cyc>`, value, row)] : [];
           }));
@@ -134,32 +134,32 @@
         const result = `<result><state>${resultState}</state>${q("cq", curve?.cq, "1", "stored analysis")}${q("conc", curve?.quantity, "{copies}", "stored analysis")}${q("tm", assay.tm[w], "Cel", "stored analysis")}${q("endPt", curve?.endSignal, countUnit, "stored analysis")}${well.role === "unknown" ? `<call>${xml(assay.reported)}</call>` : ""}${curve?.cqReason ? `<note>${xml(curve.cqReason)}</note>` : ""}</result>`;
         return `<data>${ref("tar", target.m)}${signals.join("")}${ref("analysis", "analysis-" + target.m)}${settings}${result}${target.q != null ? annotation("assigned target copies per reaction", target.q) : ""}</data>`;
       });
-      const volumes = [...new Set(well.t.map(target => R2.GMO.methods[target.m].vol))];
+      const volumes = [...new Set(well.t.map(/* @r2fn R2-C0042-F00045 */target => R2.GMO.methods[target.m].vol))];
       return [`<react id="${w + 1}"><description>${xml(well.sample)}</description><position>${R2.wellName(w)}</position>${ref("sample", R2.rdmlSampleKey(well, w))}${volumes.length === 1 ? q("volume", volumes[0], "uL", "programmed") : ""}${data.join("")}</react>`];
     });
     return [...analyses, ...reacts];
   }
 
-  function payloadsFor(run, ev) {
+  /* @r2fn R2-C0042-F00046 */function payloadsFor(run, ev) {
     const payloads = [], manifest = [], rec = run.record;
-    function file(id, name, content, mediaType) {
+    /* @r2fn R2-C0042-F00047 */function file(id, name, content, mediaType) {
       const data = R2.utf8(content);
       payloads.push({ name, data });
       manifest.push(`<file id="${id}"><filename>${name}</filename><mediaType>${mediaType}</mediaType><sha256>${R2.sha256(data)}</sha256><byteCount>${data.length}</byteCount></file>`);
     }
-    function writeTable(id, name, rows, columns) {
-      const lines = [columns.map(column => column[0]).join("\t")];
-      for (const row of rows) lines.push(columns.map(([, , , get]) => {
+    /* @r2fn R2-C0042-F00048 */function writeTable(id, name, rows, columns) {
+      const lines = [columns.map(/* @r2fn R2-C0042-F00049 */column => column[0]).join("\t")];
+      for (const row of rows) lines.push(columns.map(/* @r2fn R2-C0042-F00050 */([, , , get]) => {
         const value = get(row);
         return Number.isFinite(value) ? value : "NA";
       }).join("\t"));
       file(id, name, lines.join("\n") + "\n", "text/tab-separated-values");
-      return `<table>${ref("file", id)}<storage>TSV</storage><rowCount>${rows.length}</rowCount>${columns.map(([key, label, unit, , source]) => col(key, label, unit, source || "reported")).join("")}${ref("documentation", "mapping")}</table>`;
+      return `<table>${ref("file", id)}<storage>TSV</storage><rowCount>${rows.length}</rowCount>${columns.map(/* @r2fn R2-C0042-F00051 */([key, label, unit, , source]) => col(key, label, unit, source || "reported")).join("")}${ref("documentation", "mapping")}</table>`;
     }
-    function table(id, quantity, unit, field, source, scale = 1) {
+    /* @r2fn R2-C0042-F00052 */function table(id, quantity, unit, field, source, scale = 1) {
       return writeTable(id, "telemetry/" + id + ".tsv", rec.telemetry, [
-        ["elapsed", "Elapsed instrument time", "s", row => row.t_ms / 1000],
-        ["value", quantity, unit, row => row[field] * scale, source]
+        ["elapsed", "Elapsed instrument time", "s", /* @r2fn R2-C0042-F00053 */row => row.t_ms / 1000],
+        ["value", quantity, unit, /* @r2fn R2-C0042-F00054 */row => row[field] * scale, source]
       ]);
     }
 
@@ -172,7 +172,7 @@
       simulationSetup: run.simulationSetup
     }, null, 2), "application/json");
     file("analysis-file", "analysis/evaluation.json", R2.analysisJson(run, ev, null), "application/json");
-    const diagnostics = Object.fromEntries(ev.order.map(method => [method, ev.assays[method].one.res]));
+    const diagnostics = Object.fromEntries(ev.order.map(/* @r2fn R2-C0042-F00055 */method => [method, ev.assays[method].one.res]));
     file("assay-detail", "analysis/assay-detail.json", JSON.stringify(diagnostics), "application/json");
     const methodEvidence = R2.maraEvidenceForRun?.(run, ev);
     if (methodEvidence) file("mara-evidence", "analysis/mara-evidence.json", JSON.stringify(methodEvidence), "application/json");
@@ -190,29 +190,29 @@
       "A saturating read is retained with its saturation count and marked invalid in linked signal points. " +
       "The simulator record preserves the exact thermal, optical and event fields and record sequence. " +
       "The core fluorescence is mean LED-on minus LED-off per detector sample. Cq values in the core are per-well observations; use the evaluation file for report eligibility.";
-    const logs = rec.telemetry.length ? temperatures.map(([id, quantity, field]) =>
+    const logs = rec.telemetry.length ? temperatures.map(/* @r2fn R2-C0042-F00056 */([id, quantity, field]) =>
       `<temperatureLog id="log-${id}">${ref("sensor", id)}${origin}${table(id, "Temperature", "Cel", field, "measured")}</temperatureLog>`) : [];
-    const traces = rec.telemetry.length ? series.map(([id, quantity, unit, field, source, scale]) =>
+    const traces = rec.telemetry.length ? series.map(/* @r2fn R2-C0042-F00057 */([id, quantity, unit, field, source, scale]) =>
       `<series id="series-${id}"><quantity>${quantity}</quantity><unit>${unit}</unit><origin>${source}</origin>${origin}${table(id, quantity, unit, field, source, scale)}</series>`) : [];
     if (rec.telemetry.length) {
-      const stateNames = [...new Set(rec.telemetry.map(row => row.state))];
+      const stateNames = [...new Set(rec.telemetry.map(/* @r2fn R2-C0042-F00058 */row => row.state))];
       const firmwareCols = [
-        ["elapsed", "Elapsed instrument time", "s", row => row.t_ms / 1000],
-        ["sequence", "Firmware record sequence", "1", row => row.seq],
-        ["state", "Firmware state code", "1", row => stateNames.indexOf(row.state)],
-        ["stage", "Programmed stage index (zero-based)", "1", row => row.stage],
-        ["step", "Programmed step index (zero-based)", "1", row => row.step],
-        ["cycle", "Firmware cycle index", "1", row => row.cycle],
-        ["enable", "Drive enabled", "1", row => row.enable],
-        ["lid-closed", "Lid closed", "1", row => row.lid_closed],
-        ["hardware-trip", "Hardware trip asserted", "1", row => row.hw_trip],
-        ["rails-ok", "Power rails within limits", "1", row => row.rails_ok],
-        ["detector-busy", "Optical acquisition active", "1", row => row.optics_busy]
+        ["elapsed", "Elapsed instrument time", "s", /* @r2fn R2-C0042-F00059 */row => row.t_ms / 1000],
+        ["sequence", "Firmware record sequence", "1", /* @r2fn R2-C0042-F00060 */row => row.seq],
+        ["state", "Firmware state code", "1", /* @r2fn R2-C0042-F00061 */row => stateNames.indexOf(row.state)],
+        ["stage", "Programmed stage index (zero-based)", "1", /* @r2fn R2-C0042-F00062 */row => row.stage],
+        ["step", "Programmed step index (zero-based)", "1", /* @r2fn R2-C0042-F00063 */row => row.step],
+        ["cycle", "Firmware cycle index", "1", /* @r2fn R2-C0042-F00064 */row => row.cycle],
+        ["enable", "Drive enabled", "1", /* @r2fn R2-C0042-F00065 */row => row.enable],
+        ["lid-closed", "Lid closed", "1", /* @r2fn R2-C0042-F00066 */row => row.lid_closed],
+        ["hardware-trip", "Hardware trip asserted", "1", /* @r2fn R2-C0042-F00067 */row => row.hw_trip],
+        ["rails-ok", "Power rails within limits", "1", /* @r2fn R2-C0042-F00068 */row => row.rails_ok],
+        ["detector-busy", "Optical acquisition active", "1", /* @r2fn R2-C0042-F00069 */row => row.optics_busy]
       ];
       const firmware = writeTable("firmware", "telemetry/firmware.tsv", rec.telemetry, firmwareCols);
-      traces.push(`<series id="firmware-state"><quantity>Firmware state and interlocks</quantity><unit>1</unit><origin>reported</origin>${origin}${firmware}${annotation("firmware state code map", stateNames.map((state, i) => i + "=" + state).join(", "))}</series>`);
+      traces.push(`<series id="firmware-state"><quantity>Firmware state and interlocks</quantity><unit>1</unit><origin>reported</origin>${origin}${firmware}${annotation("firmware state code map", stateNames.map(/* @r2fn R2-C0042-F00070 */(state, i) => i + "=" + state).join(", "))}</series>`);
     }
-    const groups = new Map(), acquisitionKinds = new Map(), byWell = run.plate.map(() => [[], []]);
+    const groups = new Map(), acquisitionKinds = new Map(), byWell = run.plate.map(/* @r2fn R2-C0042-F00071 */() => [[], []]);
     for (const row of rec.optical) {
       const id = acquisitionId(row);
       if (!groups.has(id)) groups.set(id, []);
@@ -220,38 +220,38 @@
       acquisitionKinds.set(row.acq, row.kind);
       byWell[row.well][row.channel].push(row);
     }
-    const acquisitions = Array.from(groups, ([id, rows]) => {
+    const acquisitions = Array.from(groups, /* @r2fn R2-C0042-F00072 */([id, rows]) => {
       const first = rows[0], melting = first.kind === "M";
       const step = stepId(first.stage, melting ? 0 : first.step);
-      const start = Math.min(...rows.map(row => row.t_start_ms));
+      const start = Math.min(...rows.map(/* @r2fn R2-C0042-F00073 */row => row.t_start_ms));
       const payload = writeTable(id, "acquisitions/" + id + ".tsv", rows, opticalCols);
       return `<acquisition id="${id}">${melting ? "" : `<cyc>${first.cycle}</cyc>`}${ref("step", step)}${ref("channel", channelId(first.channel))}<time>${elapsed(start / 1000)}${ref("referenceEvent", "clock-origin")}</time>${payload}${annotation("acquisition mode", melting ? "melting" : "amplification")}${annotation("plate scan identifier", first.acq)}${melting ? annotation("melt scan index", first.cycle) : ""}</acquisition>`;
     });
     const reactions = reactionDetails(run, ev, byWell);
-    if (run.chemLog?.some(row => row.plant)) {
+    if (run.chemLog?.some(/* @r2fn R2-C0042-F00074 */row => row.plant)) {
       const modelColumns = [
-        ["elapsed", "Elapsed instrument time", "s", row => row.t_ms / 1000],
-        ["block-1", "Modeled block zone 1 temperature", "Cel", row => row.plant?.block_c[0]],
-        ["block-2", "Modeled block zone 2 temperature", "Cel", row => row.plant?.block_c[1]],
-        ["lid", "Modeled lid temperature", "Cel", row => row.plant?.lid_c],
-        ["heat-sink", "Modeled heat sink temperature", "Cel", row => row.plant?.sink_c],
-        ["ambient", "Modeled ambient temperature", "Cel", row => row.plant?.ambient_c],
-        ["current-1", "Modeled zone 1 TEC current", "A", row => row.plant?.tec_mA[0] / 1000],
-        ["current-2", "Modeled zone 2 TEC current", "A", row => row.plant?.tec_mA[1] / 1000],
-        ["lid-current", "Modeled lid heater current", "A", row => row.plant?.lid_mA / 1000],
-        ["watchdog-age", "Time since watchdog kick", "ms", row => row.plant?.watchdog_age_ms],
-        ["watchdog-ok", "Watchdog permits operation", "1", row => row.plant ? Number(row.plant.watchdog_ok) : null],
-        ["enable-request", "Firmware requests drive enable", "1", row => row.plant ? Number(row.plant.enable_request) : null],
-        ["trip-test", "Overtemperature proof test asserted", "1", row => row.plant ? Number(row.plant.overtemperature_test) : null],
-        ["led-drive", "Selected optical LED drive ratio", "1", row => row.plant?.led_drive],
-        ["destination", "Controller target temperature", "Cel", row => row.control?.destination_c],
-        ["setpoint", "Current controller setpoint", "Cel", row => row.control?.setpoint_c],
-        ["ramp", "Controller ramp rate limit", "Cel/s", row => row.control?.maximum_ramp_c_per_s]
-      ].map(column => [...column, "derived"]);
+        ["elapsed", "Elapsed instrument time", "s", /* @r2fn R2-C0042-F00075 */row => row.t_ms / 1000],
+        ["block-1", "Modeled block zone 1 temperature", "Cel", /* @r2fn R2-C0042-F00076 */row => row.plant?.block_c[0]],
+        ["block-2", "Modeled block zone 2 temperature", "Cel", /* @r2fn R2-C0042-F00077 */row => row.plant?.block_c[1]],
+        ["lid", "Modeled lid temperature", "Cel", /* @r2fn R2-C0042-F00078 */row => row.plant?.lid_c],
+        ["heat-sink", "Modeled heat sink temperature", "Cel", /* @r2fn R2-C0042-F00079 */row => row.plant?.sink_c],
+        ["ambient", "Modeled ambient temperature", "Cel", /* @r2fn R2-C0042-F00080 */row => row.plant?.ambient_c],
+        ["current-1", "Modeled zone 1 TEC current", "A", /* @r2fn R2-C0042-F00081 */row => row.plant?.tec_mA[0] / 1000],
+        ["current-2", "Modeled zone 2 TEC current", "A", /* @r2fn R2-C0042-F00082 */row => row.plant?.tec_mA[1] / 1000],
+        ["lid-current", "Modeled lid heater current", "A", /* @r2fn R2-C0042-F00083 */row => row.plant?.lid_mA / 1000],
+        ["watchdog-age", "Time since watchdog kick", "ms", /* @r2fn R2-C0042-F00084 */row => row.plant?.watchdog_age_ms],
+        ["watchdog-ok", "Watchdog permits operation", "1", /* @r2fn R2-C0042-F00085 */row => row.plant ? Number(row.plant.watchdog_ok) : null],
+        ["enable-request", "Firmware requests drive enable", "1", /* @r2fn R2-C0042-F00086 */row => row.plant ? Number(row.plant.enable_request) : null],
+        ["trip-test", "Overtemperature proof test asserted", "1", /* @r2fn R2-C0042-F00087 */row => row.plant ? Number(row.plant.overtemperature_test) : null],
+        ["led-drive", "Selected optical LED drive ratio", "1", /* @r2fn R2-C0042-F00088 */row => row.plant?.led_drive],
+        ["destination", "Controller target temperature", "Cel", /* @r2fn R2-C0042-F00089 */row => row.control?.destination_c],
+        ["setpoint", "Current controller setpoint", "Cel", /* @r2fn R2-C0042-F00090 */row => row.control?.setpoint_c],
+        ["ramp", "Controller ramp rate limit", "Cel/s", /* @r2fn R2-C0042-F00091 */row => row.control?.maximum_ramp_c_per_s]
+      ].map(/* @r2fn R2-C0042-F00092 */column => [...column, "derived"]);
       const payload = writeTable("plant-model", "telemetry/plant-model.tsv", run.chemLog, modelColumns);
       traces.push(`<series id="plant-model-state"><description>Per-second internal simulation values before sensor conversion.</description><quantity>Virtual plant and controller state</quantity><unit>1</unit><origin>derived</origin>${origin}${payload}${ref("documentation", "chemistry")}</series>`);
     }
-    const sensors = temperatures.map(([id, location]) =>
+    const sensors = temperatures.map(/* @r2fn R2-C0042-F00093 */([id, location]) =>
       `<sensor id="${id}" termId="temperature"><description>Simulated ${location} sensor</description><location>${location}</location><quantity>temperature</quantity><unit>Cel</unit></sensor>`);
     if (run.chemLog?.length) {
       for (let zone = 0; zone < 2; zone++) {
@@ -259,8 +259,8 @@
         const location = "Virtual reaction liquid zone " + (zone + 1);
         sensors.push(`<sensor id="${id}" termId="temperature"><description>Simulation estimate of reaction liquid temperature</description><location>${location}</location><quantity>temperature</quantity><unit>Cel</unit></sensor>`);
         const payload = writeTable(id, "telemetry/" + id + ".tsv", run.chemLog, [
-          ["elapsed", "Elapsed instrument time", "s", row => row.t_ms / 1000],
-          ["value", "Estimated reaction liquid temperature", "Cel", row => row.liquid_c[zone], "derived"]
+          ["elapsed", "Elapsed instrument time", "s", /* @r2fn R2-C0042-F00094 */row => row.t_ms / 1000],
+          ["value", "Estimated reaction liquid temperature", "Cel", /* @r2fn R2-C0042-F00095 */row => row.liquid_c[zone], "derived"]
         ]);
         logs.push(`<temperatureLog id="log-${id}">${ref("sensor", id)}${origin}${payload}${ref("documentation", "chemistry")}</temperatureLog>`);
       }
@@ -272,7 +272,7 @@
       const details = eventDetails(event, acquisitionKinds);
       events.push(`<event id="event-${event.seq}"><time>${elapsed(event.t_ms / 1000)}</time><severity>${severity}</severity><type>${type}</type><description>${xml(event.code)}</description>${Number.isFinite(details.cycle) ? `<cyc>${details.cycle}</cyc>` : ""}${details.step ? ref("step", details.step) : ""}${q("duration", details.duration, "s")}${details.metrics || ""}</event>`);
     }
-    const channels = [0, 1].map(i => `<channel id="${channelId(i)}"><description>${i === 0 ? "FAM / SYBR Green" : "VIC / HEX / Yakima Yellow"}</description><active>true</active></channel>`);
+    const channels = [0, 1].map(/* @r2fn R2-C0042-F00096 */i => `<channel id="${channelId(i)}"><description>${i === 0 ? "FAM / SYBR Green" : "VIC / HEX / Yakima Yellow"}</description><active>true</active></channel>`);
     const runId = String(run.runId).replace(/\s+/g, "_");
     const companion = [
       '<?xml version="1.0" encoding="UTF-8"?>',
@@ -309,6 +309,6 @@
     payloads.push({ name: "rdmlt_data.xml", data: R2.utf8(companion.join("\n")) });
     return payloads;
   }
-  R2.rdmltBytes = (run, ev) => R2.zipBytes(payloadsFor(run, ev));
-  R2.rdmltCompressed = (run, ev) => R2.zipDeflated(payloadsFor(run, ev));
+  R2.rdmltBytes = /* @r2fn R2-C0042-F00097 */(run, ev) => R2.zipBytes(payloadsFor(run, ev));
+  R2.rdmltCompressed = /* @r2fn R2-C0042-F00098 */(run, ev) => R2.zipDeflated(payloadsFor(run, ev));
 })(window.R2);

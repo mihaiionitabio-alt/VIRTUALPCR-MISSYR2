@@ -13,3 +13,4 @@ Live page: [https://mihaiionitabio-alt.github.io/VIRTUALPCR-MISSYR2/](https://mi
 - MISSY-style navigation, sound settings and configurable animal shortcuts.
 - Offline browser operation; experiment data stays on the user's computer.
 - Research and training software under active development; not validated for laboratory use.
+- [Illustrated wiki](https://mihaiionitabio-alt.github.io/VIRTUALPCR-MISSYR2/wiki/) with screenshots, validated architecture models and function codes.

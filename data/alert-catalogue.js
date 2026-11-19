@@ -30,11 +30,11 @@
  *
  * Artificial data. The catalogue makes no claim of conformity with the cited documents.
  */
-(function (R2) {
+(/* @r2fn R2-C0003-F00001 */function (R2) {
   "use strict";
-  const A = (id, cls, area, gate, npr, title, text, effect, action, speech, match) =>
+  const A = /* @r2fn R2-C0003-F00002 */(id, cls, area, gate, npr, title, text, effect, action, speech, match) =>
     ({ id, cls, area, gate, npr, title, text, effect, action, speech, match });
-  const L = (en, zh) => ({ en, zh });
+  const L = /* @r2fn R2-C0003-F00003 */(en, zh) => ({ en, zh });
 
   const LIST = [
     /* ---------------- PRF · run profile file ---------------- */

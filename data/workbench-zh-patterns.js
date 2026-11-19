@@ -69,7 +69,7 @@ Control channels|对照通道
 Instrument time (s) · last 180 s · shading marks detector reads|仪器时间（秒）· 最近 180 秒 · 阴影标示检测器采集
 channel 1: FAM, SYBR Green|通道 1：FAM、SYBR Green
 channel 2: VIC, HEX, Yakima Yellow|通道 2：VIC、HEX、Yakima Yellow
-`.trim().split("\n").map(row => { const i = row.indexOf("|"); return [row.slice(0, i), row.slice(i + 1)]; })));
+`.trim().split("\n").map(/* @r2fn R2-C0015-F00001 */row => { const i = row.indexOf("|"); return [row.slice(0, i), row.slice(i + 1)]; })));
 window.R2_ZH_PATTERNS.push(
   [/^([^·]+?) at ([\d.]+) % \(simulated\)$/, "$1，含量 $2 %（模拟）"],
   [/^Preparing RDMLt (\d+) of (\d+) · (.+)$/, "正在准备 RDMLt $1 / $2 · $3"],
@@ -109,7 +109,7 @@ window.R2_ZH_PATTERNS.push(
   [/^(\d+) (?:file|files)$/, "$1 个文件"],
   [/^(\d+) (?:run|runs)$/, "$1 次运行"],
   [/^(\d+) instrument minutes$/, "$1 分钟仪器时间"],
-  [/^Built-in · (.+)$/, (_, name) => "内置 · " + (window.R2_WORKBENCH_ZH[name] || name)],
+  [/^Built-in · (.+)$/, /* @r2fn R2-C0015-F00002 */(_, name) => "内置 · " + (window.R2_WORKBENCH_ZH[name] || name)],
   [/^forward primer (.+)$/, "正向引物 $1"],
   [/^reverse primer (.+)$/, "反向引物 $1"],
   [/^probe (.+)$/, "探针 $1"],

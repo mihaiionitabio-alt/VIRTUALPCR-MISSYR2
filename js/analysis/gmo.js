@@ -1,13 +1,13 @@
 /* Evaluation of a GMO run: each assay is analysed on its own tubes and channel, then controls, sample result,
  * screening pattern or GM content are derived. Acceptance values for the calibration curve are the ENGL minimum
  * performance requirements (slope between -3.1 and -3.6, R² at least 0.98). */
-(function (R2) {
+(/* @r2fn R2-C0020-F00001 */function (R2) {
   "use strict";
   const G = (R2.gmoeval = {}),
-    M = (id) => R2.GMO.methods[id],
-    mean = (a) => a.reduce((s, v) => s + v, 0) / a.length;
+    M = /* @r2fn R2-C0020-F00002 */(id) => R2.GMO.methods[id],
+    mean = /* @r2fn R2-C0020-F00003 */(a) => a.reduce(/* @r2fn R2-C0020-F00004 */(s, v) => s + v, 0) / a.length;
   G.THRESHOLD = 15; // counts above baseline; one fixed default so that Cq values of different runs and reagent conditions can be compared
-  G.assays = (run) => {
+  G.assays = /* @r2fn R2-C0020-F00005 */(run) => {
     const ids = [];
     for (const W of run.plate)
       for (const t of W.t || []) if (!ids.includes(t.m)) ids.push(t.m);
@@ -15,7 +15,7 @@
   };
   // one assay: its tubes, channel and a plate view the general analysis understands
   // Cq method: "auto" takes the laboratory procedure's (second-derivative maximum for SIMPLEX) or the threshold crossing
-  G.method = (run, m) =>
+  G.method = /* @r2fn R2-C0020-F00006 */(run, m) =>
     run.gmo?.mara
       ? "threshold"
       : !m || m === "auto"
@@ -23,10 +23,10 @@
           ? R2.LAB[run.gmo.lab].rules.cqMethod
           : "threshold"
         : m;
-  G.one = function (run, id, opt) {
+  G.one = /* @r2fn R2-C0020-F00007 */function (run, id, opt) {
     const set = new Set(),
-      view = run.plate.map((W, w) => {
-        const t = (W.t || []).find((x) => x.m === id);
+      view = run.plate.map(/* @r2fn R2-C0020-F00008 */(W, w) => {
+        const t = (W.t || []).find(/* @r2fn R2-C0020-F00009 */(x) => x.m === id);
         if (!t) return { role: "empty", sample: "" };
         set.add(w);
         return {
@@ -44,8 +44,8 @@
     let res = cache[key];
     if (!res) {
       const fset = new Set(),
-        fview = full.plate.map((W, w) => {
-          const t = (W.t || []).find((x) => x.m === id);
+        fview = full.plate.map(/* @r2fn R2-C0020-F00010 */(W, w) => {
+          const t = (W.t || []).find(/* @r2fn R2-C0020-F00011 */(x) => x.m === id);
           if (!t) return { role: "empty", sample: "" };
           fset.add(w);
           return {
@@ -76,22 +76,22 @@
     return { id, channel: ch, view, wells: set, res };
   };
   // every sample of the run is evaluated with the run's shared controls; out.samples lists them, out itself is sample 1
-  G.run = function (run, opt) {
+  G.run = /* @r2fn R2-C0020-F00012 */function (run, opt) {
     opt = Object.assign({}, opt || {});
     opt._cache = opt._cache || {};
     opt._full = run;
     const nos = [
       ...new Set(
         run.plate
-          .filter((W) => W.role === "unknown")
-          .map((W) => W.sampleNo || 1),
+          .filter(/* @r2fn R2-C0020-F00013 */(W) => W.role === "unknown")
+          .map(/* @r2fn R2-C0020-F00014 */(W) => W.sampleNo || 1),
       ),
-    ].sort((a, b) => a - b);
-    const list = (nos.length ? nos : [1]).map((no) => {
+    ].sort(/* @r2fn R2-C0020-F00015 */(a, b) => a - b);
+    const list = (nos.length ? nos : [1]).map(/* @r2fn R2-C0020-F00016 */(no) => {
       const view =
         nos.length > 1
           ? Object.assign({}, run, {
-              plate: run.plate.map((W) =>
+              plate: run.plate.map(/* @r2fn R2-C0020-F00017 */(W) =>
                 W.role === "unknown" && (W.sampleNo || 1) !== no
                   ? { role: "empty", sample: "", t: [] }
                   : W,
@@ -102,11 +102,11 @@
           ? R2.MARA.evaluate(view, opt)
           : G.runOne(view, opt),
         W0 = run.plate.find(
-          (W) => W.role === "unknown" && (W.sampleNo || 1) === no,
+          /* @r2fn R2-C0020-F00018 */(W) => W.role === "unknown" && (W.sampleNo || 1) === no,
         );
       if (nos.length > 1 && W0 && W0.sampleName)
         ev.findings = ev.findings.filter(
-          (f) =>
+          /* @r2fn R2-C0020-F00019 */(f) =>
             !/^.*Replicates of '/.test(f.text) ||
             f.text.includes(W0.sampleName + "-"),
         );
@@ -116,35 +116,35 @@
     return { ...list[0].ev, samples: list, sampleCount: list.length };
   };
   // results per sub-sample (independent extraction): detection per assay, and GM content per extraction for quantification
-  G.extractions = function (run, ev) {
+  G.extractions = /* @r2fn R2-C0020-F00020 */function (run, ev) {
     const un = run.plate
-      .map((W, w) => [W, w])
-      .filter(([W]) => W.role === "unknown" && W.ext);
+      .map(/* @r2fn R2-C0020-F00021 */(W, w) => [W, w])
+      .filter(/* @r2fn R2-C0020-F00022 */([W]) => W.role === "unknown" && W.ext);
     if (!un.length) return;
-    const exts = [...new Set(un.map(([W]) => W.ext))].sort();
+    const exts = [...new Set(un.map(/* @r2fn R2-C0020-F00023 */([W]) => W.ext))].sort();
     for (const id of ev.order) {
       const r = ev.assays[id],
         a = r.one.res.amp;
-      r.byExtraction = exts.map((e) => {
+      r.byExtraction = exts.map(/* @r2fn R2-C0020-F00024 */(e) => {
         const ws = un
-            .filter(([W]) => W.ext === e && W.t.some((t) => t.m === id))
-            .map(([, w]) => w),
+            .filter(/* @r2fn R2-C0020-F00025 */([W]) => W.ext === e && W.t.some(/* @r2fn R2-C0020-F00026 */(t) => t.m === id))
+            .map(/* @r2fn R2-C0020-F00027 */([, w]) => w),
           cq = ws
-            .map((w) => r.cq[w])
-            .filter((v) => v !== null && v !== undefined);
+            .map(/* @r2fn R2-C0020-F00028 */(w) => r.cq[w])
+            .filter(/* @r2fn R2-C0020-F00029 */(v) => v !== null && v !== undefined);
         return {
           ext: e,
           tubes: ws.length,
           amplified: cq.length,
           meanCq: cq.length ? mean(cq) : null,
           copies: a
-            ? ws.map((w) => a.wells[w].quantity).filter((v) => v > 0)
+            ? ws.map(/* @r2fn R2-C0020-F00030 */(w) => a.wells[w].quantity).filter(/* @r2fn R2-C0020-F00031 */(v) => v > 0)
             : [],
         };
       });
     }
     if (ev.stage === "quant" && ev.event && ev.taxon && ev.event.byExtraction) {
-      ev.byExtraction = exts.map((e, i) => {
+      ev.byExtraction = exts.map(/* @r2fn R2-C0020-F00032 */(e, i) => {
         const E = ev.event.byExtraction[i],
           T = ev.taxon.byExtraction[i];
         return {
@@ -157,11 +157,11 @@
           taxonCq: T.meanCq,
         };
       });
-      const v = ev.byExtraction.map((x) => x.gmPct).filter(Number.isFinite);
+      const v = ev.byExtraction.map(/* @r2fn R2-C0020-F00033 */(x) => x.gmPct).filter(Number.isFinite);
       if (v.length > 1) {
         const m = mean(v),
           sd = Math.sqrt(
-            v.reduce((a, x) => a + (x - m) ** 2, 0) / (v.length - 1),
+            v.reduce(/* @r2fn R2-C0020-F00034 */(a, x) => a + (x - m) ** 2, 0) / (v.length - 1),
           );
         ev.extractionStats = {
           n: v.length,
@@ -177,12 +177,12 @@
       }
     }
   };
-  G.runOne = function (run, opt) {
+  G.runOne = /* @r2fn R2-C0020-F00035 */function (run, opt) {
     const ids = G.assays(run),
       g = run.gmo,
       completed = run.outcome === "completed",
       out = { assays: {}, order: ids, findings: [], stage: g.stage },
-      cyc = run.protocol.stages.find((s) => s.type === "cycle").repeats;
+      cyc = run.protocol.stages.find(/* @r2fn R2-C0020-F00036 */(s) => s.type === "cycle").repeats;
     for (const id of ids) {
       const o = G.one(run, id, opt),
         a = o.res.amp,
@@ -196,9 +196,9 @@
           cq: {},
           tm: {},
         };
-      const of = (kind) =>
-          [...o.wells].filter((w) => run.plate[w].role === kind),
-        cq = (w) => (a ? a.wells[w].cq : null);
+      const of = /* @r2fn R2-C0020-F00037 */(kind) =>
+          [...o.wells].filter(/* @r2fn R2-C0020-F00038 */(w) => run.plate[w].role === kind),
+        cq = /* @r2fn R2-C0020-F00039 */(w) => (a ? a.wells[w].cq : null);
       for (const w of o.wells) {
         r.cq[w] = cq(w);
         if (m.sybr && o.res.melt && o.res.melt.wells[w].peaks[0])
@@ -209,28 +209,28 @@
         un = of("unknown"),
         st = of("standard");
       const tmPc = m.sybr && pc.length ? r.tm[pc[0]] : undefined,
-        sameProduct = (w) =>
+        sameProduct = /* @r2fn R2-C0020-F00040 */(w) =>
           tmPc === undefined ||
           (r.tm[w] !== undefined && Math.abs(r.tm[w] - tmPc) <= 1.5);
       r.ntcPresent = ntc.length > 0;
       r.ntcOk =
         r.ntcPresent &&
         ntc.every(
-          (w) =>
+          /* @r2fn R2-C0020-F00041 */(w) =>
             cq(w) === null || (m.sybr && tmPc !== undefined && !sameProduct(w)),
         ); // SYBR Green: a late rise that does not melt like the target is primer-dimer
-      if (m.sybr && ntc.some((w) => cq(w) !== null) && r.ntcOk)
+      if (m.sybr && ntc.some(/* @r2fn R2-C0020-F00042 */(w) => cq(w) !== null) && r.ntcOk)
         out.findings.push({
           level: "info",
           text: `${R2.gmoplan.name(id)}: the no-template control shows a late signal that does not melt at the target's temperature (primer-dimer). Accepted by the melting criterion.`,
         });
       r.pcOk =
         pc.length > 0 &&
-        pc.every((w) => cq(w) !== null && (!m.sybr || r.tm[w] !== undefined));
+        pc.every(/* @r2fn R2-C0020-F00043 */(w) => cq(w) !== null && (!m.sybr || r.tm[w] !== undefined));
       r.valid = completed && r.ntcOk && r.pcOk && !!a;
-      const isPos = (w) => cq(w) !== null && sameProduct(w),
+      const isPos = /* @r2fn R2-C0020-F00044 */(w) => cq(w) !== null && sameProduct(w),
         pos = un.filter(isPos).length;
-      if (m.sybr && un.some((w) => cq(w) !== null && !isPos(w)))
+      if (m.sybr && un.some(/* @r2fn R2-C0020-F00045 */(w) => cq(w) !== null && !isPos(w)))
         out.findings.push({
           level: "info",
           text: `${R2.gmoplan.name(id)}: a sample tube shows a late signal without the target's melting peak (primer-dimer). It is counted as not detected.`,
@@ -260,8 +260,8 @@
           level: "fail",
           text: `${r.name} (${id}): the no-template control amplified (Cq ${ntc
             .map(cq)
-            .filter((v) => v !== null)
-            .map((v) => v.toFixed(1))
+            .filter(/* @r2fn R2-C0020-F00046 */(v) => v !== null)
+            .map(/* @r2fn R2-C0020-F00047 */(v) => v.toFixed(1))
             .join(", ")}). Results of this assay are not valid.`,
         });
       if (!r.pcOk)
@@ -277,7 +277,7 @@
       const nc = of("negative");
       if (
         nc.length &&
-        !nc.every((w) => (m.kind === "taxon" ? cq(w) !== null : cq(w) === null))
+        !nc.every(/* @r2fn R2-C0020-F00048 */(w) => (m.kind === "taxon" ? cq(w) !== null : cq(w) === null))
       ) {
         r.valid = false;
         out.findings.push({
@@ -290,14 +290,14 @@
       if (g.stage === "quant") {
         const levels = new Map();
         for (const w of st) {
-          const k = String(run.plate[w].t.find((t) => t.m === id)?.q);
+          const k = String(run.plate[w].t.find(/* @r2fn R2-C0020-F00049 */(t) => t.m === id)?.q);
           levels.set(k, (levels.get(k) || 0) + 1);
         }
         if (
           pc.length < 3 ||
           ntc.length < 3 ||
           levels.size < 4 ||
-          [...levels.values()].some((n) => n < 3)
+          [...levels.values()].some(/* @r2fn R2-C0020-F00050 */(n) => n < 3)
         ) {
           r.valid = false;
           out.findings.push({
@@ -323,11 +323,11 @@
               level: "warn",
               text: `${r.name}: calibration slope ${sc.slope.toFixed(2)}, R² ${sc.r2.toFixed(3)} is outside the acceptance range (slope −3.1 to −3.6, R² ≥ 0.98).`,
             });
-          const q = (ws) =>
-            ws.map((w) => a.wells[w].quantity).filter((v) => v > 0);
+          const q = /* @r2fn R2-C0020-F00051 */(ws) =>
+            ws.map(/* @r2fn R2-C0020-F00052 */(w) => a.wells[w].quantity).filter(/* @r2fn R2-C0020-F00053 */(v) => v > 0);
           r.sampleCopies = q(un);
           r.pcCopies = q(pc);
-          r.extrapolated = un.some((w) => a.wells[w].extrapolated);
+          r.extrapolated = un.some(/* @r2fn R2-C0020-F00054 */(w) => a.wells[w].extrapolated);
         }
       }
       for (const f of o.res.flags)
@@ -336,7 +336,7 @@
       if (
         a &&
         pos &&
-        Math.max(...un.map(cq).filter((v) => v !== null)) > cyc - 3
+        Math.max(...un.map(cq).filter(/* @r2fn R2-C0020-F00055 */(v) => v !== null)) > cyc - 3
       )
         out.findings.push({
           level: "info",
@@ -363,7 +363,7 @@
         level: "fail",
         text: "The run did not complete. Assay results are withheld.",
       });
-    const tax = ids.map((id) => out.assays[id]).find((r) => r.kind === "taxon");
+    const tax = ids.map(/* @r2fn R2-C0020-F00056 */(id) => out.assays[id]).find(/* @r2fn R2-C0020-F00057 */(r) => r.kind === "taxon");
     out.taxon = tax;
     const taxonOk = !!(tax && tax.valid && tax.sample === "detected");
     if (tax) {
@@ -385,8 +385,8 @@
       }
     }
     const gm = ids
-      .map((id) => out.assays[id])
-      .filter((r) => r.kind !== "taxon");
+      .map(/* @r2fn R2-C0020-F00058 */(id) => out.assays[id])
+      .filter(/* @r2fn R2-C0020-F00059 */(r) => r.kind !== "taxon");
     for (const r of Object.values(out.assays)) {
       r.reported =
         r.valid && (r === tax || taxonOk) ? r.sample : "not reported";
@@ -397,17 +397,17 @@
       for (const r of gm) tested[M(r.id).el] = r.reported;
       out.elements = tested;
       out.candidates = [];
-      const proxy = gm.find((r) => r.id === "QL-ELE-00-012");
+      const proxy = gm.find(/* @r2fn R2-C0020-F00060 */(r) => r.id === "QL-ELE-00-012");
       if (proxy)
         out.screeningAssumption =
           "P-35S event coverage for QL-ELE-00-012 uses the GMO-Matrix column for QL-ELE-00-004 as a proxy.";
       for (const e of R2.GMO.events.filter(
-        (e) => e.crop === g.crop && !e.mara,
+        /* @r2fn R2-C0020-F00061 */(e) => e.crop === g.crop && !e.mara,
       )) {
-        const has = Object.keys(tested).filter((k) => e.el[k] > 0),
-          neg = has.filter((k) => tested[k] === "not detected"),
+        const has = Object.keys(tested).filter(/* @r2fn R2-C0020-F00062 */(k) => e.el[k] > 0),
+          neg = has.filter(/* @r2fn R2-C0020-F00063 */(k) => tested[k] === "not detected"),
           open = has.filter(
-            (k) => tested[k] !== "detected" && tested[k] !== "not detected",
+            /* @r2fn R2-C0020-F00064 */(k) => tested[k] !== "detected" && tested[k] !== "not detected",
           );
         out.candidates.push({
           event: e.name,
@@ -419,7 +419,7 @@
               : open.length
                 ? "unresolved"
                 : "possible",
-          via: has.map((k) => R2.GMO.elementNames[k]),
+          via: has.map(/* @r2fn R2-C0020-F00065 */(k) => R2.GMO.elementNames[k]),
           proxy: !!proxy && has.includes("p35s"),
         });
       }
@@ -440,7 +440,7 @@
           e.sampleCopies.length === tax.sampleCopies.length
         ) {
           out.diagnosticGmPctEach = e.sampleCopies.map(
-            (v, i) => (100 * v) / tax.sampleCopies[i],
+            /* @r2fn R2-C0020-F00066 */(v, i) => (100 * v) / tax.sampleCopies[i],
           );
         }
       }
@@ -462,7 +462,7 @@
         if (!assay.extrapolated) continue;
         const lowest =
             assay.curve &&
-            Math.min(...assay.curve.points.map((p) => Math.pow(10, p.lq))),
+            Math.min(...assay.curve.points.map(/* @r2fn R2-C0020-F00067 */(p) => Math.pow(10, p.lq))),
           low =
             assay.sampleCopies.length &&
             lowest &&
@@ -523,7 +523,7 @@
    * element detected when the mean sample Cq is below the mean Cq of the 0.1 % control at the limit of detection; amplified
    * but at or above it: below the limit of detection; no amplification or Cq ≥ 40: not detected. The run is valid when that
    * control's mean Cq lies within 29–36; the sample DNA is accepted when its reference-gene mean Cq lies within 20–27. */
-  G.lab = function (run, out, L) {
+  G.lab = /* @r2fn R2-C0020-F00068 */function (run, out, L) {
     const R = L.rules,
       plate = run.plate,
       lab = (out.lab = {
@@ -536,15 +536,15 @@
         dna: null,
         overall: null,
       });
-    const ws = (r, f) => [...r.one.wells].filter((w) => f(plate[w])),
-      cqs = (r, list) =>
-        list.map((w) => r.cq[w]).filter((v) => v !== null && v < R.negativeCq);
+    const ws = /* @r2fn R2-C0020-F00069 */(r, f) => [...r.one.wells].filter(/* @r2fn R2-C0020-F00070 */(w) => f(plate[w])),
+      cqs = /* @r2fn R2-C0020-F00071 */(r, list) =>
+        list.map(/* @r2fn R2-C0020-F00072 */(w) => r.cq[w]).filter(/* @r2fn R2-C0020-F00073 */(v) => v !== null && v < R.negativeCq);
     for (const id of out.order) {
       const r = out.assays[id];
       if (r.kind === "taxon") {
         const v = cqs(
             r,
-            ws(r, (W) => W.role === "unknown"),
+            ws(r, /* @r2fn R2-C0020-F00074 */(W) => W.role === "unknown"),
           ),
           m = v.length ? mean(v) : null;
         lab.dna = { method: id, meanCq: m, range: R.taxon };
@@ -574,13 +574,13 @@
         continue;
       }
       const MIN = R.minControls || { LOD: 2, NTC: 1, BLK: 1, POS: 1 }; // procedure minimum per element mix; more tubes are allowed, all must pass
-      const lodW = ws(r, (W) => W.ctl === "LOD"),
+      const lodW = ws(r, /* @r2fn R2-C0020-F00075 */(W) => W.ctl === "LOD"),
         lodV = cqs(r, lodW),
         lodShort = lodW.length < MIN.LOD,
         lod = !lodShort && lodV.length === lodW.length ? mean(lodV) : null,
         sv = cqs(
           r,
-          ws(r, (W) => W.role === "unknown"),
+          ws(r, /* @r2fn R2-C0020-F00076 */(W) => W.role === "unknown"),
         ),
         sm = sv.length ? mean(sv) : null;
       const e = (lab.elements[id] = {
@@ -618,21 +618,21 @@
           : sm < lod
             ? "detected"
             : "below the limit of detection";
-      if (sv.length && sv.length < ws(r, (W) => W.role === "unknown").length)
+      if (sv.length && sv.length < ws(r, /* @r2fn R2-C0020-F00077 */(W) => W.role === "unknown").length)
         out.findings.push({
           level: "warn",
           text: `${r.name}: only some sample wells amplified. The screening mean uses the amplifying wells.`,
         });
-      const ntc = ws(r, (W) => W.ctl === "NTC"),
-        blank = ws(r, (W) => W.ctl === "BLK"),
-        positive = ws(r, (W) => W.ctl === "POS");
+      const ntc = ws(r, /* @r2fn R2-C0020-F00078 */(W) => W.ctl === "NTC"),
+        blank = ws(r, /* @r2fn R2-C0020-F00079 */(W) => W.ctl === "BLK"),
+        positive = ws(r, /* @r2fn R2-C0020-F00080 */(W) => W.ctl === "POS");
       const short = [
         ["NTC", ntc, "NTC"],
         ["BLK", blank, "extraction blank"],
         ["POS", positive, "positive sample"],
       ]
-        .filter(([k, w]) => w.length < MIN[k])
-        .map((x) => x[2]);
+        .filter(/* @r2fn R2-C0020-F00081 */([k, w]) => w.length < MIN[k])
+        .map(/* @r2fn R2-C0020-F00082 */(x) => x[2]);
       const controlsOk =
         !short.length &&
         cqs(r, ntc.concat(blank)).length === 0 &&
@@ -647,8 +647,8 @@
         });
       if (!r.valid || !controlsOk) lab.valid = false;
     }
-    const calls = Object.values(lab.elements).map((e) => e.call);
-    if (calls.includes("detected") && calls.some((c) => c !== "detected")) {
+    const calls = Object.values(lab.elements).map(/* @r2fn R2-C0020-F00083 */(e) => e.call);
+    if (calls.includes("detected") && calls.some(/* @r2fn R2-C0020-F00084 */(c) => c !== "detected")) {
       lab.repeatExtraction = true;
       out.findings.push({
         level: "warn",
@@ -669,11 +669,11 @@
         ? "sample DNA not accepted: extract again"
         : lab.repeatExtraction
           ? "repeat the extraction"
-          : calls.every((c) => c === "detected")
+          : calls.every(/* @r2fn R2-C0020-F00085 */(c) => c === "detected")
             ? "GM DNA with P-35S and T-nos detected"
-            : calls.every((c) => c === "not detected")
+            : calls.every(/* @r2fn R2-C0020-F00086 */(c) => c === "not detected")
               ? "no GM DNA with P-35S or T-nos detected"
-              : calls.some((c) => c === "detected")
+              : calls.some(/* @r2fn R2-C0020-F00087 */(c) => c === "detected")
                 ? "detected"
                 : "below the limit of detection";
   };

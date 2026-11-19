@@ -1,0 +1,21 @@
+{
+  "version": "0.4.40",
+  "sourceComponents": 114,
+  "staticFunctions": 15071,
+  "nativeInlineFacets": 12,
+  "diagrams": 12,
+  "commands": 11,
+  "telemetry": 6,
+  "events": 3,
+  "parameters": 1,
+  "nativeSourceUnchangedAfterRemovingIdComments": true,
+  "nativeFppToolsPassed": true,
+  "browserInterviewQuestions": {
+    "en": 16,
+    "zh": 60
+  },
+  "browserGeneratedRuns": 4,
+  "separateTelemetryBaselineRuns": 20,
+  "physicalMicrophoneTested": false,
+  "generatedCppTestsExecuted": false
+}

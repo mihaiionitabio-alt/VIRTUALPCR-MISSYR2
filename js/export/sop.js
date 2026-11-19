@@ -4,36 +4,36 @@
  * incidents and session numbers are left out. Its identity is the SHA-256 of that definition in canonical JSON, so the same
  * analysis always gives the same SOP (same id, same bytes), however often it is run or exported.
  * Imported analyses on the quality bench get their SOP the same way (R2.sop.forImported in js/analysis/external.js). */
-(function (R2) {
+(/* @r2fn R2-C0045-F00001 */function (R2) {
   "use strict";
   const S = R2.sop = {};
   const KEY = "missy-r2-sop-registry";
   // canonical JSON: object keys sorted, numbers as JavaScript prints them
-  S.canonical = function canon(v) {
+  S.canonical = /* @r2fn R2-C0045-F00002 */function canon(v) {
     if (Array.isArray(v)) return "[" + v.map(canon).join(",") + "]";
-    if (v && typeof v === "object") return "{" + Object.keys(v).sort().filter(k => v[k] !== undefined).map(k => JSON.stringify(k) + ":" + canon(v[k])).join(",") + "}";
+    if (v && typeof v === "object") return "{" + Object.keys(v).sort().filter(/* @r2fn R2-C0045-F00003 */k => v[k] !== undefined).map(/* @r2fn R2-C0045-F00004 */k => JSON.stringify(k) + ":" + canon(v[k])).join(",") + "}";
     return JSON.stringify(v === undefined ? null : v);
   };
-  S.idOf = def => "SOP-" + R2.sha256(R2.utf8(S.canonical(def))).slice(0, 12).toUpperCase();
+  S.idOf = /* @r2fn R2-C0045-F00005 */def => "SOP-" + R2.sha256(R2.utf8(S.canonical(def))).slice(0, 12).toUpperCase();
   const COMPOSITION = ["primerF", "primerR", "probe", "quencher", "hotStart", "ungActive"];        // what a procedure prescribes
   const MIXKEYS = ["masterMixX", "primerStockUM", "probeStockUM", "rxnUl"];
   /* setup: { stage, crop, dna: { concNgPerUl, volUl }, ng, settings, mix (calculator settings), plate: wells with role, t, sample
    * (calibrant label), material; protocol }. Works for a finished run (S.setupOfRun) and for the technician's current set-up. */
   /* the plate as a rule, not as positions: per reaction mix, the run controls (kind, level, number of wells) and, per sample,
    * extractions × PCR replicates. The number of samples is not part of the procedure, so runs with 1 or 12 samples share it. */
-  function layoutOf(plate, tubes) {
-    return tubes.map(k => { const ws = plate.filter(W => W.role !== "empty" && W.t.map(t => t.m).join("+") === k), un = ws.filter(W => W.role === "unknown"), ctl = {};
-      for (const W of ws.filter(W => W.role !== "unknown")) { const lv = W.role === "standard" ? String(W.dilution || W.sample).replace(/^STD\s*/, "") : W.role === "positive" ? (W.material || "").replace(/\s*\[[^\]]*\]/g, "") : "", key = [W.role, W.ctl || "", lv].join("|");
-        ctl[key] = ctl[key] || { role: W.role, control: W.ctl || null, level: lv || null, wells: 0, assigned_copies: W.role === "standard" ? W.t.map(t => t.q) : null }; ctl[key].wells++; }
-      const perSample = un.length ? { extractions: Math.max(...un.map(W => W.ext || 1)), pcr_replicates: Math.max(...un.map(W => W.rep || 1)) } : null;
-      return { mix: k, per_sample: perSample, run_controls: Object.values(ctl).sort((a, b) => (a.role + a.control + a.level).localeCompare(b.role + b.control + b.level)) }; });
+  /* @r2fn R2-C0045-F00006 */function layoutOf(plate, tubes) {
+    return tubes.map(/* @r2fn R2-C0045-F00007 */k => { const ws = plate.filter(/* @r2fn R2-C0045-F00008 */W => W.role !== "empty" && W.t.map(/* @r2fn R2-C0045-F00009 */t => t.m).join("+") === k), un = ws.filter(/* @r2fn R2-C0045-F00010 */W => W.role === "unknown"), ctl = {};
+      for (const W of ws.filter(/* @r2fn R2-C0045-F00011 */W => W.role !== "unknown")) { const lv = W.role === "standard" ? String(W.dilution || W.sample).replace(/^STD\s*/, "") : W.role === "positive" ? (W.material || "").replace(/\s*\[[^\]]*\]/g, "") : "", key = [W.role, W.ctl || "", lv].join("|");
+        ctl[key] = ctl[key] || { role: W.role, control: W.ctl || null, level: lv || null, wells: 0, assigned_copies: W.role === "standard" ? W.t.map(/* @r2fn R2-C0045-F00012 */t => t.q) : null }; ctl[key].wells++; }
+      const perSample = un.length ? { extractions: Math.max(...un.map(/* @r2fn R2-C0045-F00013 */W => W.ext || 1)), pcr_replicates: Math.max(...un.map(/* @r2fn R2-C0045-F00014 */W => W.rep || 1)) } : null;
+      return { mix: k, per_sample: perSample, run_controls: Object.values(ctl).sort(/* @r2fn R2-C0045-F00015 */(a, b) => (a.role + a.control + a.level).localeCompare(b.role + b.control + b.level)) }; });
   }
-  S.definition = function (setup) {
+  S.definition = /* @r2fn R2-C0045-F00016 */function (setup) {
     const settings = Object.assign({}, R2.reagents.DEFAULT, setup.settings || {}), comp = {};
     for (const k of COMPOSITION) comp[k] = settings[k];
     const mixSettings = Object.assign({}, R2.mixcalc.DEFAULT, setup.mix || {}), mix = {};
     for (const k of MIXKEYS) mix[k] = mixSettings[k];
-    const tubes = []; for (const W of setup.plate) if (W.role !== "empty") { const k = W.t.map(t => t.m).join("+"); if (!tubes.includes(k)) tubes.push(k); }
+    const tubes = []; for (const W of setup.plate) if (W.role !== "empty") { const k = W.t.map(/* @r2fn R2-C0045-F00017 */t => t.m).join("+"); if (!tubes.includes(k)) tubes.push(k); }
     return {
       kind: "gmo-reference-method-run", stage: setup.stage, species: setup.crop, procedure: setup.mara ? (setup.mara.mode === "screen" ? "MARA 1012-17-2026" : setup.mara.mode === "ddct" ? "MARA 1012-16-2026" : "MARA 1012 event qPCR") : setup.lab || "EURL GMFF method records",
       ...(setup.mara ? { mara: setup.mara } : {}),
@@ -43,35 +43,35 @@
       rules: setup.mara ? { ct_cutoff: 36, mode: setup.mara.mode, calibration: setup.mara.mode === "quant" ? "Five or more shared triplicate levels, slope −3.6 to −3.1, R² ≥ 0.98" : null } : { threshold_counts_above_baseline: R2.gmoeval.THRESHOLD, calibration: "slope -3.1 to -3.6, R2 >= 0.98", control_1_percent: "0.5 to 1.5 %" }
     };
   };
-  S.setupOfRun = run => ({ mara: run.gmo.mara || null, lab: run.gmo.lab || null, stage: run.gmo.stage, crop: run.gmo.crop, dna: run.gmo.dna || { concNgPerUl: run.gmo.ng / 5, volUl: 5 }, ng: run.gmo.ng, settings: run.gmo.settings, mix: run.gmo.mix, plate: run.sopPlate || run.plate, protocol: run.protocol });
-  S.idOfRun = run => run.sopId || (run.sopId = S.idOf(S.definition(S.setupOfRun(run))));
+  S.setupOfRun = /* @r2fn R2-C0045-F00018 */run => ({ mara: run.gmo.mara || null, lab: run.gmo.lab || null, stage: run.gmo.stage, crop: run.gmo.crop, dna: run.gmo.dna || { concNgPerUl: run.gmo.ng / 5, volUl: 5 }, ng: run.gmo.ng, settings: run.gmo.settings, mix: run.gmo.mix, plate: run.sopPlate || run.plate, protocol: run.protocol });
+  S.idOfRun = /* @r2fn R2-C0045-F00019 */run => run.sopId || (run.sopId = S.idOf(S.definition(S.setupOfRun(run))));
   // registry of SOP identities met in this browser: which runs and analyses used each one
-  S.registry = function () { try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch { return S._mem || (S._mem = {}); } };
-  S.note = function (id, title, user) {
+  S.registry = /* @r2fn R2-C0045-F00020 */function () { try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch { return S._mem || (S._mem = {}); } };
+  S.note = /* @r2fn R2-C0045-F00021 */function (id, title, user) {
     const reg = S.registry(), e = reg[id] || (reg[id] = { title, first: new Date().toISOString(), uses: [] });
     if (user && !e.uses.includes(user)) e.uses.push(user);
     S._mem = reg; try { localStorage.setItem(KEY, JSON.stringify(reg)); } catch {}
     return e;
   };
   /* The SOP document of a run. Deterministic: the same definition gives the same text. */
-  S.docOfRun = function (run) {
-    const setup = S.setupOfRun(run), def = S.definition(setup), id = S.idOf(def), g = run.gmo, MM = R2.GMO.methods, ids = [...new Set(setup.plate.flatMap(W => W.t.map(t => t.m)))];
+  S.docOfRun = /* @r2fn R2-C0045-F00022 */function (run) {
+    const setup = S.setupOfRun(run), def = S.definition(setup), id = S.idOf(def), g = run.gmo, MM = R2.GMO.methods, ids = [...new Set(setup.plate.flatMap(/* @r2fn R2-C0045-F00023 */W => W.t.map(/* @r2fn R2-C0045-F00024 */t => t.m)))];
     const step = { screen: "Screening for genetic elements and constructs", ident: "Identification of GM events (qualitative)", quant: "Quantification of a GM event against the species reference gene" }[g.stage];
-    const plan = { wells: setup.plate.map(W => ({ ...W, material: W.material || "" })), tubes: def.reaction_mixes.map(k => k.split("+")), ng: setup.ng };
+    const plan = { wells: setup.plate.map(/* @r2fn R2-C0045-F00025 */W => ({ ...W, material: W.material || "" })), tubes: def.reaction_mixes.map(/* @r2fn R2-C0045-F00026 */k => k.split("+")), ng: setup.ng };
     const recipe = R2.mixcalc.recipe(plan, setup.settings, setup.mix, setup.dna);
     return {
       format: "missy-r2-workbench-sop/0.2", experimentalDesign: g.design || null, sop_id: id, notice: "Teaching document generated from the simulated workbench. Not a validated laboratory procedure. Research use only.",
       identity_basis: "SHA-256 of the canonical JSON in 'definition'. Run names, times, sample names, seeds, storage and handling incidents are not part of it, so every run of the same analysis carries this SOP.",
-      title: step + " (" + g.crop + "), " + ids.filter(i => MM[i].kind !== "taxon").map(i => R2.gmoplan.name(i)).join(", "), purpose: step,
+      title: step + " (" + g.crop + "), " + ids.filter(/* @r2fn R2-C0045-F00027 */i => MM[i].kind !== "taxon").map(/* @r2fn R2-C0045-F00028 */i => R2.gmoplan.name(i)).join(", "), purpose: step,
       scope: { species: g.crop, dna_per_reaction_ng: setup.ng, template: setup.dna.volUl + " µL at " + setup.dna.concNgPerUl + " ng/µL" },
-      methods: ids.map(id => { const m = MM[id]; return { id, title: m.title, target: m.target, role: m.kind === "taxon" ? "species reference gene" : m.kind, detection: m.P ? "hydrolysis probe " + m.P[1] + "-" + m.P[3] : "SYBR Green with melt curve", channel: R2.gmoplan.channel(id) + 1,
+      methods: ids.map(/* @r2fn R2-C0045-F00029 */id => { const m = MM[id]; return { id, title: m.title, target: m.target, role: m.kind === "taxon" ? "species reference gene" : m.kind, detection: m.P ? "hydrolysis probe " + m.P[1] + "-" + m.P[3] : "SYBR Green with melt curve", channel: R2.gmoplan.channel(id) + 1,
         oligonucleotides: { forward: { name: m.F[0], sequence: m.F[1] }, reverse: { name: m.R[0], sequence: m.R[1] }, probe: m.P ? { name: m.P[0], reporter: m.P[1], sequence: m.P[2], quencher: m.P[3] } : null },
         final_concentrations_nmol_per_l: { forward: m.nM[0], reverse: m.nM[1], probe: m.P ? m.nM[2] : null }, reaction_volume_ul: m.vol, amplicon_bp: m.bp,
         cycling_in_record: { ung_50C_s: m.cyc[0], activation_95C_s: m.cyc[1], cycles: m.cyc[2], denaturation_95C_s: m.cyc[3], annealing_C: m.cyc[4], annealing_s: m.cyc[5] }, reference_material: m.crm || null, reported_limits: m.lod || null, reported_efficiency_percent: m.eff || null,
         source: m.source || "https://gmo-crl.jrc.ec.europa.eu/gmomethods/show/" + id + "/" }; }),
-      reaction_mixes_per_reaction: recipe.mixes.map(m => ({ mix: m.key, methods: m.methods, reaction_ul: m.rxnUl, template_ul: m.templateUl, mix_per_tube_ul: m.mixPerTubeUl, components: m.rows.map(r => ({ component: r.component, sequence: r.sequence || null, stock: r.stock || null, final: r.final, per_reaction_ul: r.perRxn })) })),
-      dna_solutions: [...new Map(recipe.solutions.map(o => { const t = o.role === "unknown" ? "sample DNA extract (one per sub-sample)" : o.label; return [t, { template: t, ng_per_ul: o.concNgPerUl }]; })).values()],
-      calibrant_series: recipe.dilutions.calibrants ? recipe.dilutions.calibrants.steps.map(x => ({ level: x.level, ng_per_ul: x.concNgPerUl, dilution_from_level_above: x.factor ? "1:" + x.factor : "from the certified-material extract" })) : null,
+      reaction_mixes_per_reaction: recipe.mixes.map(/* @r2fn R2-C0045-F00030 */m => ({ mix: m.key, methods: m.methods, reaction_ul: m.rxnUl, template_ul: m.templateUl, mix_per_tube_ul: m.mixPerTubeUl, components: m.rows.map(/* @r2fn R2-C0045-F00031 */r => ({ component: r.component, sequence: r.sequence || null, stock: r.stock || null, final: r.final, per_reaction_ul: r.perRxn })) })),
+      dna_solutions: [...new Map(recipe.solutions.map(/* @r2fn R2-C0045-F00032 */o => { const t = o.role === "unknown" ? "sample DNA extract (one per sub-sample)" : o.label; return [t, { template: t, ng_per_ul: o.concNgPerUl }]; })).values()],
+      calibrant_series: recipe.dilutions.calibrants ? recipe.dilutions.calibrants.steps.map(/* @r2fn R2-C0045-F00033 */x => ({ level: x.level, ng_per_ul: x.concNgPerUl, dilution_from_level_above: x.factor ? "1:" + x.factor : "from the certified-material extract" })) : null,
       layout: def.layout, plate_format: "384 wells, 16 rows x 24 columns; each reaction mix starts on a new row: sample wells (sample 1 E1 R1…Rn, E2…En, sample 2 ...), then its controls", programme: { lid_C: setup.protocol.lid_c, stages: setup.protocol.stages, estimated_instrument_time_s: Math.round(R2.planProfile(setup.protocol).total) },
       procedure: [
         "Record the sample identity and the measured DNA concentration of the extract; dilute it to " + setup.dna.concNgPerUl + " ng/µL (" + setup.ng + " ng in " + setup.dna.volUl + " µL).",
@@ -91,7 +91,7 @@
   };
   // a laboratory procedure replaces the generic acceptance and evaluation with its own (data/lab_sops.js)
   const docOfRunGeneric = S.docOfRun;
-  S.docOfRun = function (run) {
+  S.docOfRun = /* @r2fn R2-C0045-F00034 */function (run) {
     const d = docOfRunGeneric(run), L = run.gmo.lab && R2.LAB[run.gmo.lab];
     if (run.gmo.mara?.mode === "screen") {
       d.title = "Rapid fluorescence screening (virtual plate)";
@@ -122,15 +122,15 @@
     d.procedure.splice(1, 1, "Prepare the run controls once per run: certified reference material at 0.1 % (duplicate), positive sample, no-template control (water), DNA extraction blank.");
     return d;
   };
-  S.jsonOfRun = run => { const d = S.docOfRun(run); run.sopId = d.sop_id; return JSON.stringify(d, null, 1); };
+  S.jsonOfRun = /* @r2fn R2-C0045-F00035 */run => { const d = S.docOfRun(run); run.sopId = d.sop_id; return JSON.stringify(d, null, 1); };
   // unique SOPs of a list of runs (and imported analyses, via their own doc function)
-  S.unique = function (items) {
+  S.unique = /* @r2fn R2-C0045-F00036 */function (items) {
     const out = new Map();
     for (const it of items) { const doc = it.sopDoc ? it.sopDoc() : S.docOfRun(it), name = it.name || it.runId || it.title;
       if (!out.has(doc.sop_id)) out.set(doc.sop_id, { doc, uses: [] }); out.get(doc.sop_id).uses.push(name); S.note(doc.sop_id, doc.title, name); }
     return out;
   };
-  S.zip = function (items) {
+  S.zip = /* @r2fn R2-C0045-F00037 */function (items) {
     const u = S.unique(items), files = [], idx = ["sop_id,title,used_by"];
     for (const [id, e] of u) { files.push({ name: id + ".json", data: R2.utf8(JSON.stringify(e.doc, null, 1)) }); idx.push([id, '"' + e.doc.title.replace(/"/g, '""') + '"', '"' + e.uses.join("; ").replace(/"/g, '""') + '"'].join(",")); }
     files.push({ name: "sop_index.csv", data: R2.utf8(idx.join("\r\n") + "\r\n") });

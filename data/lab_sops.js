@@ -1,8 +1,8 @@
 /* Neutral simplex screening training procedure. Sequence records and numerical simulation settings are retained. */
-(function (R2) {
+(/* @r2fn R2-C0008-F00001 */function (R2) {
   "use strict";
   const M = R2.GMO.methods;
-  const lab = (id, base, o) => { M[id] = Object.assign({}, M[base], { id, labOf: base, labOnly: true, crm: undefined, pc: undefined }, o); };
+  const lab = /* @r2fn R2-C0008-F00002 */(id, base, o) => { M[id] = Object.assign({}, M[base], { id, labOf: base, labOnly: true, crm: undefined, pc: undefined }, o); };
   const cyc = [0, 600, 45, 15, 60, 60, 72, 1];                 // no UNG hold; 95 °C 600 s; 45 × (95 °C 15 s, 60 °C 60 s, 72 °C 1 s with acquisition)
   const cool = [40, 30];                                        // final cooling 40 °C, 30 s (RACIRE)
   lab("SIMPLEX-35S", "QL-ELE-00-012", { title: "P-35S, simplex", nM: [300, 300, 100], vol: 25, cyc, cool, duplexWith: undefined });
@@ -25,7 +25,7 @@
     replicates: "Workbench sample layout: three extracts with three PCR replicates each. LOD control in duplicate. Positive sample, NTC and extraction blank once per run and assay.",
     source: "Simplex screening training procedure; assay sequences and numerical conditions retained from the supplied method records"
   };
-  R2.publicAssayTarget = value => {
+  R2.publicAssayTarget = /* @r2fn R2-C0008-F00003 */value => {
     const method = M[value];
     return method?.labOnly ? ({ "QL-ELE-00-012": "P-35S", "QL-ELE-00-013": "T-nos", "QT-TAX-GM-002": "LE1", "QT-TAX-ZM-002": "hmgA" }[method.labOf] || value) : value;
   };

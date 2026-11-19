@@ -1,3 +1,10 @@
 _site/
 __pycache__/
 .DS_Store
+
+node_modules/
+
+architecture/generated-cpp/
+
+/wiki/
+.fpp-tools/

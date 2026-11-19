@@ -1,0 +1,345 @@
+{
+  "columns" : [
+    [
+      {
+        "instanceName" : "indexDeveloperTooling",
+        "inputPorts" : [],
+        "outputPorts" : [
+          {
+            "name" : "members",
+            "portNumbers" : [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "instanceName" : "c0088",
+        "inputPorts" : [
+          {
+            "name" : "inventory",
+            "portNumbers" : [
+              0
+            ]
+          }
+        ],
+        "outputPorts" : []
+      },
+      {
+        "instanceName" : "c0107",
+        "inputPorts" : [
+          {
+            "name" : "inventory",
+            "portNumbers" : [
+              0
+            ]
+          }
+        ],
+        "outputPorts" : []
+      },
+      {
+        "instanceName" : "c0089",
+        "inputPorts" : [
+          {
+            "name" : "inventory",
+            "portNumbers" : [
+              0
+            ]
+          }
+        ],
+        "outputPorts" : []
+      },
+      {
+        "instanceName" : "c0111",
+        "inputPorts" : [
+          {
+            "name" : "inventory",
+            "portNumbers" : [
+              0
+            ]
+          }
+        ],
+        "outputPorts" : []
+      },
+      {
+        "instanceName" : "c0113",
+        "inputPorts" : [
+          {
+            "name" : "inventory",
+            "portNumbers" : [
+              0
+            ]
+          }
+        ],
+        "outputPorts" : []
+      },
+      {
+        "instanceName" : "c0112",
+        "inputPorts" : [
+          {
+            "name" : "inventory",
+            "portNumbers" : [
+              0
+            ]
+          }
+        ],
+        "outputPorts" : []
+      },
+      {
+        "instanceName" : "c0090",
+        "inputPorts" : [
+          {
+            "name" : "inventory",
+            "portNumbers" : [
+              0
+            ]
+          }
+        ],
+        "outputPorts" : []
+      },
+      {
+        "instanceName" : "c0108",
+        "inputPorts" : [
+          {
+            "name" : "inventory",
+            "portNumbers" : [
+              0
+            ]
+          }
+        ],
+        "outputPorts" : []
+      },
+      {
+        "instanceName" : "c0106",
+        "inputPorts" : [
+          {
+            "name" : "inventory",
+            "portNumbers" : [
+              0
+            ]
+          }
+        ],
+        "outputPorts" : []
+      },
+      {
+        "instanceName" : "c0109",
+        "inputPorts" : [
+          {
+            "name" : "inventory",
+            "portNumbers" : [
+              0
+            ]
+          }
+        ],
+        "outputPorts" : []
+      },
+      {
+        "instanceName" : "c0114",
+        "inputPorts" : [
+          {
+            "name" : "inventory",
+            "portNumbers" : [
+              0
+            ]
+          }
+        ],
+        "outputPorts" : []
+      },
+      {
+        "instanceName" : "c0110",
+        "inputPorts" : [
+          {
+            "name" : "inventory",
+            "portNumbers" : [
+              0
+            ]
+          }
+        ],
+        "outputPorts" : []
+      }
+    ]
+  ],
+  "connections" : [
+    [
+      [
+        0,
+        0,
+        0,
+        9
+      ],
+      [
+        1,
+        9,
+        0,
+        0
+      ]
+    ],
+    [
+      [
+        0,
+        0,
+        0,
+        8
+      ],
+      [
+        1,
+        8,
+        0,
+        0
+      ]
+    ],
+    [
+      [
+        0,
+        0,
+        0,
+        11
+      ],
+      [
+        1,
+        11,
+        0,
+        0
+      ]
+    ],
+    [
+      [
+        0,
+        0,
+        0,
+        5
+      ],
+      [
+        1,
+        5,
+        0,
+        0
+      ]
+    ],
+    [
+      [
+        0,
+        0,
+        0,
+        6
+      ],
+      [
+        1,
+        6,
+        0,
+        0
+      ]
+    ],
+    [
+      [
+        0,
+        0,
+        0,
+        2
+      ],
+      [
+        1,
+        2,
+        0,
+        0
+      ]
+    ],
+    [
+      [
+        0,
+        0,
+        0,
+        3
+      ],
+      [
+        1,
+        3,
+        0,
+        0
+      ]
+    ],
+    [
+      [
+        0,
+        0,
+        0,
+        1
+      ],
+      [
+        1,
+        1,
+        0,
+        0
+      ]
+    ],
+    [
+      [
+        0,
+        0,
+        0,
+        4
+      ],
+      [
+        1,
+        4,
+        0,
+        0
+      ]
+    ],
+    [
+      [
+        0,
+        0,
+        0,
+        10
+      ],
+      [
+        1,
+        10,
+        0,
+        0
+      ]
+    ],
+    [
+      [
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0,
+        0
+      ]
+    ],
+    [
+      [
+        0,
+        0,
+        0,
+        7
+      ],
+      [
+        1,
+        7,
+        0,
+        0
+      ]
+    ]
+  ]
+}
