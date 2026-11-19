@@ -1,8 +1,8 @@
 # VIRTUALPCR/MISSYR2
 
-[Open the live website](https://mihaiionitabio-alt.github.io/VIRTUALPCR-MISSYR2/) · [Download offline 0.4.35](https://mihaiionitabio-alt.github.io/VIRTUALPCR-MISSYR2/downloads/MISSY_R2_workbench_site_0.4.35.zip)
+[Open the live website](https://mihaiionitabio-alt.github.io/VIRTUALPCR-MISSYR2/) · [Download offline 0.4.36](https://mihaiionitabio-alt.github.io/VIRTUALPCR-MISSYR2/downloads/MISSY_R2_workbench_site_0.4.36.zip)
 
-Version **0.4.35**, under active development. A browser-based virtual real-time PCR workbench for research and training, with Technician learning levels and bundled MISSY analysis. It is not validated for laboratory use.
+Version **0.4.36**, under active development. A browser-based virtual real-time PCR workbench for research and training, with Technician learning levels and bundled MISSY analysis. It is not validated for laboratory use.
 
 ## Features
 
@@ -19,13 +19,15 @@ Download and extract the whole ZIP, then open `pcr-workbench/index.html` in a co
 
 The JSON Create and Run shortcuts are on the welcome page. The profile format is `missy-r2-batch/1`; use the builders or examples in `data/` to create independent run groups. Download profiles to reuse settings. Generation runs sequentially; completed runs remain available in the current browser tab and Quality manager. Download output files before closing the tab. Large batches and telemetry use browser memory.
 
-## 0.4.35 startup-log clarification
+## 0.4.36 spoken interview and timed microphone sessions
 
-- Give each of the 72 loaded components a distinct English and Chinese name.
-- Mark events as LOADED, with elapsed startup time and the interval since the previous component, instead of showing repeated generic OK labels.
-- State that the log reports component loading, not diagnostic test results.
-- Validate unique labels, paths and the declared module count during the build; prevent duplicate onload notifications from inflating the counter.
-- Preserve 0.4.34 navigation, animal shortcuts, sound settings and visible microphone controls.
+- Click **Start spoken interview** to hear the current question and subsequent interview questions using a local browser speaking voice. Spoken output no longer depends on finding the footer's Read prompt control.
+- Click **Start microphone once** to answer across stages. Sessions default to **10 minutes**. Set 1–120 whole minutes in the peach `min` field and press the purple **✓** to apply. A countdown shows the remaining session time.
+- Microphone capture is closed while a spoken question, preview effect or alert tone plays, then resumes automatically during the active session. Ordinary interface effects are suppressed during capture. Playback cannot be interpreted as an answer.
+- Stop, Pause spoken interview, leaving Audio, hiding the page, a fatal microphone error or the duration limit ends the session. Recognition end/no-speech and successful answers restart listening automatically while the session remains valid.
+- Missing local speaking voices are explained separately from recognition-pack installation. Delayed voice availability, cancellation, speech start/completion timeouts and late microphone permissions are handled without leaving a recording/playback lock stuck.
+- English/Chinese controls and JSON-only history are retained. Controlled tests covered three interview stages without another microphone click, speech/effect/alert exclusion with zero capture/output overlaps, custom duration/expiry, recognition end/no-speech, permission denial, late permission cleanup, missing/delayed voices, Stop and screen exit. Tests use synthetic audio and simulated recognition/speech events; they do not establish real microphone transcription accuracy.
+- The 72 distinct bilingual startup component names from 0.4.35 remain in place.
 
 ## Sources and development
 

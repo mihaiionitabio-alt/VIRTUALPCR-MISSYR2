@@ -143,14 +143,16 @@
   }
 
   /* ---------------------------------------------------------------- audio (Table 10.3-1) */
+  const audioReleases=new Set();
   let ac = null, audioTimer = null, playingKey = null, firstPlayed = new Set();
   const soundOn = () => { const b = document.getElementById("workbench-sound"); return !b || b.getAttribute("aria-pressed") !== "false"; };
-  function ctx() { try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); return ac; } catch (e) { return null; } }
+  function ctx() { try { ac = ac || new (window.AudioContext || window.webkitAudioContext)();void ac.resume().catch(()=>{}); return ac; } catch (e) { return null; } }
   function tone(a, f, t0, dur, type, gain) {
+    const release=R2.voiceConsole?.beginPlayback("alert-tone")||(()=>{});audioReleases.add(release);
     const o = a.createOscillator(), g = a.createGain(); o.type = type; o.frequency.value = f;
     g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(gain, t0 + 0.008);
     g.gain.setValueAtTime(gain, t0 + dur - 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-    o.connect(g).connect(a.destination); oscillators.add(o);o.onended=()=>oscillators.delete(o);o.start(t0);o.stop(t0 + dur + 0.02);
+    o.connect(g).connect(a.destination); oscillators.add(o);o.onended=()=>{oscillators.delete(o);audioReleases.delete(release);release();};o.start(t0);o.stop(t0 + dur + 0.02);
   }
   // returns the length of one sequence in seconds
   function pattern(cls, gain) {
@@ -166,7 +168,7 @@
   function stopAudio() {
     clearTimeout(audioTimer);audioTimer=null;playingKey=null;
     for(const id of scheduled)clearTimeout(id);scheduled.clear();
-    for(const oscillator of oscillators)try{oscillator.stop();}catch{}oscillators.clear();
+    for(const oscillator of oscillators)try{oscillator.stop();}catch{}oscillators.clear();for(const release of audioReleases)release();audioReleases.clear();
   }
   function later(fn,ms){const id=setTimeout(()=>{scheduled.delete(id);fn();},ms);scheduled.add(id);return id;}
   function setTones(on){tonesEnabled=!!on;if(!tonesEnabled)stopAudio();schedule();}

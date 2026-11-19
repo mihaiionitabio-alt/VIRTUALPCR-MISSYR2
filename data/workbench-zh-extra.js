@@ -517,3 +517,22 @@ Object.assign(window.R2_WORKBENCH_ZH,{
 });
 
 Object.assign(window.R2_WORKBENCH_ZH,{"Component loading only — not diagnostic tests. Times: elapsed startup (+ since previous component).":"此处仅显示组件加载情况，并非诊断测试。时间为启动已用时（+ 距上一个组件的间隔）。"});
+
+Object.assign(window.R2_WORKBENCH_ZH,{
+"▶ Start spoken interview":"▶ 开始语音访谈","■ Pause spoken interview":"■ 暂停语音访谈","Read current question":"朗读当前问题",
+"Start spoken interview reads the questions aloud. After playback finishes, click Start microphone to answer. The microphone stays off while any sound is playing.":"“开始语音访谈”会朗读问题。播放结束后，点击“启动麦克风”回答。任何声音播放期间，麦克风都保持关闭。",
+"Preparing spoken question…":"正在准备朗读问题…","Speaking question — microphone is off.":"正在朗读问题，麦克风已关闭。","Question finished. Click Start microphone to answer.":"问题朗读完毕，请点击“启动麦克风”回答。","Spoken interview paused.":"语音访谈已暂停。",
+"Wait for playback to finish before starting the microphone.":"请等待播放结束后再启动麦克风。","No local speech voice for this language. Recognition packs do not install speaking voices. Use captions or select another interface language.":"没有此语言的本机朗读声音。识别语音包不会安装朗读声音。请使用文字提示或选择另一界面语言。"
+});
+
+Object.assign(window.R2_WORKBENCH_ZH,{
+"Session minutes":"会话分钟数",
+"Microphone session expired. Start a new session to continue.":"麦克风会话已到期，请重新启动会话继续。",
+"Microphone session paused during playback or another panel.":"播放声音或打开其他面板时，麦克风会话会暂停。",
+"Start spoken interview reads the questions aloud. Click Start microphone once to answer across stages. The microphone pauses while any sound is playing and resumes automatically during a timed session.":"“开始语音访谈”会朗读问题。只需点击一次“启动麦克风”，即可连续回答各阶段问题。任何声音播放时麦克风暂停，会话有效期间会自动恢复。",
+"Recognition continues across stages for the selected session duration and pauses during playback. Play reads the current prompt; Stop closes the microphone, cancels speech and disarms launch. During generation, Stop finishes and files the current run.":"在所选会话时长内，识别可跨阶段连续进行，播放声音时暂停。播放会朗读当前提示；停止会关闭麦克风、取消朗读并解除启动确认。生成期间，停止会完成并保存当前运行。"
+});
+
+Object.assign(window.R2_WORKBENCH_ZH,{"Microphone session duration in minutes":"麦克风会话时长（分钟）","Apply session duration":"应用会话时长","Use 1 to 120 minutes.":"请输入 1 至 120 分钟。"});
+
+Object.assign(window.R2_WORKBENCH_ZH,{"Microphone paused while audio is playing.":"播放声音时麦克风暂停。"});
