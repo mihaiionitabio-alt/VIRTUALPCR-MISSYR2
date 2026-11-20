@@ -270652,9 +270652,9 @@
       "language": "python",
       "line": 20,
       "column": 5,
-      "endLine": 29,
+      "endLine": 31,
       "ownership": "application",
-      "sha256": "1f6fb7cc5f7a59aa11f91b5b2c24562ae3bbc36e3d9d602cc52b3380b0c60cae",
+      "sha256": "bd065f96b99edda23e20aed71e9e9dda710cfd7d3c2819044eff8d50669e952f",
       "numericId": 5832706
     },
     {
@@ -270667,9 +270667,9 @@
       "qualified": "module/__init__#2",
       "kind": "FunctionDef",
       "language": "python",
-      "line": 35,
+      "line": 37,
       "column": 5,
-      "endLine": 38,
+      "endLine": 40,
       "ownership": "application",
       "sha256": "3b36c0532a609abd861dee2bddb730db69aa50eab6c985505aba59b126404d9b",
       "numericId": 5832707
@@ -270684,9 +270684,9 @@
       "qualified": "module/handle_starttag#2",
       "kind": "FunctionDef",
       "language": "python",
-      "line": 40,
+      "line": 42,
       "column": 5,
-      "endLine": 47,
+      "endLine": 49,
       "ownership": "application",
       "sha256": "2e539e28c667d1808cd837d572caaf19570ba52b8d00158557e0115c1029afdf",
       "numericId": 5832708

@@ -26,6 +26,8 @@ class Dependencies(HTMLParser):
                 continue
             target = (self.entry.parent / unquote(parsed.path)).resolve()
             assert target.is_relative_to(ROOT), (self.entry, ref)
+            if target.is_dir():
+                target = target / "index.html"
             assert target.is_file(), (self.entry, ref)
 
 for entry in (ROOT / "index.html", ROOT / "credits.html", ROOT / "architecture.html", ROOT / "missy/index.html"):

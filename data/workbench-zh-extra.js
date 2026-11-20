@@ -581,3 +581,5 @@ Object.assign(window.R2_WORKBENCH_ZH, {
 "reagents":"试剂","programme":"扩增程序","mix":"反应体系","dna":"DNA","samples":"样品","seed":"随机种子",
 "template":"模板","method record":"方法记录","custom":"自定义","soybean":"大豆","maize":"玉米","screen":"筛查","ident":"鉴定","quant":"定量","ddct":"相对定量","template defaults":"模板默认设置"
 });
+
+Object.assign(window.R2_WORKBENCH_ZH, {"Workbench home": "工作台首页", "User guide": "用户指南", "JSON profiles": "JSON 配置", "Voice console": "语音控制台", "MISSY review": "MISSY 审核", "Screen guide": "界面指南", "Software architecture": "软件架构", "Architecture guide": "架构指南", "Generated artifacts": "生成文件", "Reproduce results": "复现结果", "Verification": "验证", "Chinese quick start": "中文快速入门", "Sources and credits": "来源与致谢", "Pages and documentation": "页面与文档"});
