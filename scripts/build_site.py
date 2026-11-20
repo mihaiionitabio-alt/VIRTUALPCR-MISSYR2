@@ -59,7 +59,7 @@ if OUT.exists():
     assert OUT.resolve().is_relative_to(ROOT.resolve())
     shutil.rmtree(OUT)
 OUT.mkdir()
-for source in files:
+for source in files + [ROOT / "robots.txt", ROOT / "sitemap.xml", ROOT / "google4079e8cd2cccb981.html"]:
     target = OUT / source.relative_to(ROOT)
     target.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(source, target)

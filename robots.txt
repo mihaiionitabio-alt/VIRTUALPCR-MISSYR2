@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mihaiionitabio-alt.github.io/VIRTUALPCR-MISSYR2/sitemap.xml
