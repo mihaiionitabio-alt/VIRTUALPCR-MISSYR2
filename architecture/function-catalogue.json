@@ -270895,7 +270895,7 @@
       "endLine": 8,
       "ownership": "application",
       "subcomponent": null,
-      "sha256": "b39e2f435514759019267a739f0f0c76cae2759c6b73377147f3cf4a85f98c6d",
+      "sha256": "893569f28b83b7813c5092c8647597b645dfc557cc4c72f70c5389927700c1cd",
       "numericId": 5898243
     },
     {
@@ -270913,26 +270913,26 @@
       "endLine": 8,
       "ownership": "application",
       "subcomponent": null,
-      "sha256": "c20ba67de994cab43fc323f2d7bb2d618cdad46df63b4f74f98e810e29fb2aa2",
+      "sha256": "a672e2d141483cce4f78958512b45e26a3a299a62fb5e033ccb9c36f42759380",
       "numericId": 5898244
     },
     {
-      "code": "R2-C0090-F00030",
+      "code": "R2-C0090-F00031",
       "component": "R2-C0090",
-      "key": "scripts/function_catalogue.cjs::file::module/files#1/callback:fs.readdirSync(dir,{withFileTypes:true}).filter(x=>!['.git','node_modules','_site','wiki','.fpp-tool#1",
+      "key": "scripts/function_catalogue.cjs::file::module/files#1/callback:fs.readdirSync(dir,{withFileTypes:true}).filter(x=>!['.git','node_modules','_site','wiki','bibliogra#1",
       "file": "scripts/function_catalogue.cjs",
       "container": "file",
-      "name": "callback:fs.readdirSync(dir,{withFileTypes:true}).filter(x=>!['.git','node_modules','_site','wiki','.fpp-tool",
-      "qualified": "module/files#1/callback:fs.readdirSync(dir,{withFileTypes:true}).filter(x=>!['.git','node_modules','_site','wiki','.fpp-tool#1",
+      "name": "callback:fs.readdirSync(dir,{withFileTypes:true}).filter(x=>!['.git','node_modules','_site','wiki','bibliogra",
+      "qualified": "module/files#1/callback:fs.readdirSync(dir,{withFileTypes:true}).filter(x=>!['.git','node_modules','_site','wiki','bibliogra#1",
       "kind": "ArrowFunctionExpression",
       "language": "javascript",
       "line": 8,
-      "column": 158,
+      "column": 173,
       "endLine": 8,
       "ownership": "application",
       "subcomponent": null,
       "sha256": "8e49409107bfbd6cc018608696465cde01d3b620c984d7df9f47afba3b23a420",
-      "numericId": 5898270
+      "numericId": 5898271
     },
     {
       "code": "R2-C0090-F00006",
@@ -272826,6 +272826,10 @@
     {
       "code": "R2-C0090-F00027",
       "key": "scripts/function_catalogue.cjs::file::module/callback:functions.filter#2"
+    },
+    {
+      "code": "R2-C0090-F00030",
+      "key": "scripts/function_catalogue.cjs::file::module/files#1/callback:fs.readdirSync(dir,{withFileTypes:true}).filter(x=>!['.git','node_modules','_site','wiki','.fpp-tool#1"
     }
   ]
 }

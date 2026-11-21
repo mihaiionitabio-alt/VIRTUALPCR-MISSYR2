@@ -15194,6 +15194,7 @@
     "tests/browser_full_interview.cjs::file::module/callback:async()=>{constb=awaitchromium.launch({executablePath:process.env.BROWSER_PATH||(process.platform===#1/callback:m.evaluate#5/callback:sopEvaluateAll().map#1": "R2-C0114-F00062",
     "tests/browser_full_interview.cjs::file::module/callback:async()=>{constb=awaitchromium.launch({executablePath:process.env.BROWSER_PATH||(process.platform===#1/callback:verdicts.every#1": "R2-C0114-F00063",
     "tests/browser_full_interview.cjs::file::module/callback:async()=>{constb=awaitchromium.launch({executablePath:process.env.BROWSER_PATH||(process.platform===#1/callback:m.evaluate#6": "R2-C0114-F00064",
-    "tests/browser_full_interview.cjs::file::module/callback:(async()=>{constb=awaitchromium.launch({executablePath:process.env.BROWSER_PATH||(process.platform==#1": "R2-C0114-F00065"
+    "tests/browser_full_interview.cjs::file::module/callback:(async()=>{constb=awaitchromium.launch({executablePath:process.env.BROWSER_PATH||(process.platform==#1": "R2-C0114-F00065",
+    "scripts/function_catalogue.cjs::file::module/files#1/callback:fs.readdirSync(dir,{withFileTypes:true}).filter(x=>!['.git','node_modules','_site','wiki','bibliogra#1": "R2-C0090-F00031"
   }
 }

@@ -8,10 +8,10 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "_site"
 subprocess.run([sys.executable, str(ROOT / "scripts/build_wiki.py")], check=True)
 files = [ROOT / "index.html", ROOT / "credits.html", ROOT / "architecture.html", ROOT / "THIRD_PARTY_NOTICES.txt"]
-for name in ("assets", "css", "data", "js", "missy", "wiki"):
+for name in ("assets", "css", "data", "js", "missy", "wiki", "bibliography"):
     files.extend(p for p in (ROOT / name).rglob("*") if p.is_file())
 files = sorted(files)
-assert all(p.suffix != ".md" for p in files)
+assert all(p.suffix != ".md" or p.is_relative_to(ROOT / "bibliography") for p in files)
 version = re.search(r'R2.VERSION = "([^"]+)"', (ROOT / "data/presets.js").read_text(encoding="utf-8"))[1]
 
 class Dependencies(HTMLParser):
